@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HKDSE 物理終極混合挑戰 (Mixed Challenge)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .blur-reveal { filter: blur(10px); user-select: none; transition: all 0.3s ease; transform: scale(0.95); opacity: 0.6; }
+        .blur-reveal.revealed { filter: blur(0); user-select: auto; transform: scale(1); opacity: 1; }
+        
+        /* HTML Superscript Styling */
+        sup { font-size: 0.75em; vertical-align: super; line-height: 0; }
+
+        /* Leaderboard Styles */
+        .rank-1 { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); font-weight: 900; }
+        .rank-2 { color: #e5e7eb; font-weight: 800; }
+        .rank-3 { color: #d97706; font-weight: 800; }
+
+        /* MC Button Styles */
+        .mc-btn {
+            width: 100%; padding: 1rem; border-radius: 0.5rem; font-weight: bold; text-align: left;
+            background-color: #1e293b; border: 1px solid #334155; color: #e2e8f0; transition: all 0.2s;
+        }
+        .mc-btn:hover:not(:disabled) { background-color: #334155; border-color: #6366f1; }
+        .mc-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        .mc-btn.correct { background-color: #059669 !important; border-color: #10b981 !important; color: white; }
+        .mc-btn.wrong { background-color: #dc2626 !important; border-color: #ef4444 !important; color: white; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Start Screen Modal -->
+    <div id="startScreen" class="fixed inset-0 bg-slate-900 z-[60] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
+        <div class="max-w-md w-full bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center">
+            <div class="mb-6">
+                <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">HKDSE 物理挑戰</h1>
+                <p class="text-slate-400 text-sm">Physics Mixed Challenge</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="text-left">
+                    <label class="block text-slate-500 text-xs font-bold uppercase mb-2 ml-1">玩家名稱 Player Name</label>
+                    <input type="text" id="playerNameInput" class="w-full p-4 bg-slate-900 border border-slate-600 rounded-xl text-white font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition placeholder-slate-600" placeholder="輸入你的名字..." onkeydown="if(event.key==='Enter') startGameSession()">
+                </div>
+                <button onclick="startGameSession()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-indigo-500/20 active:scale-95 transform">
+                    開始挑戰 Start Game
+                </button>
+            </div>
+            
+            <div id="startError" class="text-red-400 text-sm mt-4 hidden font-bold">請輸入名稱！</div>
+        </div>
+    </div>
+
+    <!-- Game Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-2xl">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">混合挑戰 <span class="text-indigo-400">Mixed Mode</span></h1>
+                    <p class="text-xs text-slate-400" id="currentPlayerDisplay">Player: --</p>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-center"><span class="text-xs text-slate-400 uppercase font-bold">Score</span><div id="scoreDisplay" class="text-2xl font-bold text-green-400 font-mono">0</div></div>
+                <div class="text-center"><span class="text-xs text-slate-400 uppercase font-bold">Lives</span><div id="livesDisplay" class="text-2xl font-bold text-red-500 tracking-widest">❤️❤️❤️</div></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-6 max-w-5xl mx-auto w-full flex flex-col gap-6">
+        <!-- Topic & Formula Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 flex flex-col justify-center items-center shadow-lg">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Current Topic</span>
+                <span id="topicBadge" class="bg-blue-900/50 text-blue-300 border border-blue-500/30 px-4 py-2 rounded-full font-bold text-sm md:text-base animate-pulse">LOADING...</span>
+            </div>
+            <div class="md:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 relative overflow-hidden group cursor-pointer shadow-lg hover:border-indigo-500/50 transition-colors" onclick="toggleFormula()">
+                <div class="absolute top-2 right-2 z-10"><span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Tap to Reveal Formula</span></div>
+                <div class="flex flex-col items-center justify-center min-h-[80px]">
+                    <div id="latexContainer" class="blur-reveal transition-all duration-500"><div id="latexFormula" class="text-2xl md:text-3xl text-indigo-300 font-serif">$$ F = ma $$</div></div>
+                    <div id="revealOverlay" class="absolute inset-0 flex items-center justify-center bg-slate-800/60 backdrop-blur-sm transition-opacity duration-300">
+                        <div class="bg-indigo-600 rounded-full p-3 shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 5 8.268 7.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question & Interaction Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+            <!-- Visuals -->
+            <div class="bg-black/40 rounded-xl border border-slate-700 relative overflow-hidden min-h-[300px] flex items-center justify-center backdrop-blur-sm">
+                <div id="visualContainer" class="w-full h-full absolute inset-0"></div>
+                <div class="absolute bottom-4 left-4"><div id="simStatus" class="text-xs font-mono text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded border border-emerald-500/20">System Ready</div></div>
+            </div>
+            
+            <!-- Question Panel -->
+            <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 flex flex-col shadow-lg">
+                <div class="flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span class="text-indigo-400">Q.</span> 題目 Challenge</h2>
+                    <div id="qText" class="text-slate-300 text-lg mb-8 leading-relaxed min-h-[80px]">Initializing...</div>
+                    
+                    <!-- Numerical Input Mode -->
+                    <div id="inputMode" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">答案 Input Answer (3 sig fig)</label>
+                            <div class="flex shadow-sm">
+                                <input type="number" id="userAns" class="flex-grow p-3 border border-slate-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-lg bg-slate-50 text-slate-900" placeholder="0.00" step="any" onkeydown="if(event.key==='Enter') checkAnswer()">
+                                <span id="unitLabel" class="bg-slate-200 border border-l-0 border-slate-300 px-4 flex items-center justify-center rounded-r-lg text-slate-600 font-bold min-w-[3.5rem] text-sm">--</span>
+                            </div>
+                        </div>
+                        <button onclick="checkAnswer()" id="checkBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-lg shadow-lg mt-6 transition">提交驗證 Submit</button>
+                    </div>
+
+                    <!-- Multiple Choice Mode -->
+                    <div id="mcMode" class="hidden space-y-3 mt-2">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">選擇正確單位 Select Unit</label>
+                        <div id="mcContainer" class="grid grid-cols-1 gap-2">
+                            <!-- Buttons generated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mt-4">
+                    <div id="feedback" class="text-center font-bold text-sm min-h-[20px] transition-all"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-600 max-w-md w-full text-center shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="text-6xl mb-4">💀</div>
+            <h2 class="text-3xl font-bold text-white mb-2">Game Over</h2>
+            <p class="text-slate-400 mb-2">本次得分 Score</p>
+            <div id="finalScore" class="text-5xl font-bold text-indigo-400 font-mono mb-8">0</div>
+            
+            <!-- Leaderboard Section -->
+            <div class="bg-slate-900/50 rounded-xl p-4 mb-6 border border-slate-700">
+                <h3 class="text-white font-bold mb-4 flex items-center justify-center gap-2">
+                    <span>🏆</span> 線上排行榜 Online Leaderboard
+                </h3>
+                <div id="leaderboardList" class="space-y-2 text-sm text-left">
+                    <div class="text-slate-500 italic text-center">Loading...</div>
+                </div>
+            </div>
+
+            <button onclick="showStartScreen()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                返回首頁 Play Again
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 嘗試讀取全域配置，若無則為空 (避免報錯)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        let db;
+        let auth;
+        let appId = 'physics-mixed-challenge';
+        let isOnline = false;
+
+        try {
+            if (Object.keys(firebaseConfig).length > 0) {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                isOnline = true;
+                signInAnonymously(auth).catch(console.error);
+            }
+        } catch (e) {
+            console.warn("Firebase init failed (likely local file). Leaderboard will be disabled.", e);
+        }
+
+        window.saveScore = async (name, score) => {
+            if (!isOnline || !auth.currentUser) return;
+            try {
+                const colRef = collection(db, 'leaderboard_mixed');
+                await addDoc(colRef, { name: name, score: score, timestamp: Date.now() });
+            } catch (e) { console.error("Error adding score: ", e); }
+        };
+
+        window.loadLeaderboard = () => {
+             if (!isOnline) {
+                 document.getElementById('leaderboardList').innerHTML = '<div class="text-slate-500 italic text-center">Offline Mode</div>';
+                 return;
+             }
+             const colRef = collection(db, 'leaderboard_mixed');
+             const q = query(colRef, orderBy("score", "desc"), limit(5));
+             
+             onSnapshot(q, (snapshot) => {
+                 let scores = [];
+                 snapshot.forEach(doc => scores.push(doc.data()));
+                 const list = document.getElementById('leaderboardList');
+                 if (scores.length === 0) {
+                     list.innerHTML = '<div class="text-slate-500 italic text-center">No records yet</div>';
+                 } else {
+                     list.innerHTML = scores.map((s, i) => `
+                        <div class="flex justify-between items-center p-2 rounded bg-slate-800 border border-slate-700 ${i===0?'border-yellow-500/50 bg-yellow-900/10':''}">
+                            <div class="flex items-center gap-3">
+                                <span class="font-mono font-bold w-6 text-right ${i===0?'rank-1':(i===1?'rank-2':(i===2?'rank-3':'text-slate-500'))}">#${i+1}</span>
+                                <span class="font-bold text-slate-200 truncate max-w-[120px]">${s.name}</span>
+                            </div>
+                            <span class="font-mono font-bold text-indigo-400">${s.score}</span>
+                        </div>
+                     `).join('');
+                 }
+             });
+        }
+    </script>
+
+    <!-- Game Logic -->
+    <script>
+        const CONSTANTS = { g: 9.81, c: 3.00e8, R: 8.31, NA: 6.02e23, k: 1.38e-23, G: 6.67e-11, me: 9.11e-31, e: 1.60e-19, epsilon0: 8.85e-12 };
+        
+        // Game State
+        let gameState = {
+            score: 0,
+            lives: 3,
+            playerName: "Player",
+            isPlaying: false
+        };
+
+        const topicNames = {
+            mechanics: "力學 Mechanics",
+            waves: "波動 Waves",
+            heat: "熱學 Heat",
+            em: "電磁學 E&M",
+            nuclear: "核物理 Nuclear",
+            med: "醫學物理 Medical",
+            eng: "能量工程 Energy"
+        };
+
+        function startGameSession() {
+            const input = document.getElementById('playerNameInput');
+            const name = input.value.trim();
+            if(!name) { document.getElementById('startError').classList.remove('hidden'); return; }
+            
+            gameState.playerName = name;
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.isPlaying = true;
+
+            document.getElementById('currentPlayerDisplay').innerText = `Player: ${gameState.playerName}`;
+            document.getElementById('startScreen').classList.add('hidden');
+            
+            updateHUD();
+            nextRound();
+            
+            // Load leaderboard in background
+            if(window.loadLeaderboard) window.loadLeaderboard();
+        }
+
+        function showStartScreen() {
+            document.getElementById('gameOverModal').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        function updateHUD() {
+            document.getElementById('scoreDisplay').innerText = gameState.score;
+            let hearts = "";
+            for(let i=0; i<gameState.lives; i++) hearts += "❤️";
+            document.getElementById('livesDisplay').innerText = hearts;
+        }
+
+        function gameOver() {
+            gameState.isPlaying = false;
+            document.getElementById('finalScore').innerText = gameState.score;
+            document.getElementById('gameOverModal').classList.remove('hidden');
+            if(window.saveScore) window.saveScore(gameState.playerName, gameState.score);
+        }
+
+        function rand(min, max, dec) { return parseFloat((Math.random()*(max-min)+min).toFixed(dec)); }
+        
+        // HTML-based Scientific Notation (No MathJax images in text)
+        function fmt(n) { 
+            let abs = Math.abs(n);
+            if (abs === 0) return "0";
+            if(abs < 0.01 || abs >= 1000) { 
+                let [m, e] = n.toExponential(2).split('e'); 
+                // Return HTML string with superscript
+                return `${m} × 10<sup>${parseInt(e)}</sup>`; 
+            } 
+            return parseFloat(n.toFixed(3)).toString(); 
+        }
+
+        const unitDB = {
+            mechanics: [
+                {q: "位移 (Displacement)", a: "m"}, {q: "速度 (Velocity)", a: "m s⁻¹"}, {q: "加速度 (Acceleration)", a: "m s⁻²"},
+                {q: "力 (Force)", a: "N"}, {q: "動量 (Momentum)", a: "kg m s⁻¹"}, {q: "動量變化 (Change in Momentum)", a: "N s"},
+                {q: "功 (Work) / 能量 (Energy)", a: "J"}, {q: "功率 (Power)", a: "W"}, {q: "勁度常數 (Spring Constant)", a: "N m⁻¹"},
+                {q: "重力場強度 (g)", a: "N kg⁻¹"}, {q: "力矩 (Moment)", a: "N m"}
+            ],
+            waves: [
+                {q: "頻率 (Frequency)", a: "Hz"}, {q: "週期 (Period)", a: "s"}, {q: "波長 (Wavelength)", a: "m"},
+                {q: "波速率 (Wave Speed)", a: "m s⁻¹"}, {q: "折射率 (Refractive Index)", a: "無單位 (No Unit)"},
+                {q: "透鏡焦強 (Power of Lens)", a: "D"}
+            ],
+            heat: [
+                {q: "溫度 (Temperature)", a: "K"}, {q: "熱容量 (Heat Capacity)", a: "J K⁻¹"},
+                {q: "比熱容量 (Specific Heat Capacity)", a: "J kg⁻¹ K⁻¹"}, {q: "比潛熱 (Specific Latent Heat)", a: "J kg⁻¹"},
+                {q: "氣體常數 (Gas Constant)", a: "J mol⁻¹ K⁻¹"}, {q: "壓強 (Pressure)", a: "Pa"}
+            ],
+            em: [
+                {q: "電荷 (Charge)", a: "C"}, {q: "電流 (Current)", a: "A"}, {q: "電壓 / 電勢差 (Voltage)", a: "V"},
+                {q: "電阻 (Resistance)", a: "Ω"}, {q: "電阻率 (Resistivity)", a: "Ω m"}, {q: "電功率 (Electric Power)", a: "W"},
+                {q: "電場強度 (Electric Field)", a: "N C⁻¹"}, {q: "磁通量密度 (B-Field)", a: "T"},
+                {q: "磁通量 (Magnetic Flux)", a: "Wb"}
+            ],
+            nuclear: [
+                {q: "質量虧損 (Mass Defect)", a: "kg"}, {q: "結合能 (Binding Energy)", a: "J"},
+                {q: "放射強度 (Activity)", a: "Bq"}, {q: "衰變常數 (Decay Constant)", a: "s⁻¹"},
+                {q: "半衰期 (Half-life)", a: "s"}
+            ],
+            med: [
+                {q: "聲強級 (Sound Intensity Level)", a: "dB"}, {q: "聲阻抗 (Acoustic Impedance)", a: "kg m⁻² s⁻¹"},
+                {q: "線衰減係數 (Linear Attenuation)", a: "m⁻¹"}, {q: "等效劑量 (Equivalent Dose)", a: "Sv"}
+            ],
+            eng: [
+                {q: "光通量 (Luminous Flux)", a: "lm"}, {q: "照明度 (Illuminance)", a: "lx"},
+                {q: "熱傳導係數 U-值 (U-value)", a: "W m⁻² K⁻¹"}, {q: "太陽常數 (Solar Constant)", a: "W m⁻²"}
+            ]
+        };
+
+        function getUnitQuiz(topic) {
+            const list = unitDB[topic];
+            if(!list || list.length === 0) return null;
+            const target = list[Math.floor(Math.random() * list.length)];
+            const others = list.filter(i => i.a !== target.a).map(i => i.a);
+            const fallback = ["J", "W", "N", "Pa", "T", "m s⁻¹", "kg"];
+            while (others.length < 3) {
+                const f = fallback[Math.floor(Math.random() * fallback.length)];
+                if (f !== target.a && !others.includes(f)) others.push(f);
+            }
+            const options = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+            options.push(target.a);
+            options.sort(() => 0.5 - Math.random());
+            return {
+                q: `請選擇以下物理量的正確單位：<br><br><strong class="text-xl text-indigo-400">${target.q}</strong>`,
+                options: options,
+                answer: target.a
+            };
+        }
+
+        const formulaDB = {
+            mechanics: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'suvat_v', latex:'v = u + a t', visual:'mech_linear', gen:()=>{ 
+                    const u=rand(0,10,0), a=rand(1,5,1), t=rand(2,10,0); const v = u + a*t;
+                    const mode = Math.floor(Math.random()*3); 
+                    if(mode===0) return {unit:'m s⁻¹', q:`一物體以初速度 ${fmt(u)} m s⁻¹ 及勻加速度 ${fmt(a)} m s⁻² 沿直線運動，歷時 ${fmt(t)} s。求末速度。`, a:v};
+                    if(mode===1) return {unit:'m s⁻¹', q:`一物體以勻加速度 ${fmt(a)} m s⁻² 運動 ${fmt(t)} s 後，速度變為 ${fmt(v)} m s⁻¹。求其初速度。`, a:u};
+                    if(mode===2) return {unit:'s', q:`一物體由初速度 ${fmt(u)} m s⁻¹ 以勻加速度 ${fmt(a)} m s⁻² 加速至 ${fmt(v)} m s⁻¹。求所需時間。`, a:t};
+                }},
+                {id:'newton2', latex:'F = m a', visual:'mech_linear', gen:()=>{ 
+                    const m=rand(5,50,0), a=rand(2,10,1); const F = m*a;
+                    const mode = Math.floor(Math.random()*3); 
+                    if(mode===0) return {unit:'N', q:`一個質量為 ${fmt(m)} kg 的物體正以加速度 ${fmt(a)} m s⁻² 運動。求作用在物體上的淨力。`, a:F};
+                    if(mode===1) return {unit:'kg', q:`一物體在 ${fmt(F)} N 的淨力作用下，產生 ${fmt(a)} m s⁻² 的加速度。求該物體的質量。`, a:m};
+                    if(mode===2) return {unit:'m s⁻²', q:`一恆力 ${fmt(F)} N 作用於質量為 ${fmt(m)} kg 的物體上。求物體產生的加速度。`, a:a};
+                }},
+                {id:'momentum', latex:'p = m v', visual:'mech_linear', gen:()=>{ 
+                    const m=rand(2,20,0), v=rand(5,20,0); const p = m*v;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'kg m s⁻¹', q:`一物體質量為 ${fmt(m)} kg，速度為 ${fmt(v)} m s⁻¹。求該物體的動量。`, a:p};
+                    if(mode===1) return {unit:'m s⁻¹', q:`一質量為 ${fmt(m)} kg 的物體擁有 ${fmt(p)} kg m s⁻¹ 的動量。求其速度。`, a:v};
+                }},
+                {id:'impulse', latex:'F \\Delta t = \\Delta p', unit:'N s', visual:'mech_linear', gen:()=>{ 
+                    const f=rand(10,100,0), t=rand(0.2,2,1); const dp = f*t;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'kg m s⁻¹', q:`一恆力 ${fmt(f)} N 作用於某物體 ${fmt(t)} s。求物體的動量變化。`, a:dp};
+                    if(mode===1) return {unit:'N', q:`某物體在 ${fmt(t)} s 內的動量變化為 ${fmt(dp)} kg m s⁻¹。求作用在物體上的平均力。`, a:f};
+                }},
+                {id:'moment', latex:'M = F d \\sin\\theta', unit:'N m', visual:'mech_linear', gen:()=>{ 
+                    const F=rand(10,50,0), d=rand(1,5,1); const M = F*d*0.5; 
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'N m', q:`一力 ${fmt(F)} N 作用於距轉軸 ${fmt(d)} m 處，力與力臂夾角為 30°。求該力產生的力矩。`, a:M};
+                    if(mode===1) return {unit:'m', q:`一力 ${fmt(F)} N 作用於距轉軸 $d$ 處 (夾角 30°)，產生力矩 ${fmt(M)} N m。求距離 $d$。`, a:d};
+                }},
+                {id:'work', latex:'W = F s \\cos\\theta', unit:'J', visual:'mech_linear', gen:()=>{ 
+                    const F=rand(50,200,0), s=rand(5,20,0); const W = F*s;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`一外力 ${fmt(F)} N 將物體沿力的方向推動了 ${fmt(s)} m (力與位移平行)。求該力所做的功。`, a:W};
+                    if(mode===1) return {unit:'N', q:`某外力將物體沿力的方向推動了 ${fmt(s)} m，作功 ${fmt(W)} J。求該外力的大小。`, a:F};
+                }},
+                {id:'ke', latex:'E_k = \\frac{1}{2} m v^2', unit:'J', visual:'mech_linear', gen:()=>{ 
+                    const m=rand(1000,2000,0), v=rand(10,40,0); const ke = 0.5*m*v*v;
+                    const mode = Math.floor(Math.random()*3);
+                    if(mode===0) return {unit:'J', q:`一輛質量為 ${fmt(m)} kg 的汽車以速率 ${fmt(v)} m s⁻¹ 行駛。求汽車的動能。`, a:ke};
+                    if(mode===1) return {unit:'m s⁻¹', q:`一輛質量為 ${fmt(m)} kg 的汽車擁有動能 ${fmt(ke)} J。求其速率。`, a:v};
+                    if(mode===2) return {unit:'kg', q:`一物體以速率 ${fmt(v)} m s⁻¹ 行駛，擁有動能 ${fmt(ke)} J。求其質量。`, a:m};
+                }},
+                {id:'pe', latex:'E_p = m g h', unit:'J', visual:'mech_linear', gen:()=>{ 
+                    const m=rand(2,20,0), h=rand(5,50,0); const pe = m*9.81*h;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`將質量 ${fmt(m)} kg 的物體垂直提升 ${fmt(h)} m。求物體增加的重力勢能。（取 $g = 9.81$ m s⁻²）`, a:pe};
+                    if(mode===1) return {unit:'m', q:`將質量 ${fmt(m)} kg 的物體提升後，重力勢能增加了 ${fmt(pe)} J。求提升的高度。（取 $g = 9.81$ m s⁻²）`, a:h};
+                }},
+                {id:'power', latex:'P = F v', unit:'W', visual:'mech_linear', gen:()=>{ 
+                    const F=rand(100,500,0), v=rand(10,30,0); const P = F*v;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'W', q:`一物體在 ${fmt(F)} N 的推力下以 ${fmt(v)} m s⁻¹ 的恆定速率運動。求推力的功率。`, a:P};
+                    if(mode===1) return {unit:'N', q:`某引擎輸出功率為 ${fmt(P)} W，推動汽車以 ${fmt(v)} m s⁻¹ 恆速行駛。求推力。`, a:F};
+                }},
+                {id:'centrip_a', label:'向心加速度', latex:'a = v^2 / r', visual:'mech_circle', gen:()=>{ 
+                    const v=rand(5,20,0), r=rand(2,10,0); const a = v*v/r;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'m s⁻²', q:`一物體以速率 ${fmt(v)} m s⁻¹ 沿半徑 ${fmt(r)} m 的圓形軌道運動。求其向心加速度。`, a:a};
+                    if(mode===1) return {unit:'m s⁻¹', q:`一物體沿半徑 ${fmt(r)} m 的圓形軌道運動，向心加速度為 ${fmt(a)} m s⁻²。求其速率。`, a:v};
+                }},
+                {id:'grav', label:'萬有引力 (Gravitation)', latex:'F = \\frac{G M m}{r^2}', unit:'N', visual:'mech_orbit', gen:()=>{ 
+                    const M=6e24, m=rand(100,1000,0), r=rand(7000,40000,0)*1000; const F = (CONSTANTS.G*M*m)/(r*r);
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'N', q:`一顆質量 ${fmt(m)} kg 的衛星繞地球（質量 ${fmt(M)} kg）運行，軌道半徑為 ${fmt(r)} m。求衛星受到的萬有引力。`, a:F};
+                    if(mode===1) return {unit:'m', q:`一顆質量 ${fmt(m)} kg 的衛星繞地球（質量 ${fmt(M)} kg）運行，受到 ${fmt(F)} N 的引力。求軌道半徑。`, a:r};
+                }}
+            ],
+            heat: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'shc', label:'比熱容量 (Specific Heat Capacity)', latex:'E = m c \\Delta T', unit:'J', visual:'heat_beaker', gen:()=>{ 
+                    const m=rand(0.5,5,1), c=4200, dt=rand(5,20,0); const E = m*c*dt;
+                    const mode = Math.floor(Math.random()*3);
+                    if(mode===0) return {unit:'J', q:`質量 ${fmt(m)} kg 的水（比熱容量 ${fmt(c)} J kg⁻¹ °C⁻¹）被加熱，溫度上升了 ${fmt(dt)} °C。求水吸收的能量。`, a:E};
+                    if(mode===1) return {unit:'kg', q:`某水樣本（比熱容量 ${fmt(c)} J kg⁻¹ °C⁻¹）吸收了 ${fmt(E)} J 的能量後，溫度上升了 ${fmt(dt)} °C。求水的質量。`, a:m};
+                    if(mode===2) return {unit:'°C', q:`質量 ${fmt(m)} kg 的水（比熱容量 ${fmt(c)} J kg⁻¹ °C⁻¹）吸收了 ${fmt(E)} J 的能量。求温度升幅。`, a:dt};
+                }},
+                {id:'latent', label:'潛熱 (Latent Heat)', latex:'E = l \\Delta m', unit:'J', visual:'heat_ice', gen:()=>{ 
+                    const l=3.34e5, m=rand(0.1,2,1); const E = l*m;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`若 ${fmt(m)} kg 的冰在 0 °C 完全熔解，求所需的能量。（冰的熔解比潛熱 = ${fmt(l)} J kg⁻¹）`, a:E};
+                    if(mode===1) return {unit:'kg', q:`某加熱器提供 ${fmt(E)} J 的能量，使若干 0 °C 的冰完全熔解。求熔解冰的質量。（冰的熔解比潛熱 = ${fmt(l)} J kg⁻¹）`, a:m};
+                }},
+                {id:'gas', label:'理想氣體定律 (Ideal Gas Law)', latex:'p V = n R T', unit:'Pa', visual:'heat_gas', gen:()=>{ 
+                    const n=rand(1,5,0), T=rand(250,400,0), V=rand(0.01,0.05,2); const p = (n*8.31*T)/V;
+                    const mode = Math.floor(Math.random()*3); 
+                    if(mode===0) return {unit:'Pa', q:`${fmt(n)} mol 理想氣體，溫度 ${fmt(T)} K，體積 ${fmt(V)} m³。求氣體壓強。`, a:p};
+                    if(mode===1) return {unit:'m³', q:`${fmt(n)} mol 理想氣體，溫度 ${fmt(T)} K，壓強 ${fmt(p)} Pa。求氣體體積。`, a:V};
+                    if(mode===2) return {unit:'K', q:`${fmt(n)} mol 理想氣體，壓強 ${fmt(p)} Pa，體積 ${fmt(V)} m³。求氣體溫度。`, a:T};
+                }},
+                {id:'kinetic', label:'分子動力論 (Kinetic Theory)', latex:'p V = \\frac{1}{3} N m c_{rms}^2', unit:'J', visual:'heat_gas', gen:()=>{ 
+                    const N=6e23, m=rand(1,5,0)*1e-26, c=rand(400,600,0); const pV = (1/3)*N*m*c*c;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`某氣體有 ${fmt(N)} 個分子，質量 ${fmt(m)} kg，方均根速率 ${fmt(c)} m s⁻¹。求 $pV$ 的值。`, a:pV};
+                    if(mode===1) return {unit:'m s⁻¹', q:`某氣體有 ${fmt(N)} 個分子，質量 ${fmt(m)} kg，$pV$ 值為 ${fmt(pV)} J。求方均根速率。`, a:c};
+                }},
+                {id:'avg_ke', label:'平均平移動能 (Avg KE)', latex:'E_k = \\frac{3}{2} k T', unit:'J', visual:'heat_gas', gen:()=>{ 
+                    const T=rand(200,600,0); const Ek = 1.5*1.38e-23*T;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`溫度為 ${fmt(T)} K。求氣體分子的平均平移動能。（$k \\approx 1.38 \\times 10^{-23}$ J K⁻¹）`, a:Ek};
+                    if(mode===1) return {unit:'K', q:`某氣體分子的平均平移動能為 ${fmt(Ek)} J。求氣體溫度。（$k \\approx 1.38 \\times 10^{-23}$ J K⁻¹）`, a:T};
+                }}
+            ],
+            waves: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'waveeq', label:'波速率公式 (Wave Speed)', latex:'v = f \\lambda', unit:'m s⁻¹', visual:'wave_sine', gen:()=>{ 
+                    const f=rand(50,500,0), l=rand(0.5,5,1); const v = f*l;
+                    const mode = Math.floor(Math.random()*3);
+                    if(mode===0) return {unit:'m s⁻¹', q:`一列行進波的頻率為 ${fmt(f)} Hz，波長為 ${fmt(l)} m。求波的傳播速率。`, a:v};
+                    if(mode===1) return {unit:'Hz', q:`一列波速率為 ${fmt(v)} m s⁻¹ 的波，其波長為 ${fmt(l)} m。求其頻率。`, a:f};
+                    if(mode===2) return {unit:'m', q:`一列波速率為 ${fmt(v)} m s⁻¹ 的波，其頻率為 ${fmt(f)} Hz。求其波長。`, a:l};
+                }},
+                {id:'snell', label:'斯涅爾定律 (Snell\'s Law)', latex:'n_1 \\sin\\theta_1 = n_2 \\sin\\theta_2', unit:'deg', visual:'wave_snell', gen:()=>{ 
+                    const n2=rand(1.3,1.7,1); const theta2 = Math.asin(Math.sin(Math.PI/6)/n2)*180/Math.PI;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'deg', q:`光線由空氣（$n=1$）射入介質（$n=${fmt(n2)}$），入射角為 30°。求折射角。`, a:theta2};
+                    if(mode===1) return {unit:'', q:`光線由空氣（$n=1$）射入某介質，入射角為 30°，折射角為 ${fmt(theta2)}°。求該介質的折射率。`, a:n2};
+                }},
+                {id:'lens', label:'透鏡公式 (Lens Formula)', latex:'\\frac{1}{u} + \\frac{1}{v} = \\frac{1}{f}', unit:'m', visual:'wave_lens', gen:()=>{ 
+                    const f=0.1, u=rand(0.15,0.5,2); const v = 1/((1/f)-(1/u));
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'m', q:`一物體置於焦距 ${fmt(f)} m 的凸透鏡前 ${fmt(u)} m 處。求像距。`, a:v};
+                    if(mode===1) return {unit:'m', q:`一物體置於凸透鏡前 ${fmt(u)} m 處，像距為 ${fmt(v)} m。求焦距。`, a:f};
+                }},
+                {id:'grating', label:'衍射光柵 (Diffraction Grating)', latex:'d \\sin\\theta = n \\lambda', unit:'deg', visual:'wave_grating', gen:()=>{ 
+                    const d=2e-6, l=rand(400,700,0)*1e-9; const theta = Math.asin(l/d)*180/Math.PI;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'deg', q:`波長 ${fmt(l)} m 的單色光垂直入射至光柵間距 ${fmt(d)} m 的衍射光柵。求第一級亮紋的衍射角。`, a:theta};
+                    if(mode===1) return {unit:'m', q:`單色光垂直入射至光柵間距 ${fmt(d)} m 的光柵，第一級衍射角為 ${fmt(theta)}°。求光波長。`, a:l};
+                }}
+            ],
+            em: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'ohm', label:'歐姆定律 (Ohm\'s Law)', latex:'V = I R', unit:'V', visual:'em_circuit', gen:()=>{ 
+                    const I=rand(1,5,1), R=rand(2,20,0); const V = I*R;
+                    const mode = Math.floor(Math.random()*3);
+                    if(mode===0) return {unit:'V', q:`通過一電阻器的電流為 ${fmt(I)} A，其電阻為 ${fmt(R)} Ω。求電阻器兩端的電勢差。`, a:V};
+                    if(mode===1) return {unit:'A', q:`一電阻器接駁至 ${fmt(V)} V 電源，其電阻為 ${fmt(R)} Ω。求流經的電流。`, a:I};
+                    if(mode===2) return {unit:'Ω', q:`一電阻器接駁至 ${fmt(V)} V 電源，電流為 ${fmt(I)} A。求其電阻值。`, a:R};
+                }},
+                {id:'res', label:'電阻率 (Resistivity)', latex:'R = \\frac{\\rho l}{A}', unit:'Ω', visual:'em_circuit', gen:()=>{ 
+                    const p=1e-6, l=rand(1,10,0), A=rand(1,5,0)*1e-6; const R = (p*l)/A;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'Ω', q:`某導線長度為 ${fmt(l)} m，橫切面積 ${fmt(A)} m²，電阻率 ${fmt(p)} Ω m。求導線的電阻。`, a:R};
+                    if(mode===1) return {unit:'m', q:`某導線橫切面積 ${fmt(A)} m²，電阻率 ${fmt(p)} Ω m，電阻為 ${fmt(R)} Ω。求導線長度。`, a:l};
+                }},
+                {id:'power', label:'電功率 (Electric Power)', latex:'P = V^2 / R', unit:'W', visual:'em_circuit', gen:()=>{ 
+                    const V=rand(10,24,0), R=rand(5,20,0); const P = (V*V)/R;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'W', q:`一電阻器接駁至 ${fmt(V)} V 電源，其電阻為 ${fmt(R)} Ω。求消耗的電功率。`, a:P};
+                    if(mode===1) return {unit:'Ω', q:`一電阻器接駁至 ${fmt(V)} V 電源，消耗功率 ${fmt(P)} W。求其電阻。`, a:R};
+                }},
+                {id:'coulomb', label:'庫侖定律 (Coulomb\'s Law)', latex:'F = \\frac{1}{4 \\pi \\epsilon_0} \\frac{Q_1 Q_2}{r^2}', unit:'N', visual:'em_charge', gen:()=>{ 
+                    const Q=rand(1,5,0)*1e-6, r=rand(0.05,0.2,2); const k = 9e9; const F = k*Q*Q/(r*r);
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'N', q:`兩個帶電量均為 ${fmt(Q)} C 的點電荷相距 ${fmt(r)} m。求它們之間的靜電力。（取 $\\epsilon_0 = 8.85 \\times 10^{-12}$ F m⁻¹）`, a:F};
+                    if(mode===1) return {unit:'m', q:`兩個帶電量均為 ${fmt(Q)} C 的點電荷，其間的靜電力為 ${fmt(F)} N。求它們的距離。（取 $\\epsilon_0 = 8.85 \\times 10^{-12}$ F m⁻¹）`, a:r};
+                }},
+                {id:'mag', label:'磁力 (Magnetic Force)', latex:'F = B I l \\sin\\theta', unit:'N', visual:'em_mag', gen:()=>{ 
+                    const B=rand(0.5,5,1), I=rand(1,10,0), l=rand(0.1,1,1); const F = B*I*l;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'N', q:`一長 ${fmt(l)} m 的載流導線垂直置於 ${fmt(B)} T 的磁場中，電流為 ${fmt(I)} A。求導線受到的磁力。`, a:F};
+                    if(mode===1) return {unit:'T', q:`一長 ${fmt(l)} m 的載流導線垂直置於磁場中，電流為 ${fmt(I)} A，受力 ${fmt(F)} N。求磁場強度。`, a:B};
+                }},
+                {id:'trans', label:'變壓器 (Transformer)', latex:'\\frac{V_p}{V_s} = \\frac{N_p}{N_s}', unit:'V', visual:'em_trans', gen:()=>{ 
+                    const vp=200, np=rand(100,500,0), ns=rand(10,50,0); const vs = vp*(ns/np);
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'V', q:`一變壓器的原線圈有 ${fmt(np)} 匝，副線圈有 ${fmt(ns)} 匝。若輸入電壓為 ${fmt(vp)} V，求輸出電壓。`, a:vs};
+                    if(mode===1) return {unit:'', q:`一變壓器的原線圈有 ${fmt(np)} 匝。輸入 ${fmt(vp)} V，輸出 ${fmt(vs)} V。求副線圈匝數。`, a:ns};
+                }}
+            ],
+            nuclear: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'emc', label:'質能方程 (Mass-Energy)', latex:'E = \\Delta m c^2', unit:'J', visual:'nuc_fission', gen:()=>{ 
+                    const m=rand(1,9,0)*1e-28; const E = m*9e16;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'J', q:`某核反應中的質量虧損為 ${fmt(m)} kg。求釋放的能量。`, a:E};
+                    if(mode===1) return {unit:'kg', q:`某核反應釋放了 ${fmt(E)} J 的能量。求質量虧損。`, a:m};
+                }},
+                {id:'decay', label:'衰變定律 (Decay Law)', latex:'A = A_0 e^{-\\lambda t}', unit:'Bq', visual:'nuc_decay', gen:()=>{ 
+                    const k=rand(0.01,0.1,2), N=rand(1000,5000,0); const A = k*N;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'Bq', q:`某放射源有 ${fmt(N)} 個未衰變原子核，衰變常數為 ${fmt(k)} s⁻¹。求其放射強度。`, a:A};
+                    if(mode===1) return {unit:'', q:`某放射源的放射強度為 ${fmt(A)} Bq，衰變常數為 ${fmt(k)} s⁻¹。求未衰變原子核的數目。`, a:N};
+                }},
+                {id:'halflife', label:'半衰期 (Half-life)', latex:'t_{1/2} = \\frac{\\ln 2}{\\lambda}', unit:'s', visual:'nuc_decay', gen:()=>{ 
+                    const k=rand(0.1,0.9,2); const t = Math.log(2)/k;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'s', q:`衰變常數 ${fmt(k)} s⁻¹。求半衰期。`, a:t};
+                    if(mode===1) return {unit:'s⁻¹', q:`某放射性同位素的半衰期為 ${fmt(t)} s。求衰變常數。`, a:k};
+                }}
+            ],
+            med: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'rayleigh', label:'瑞利判據 (Rayleigh Criterion)', latex:'\\theta \\approx 1.22 \\frac{\\lambda}{d}', unit:'rad', visual:'wave_lens', gen:()=>{ 
+                    const l=5e-7, d=rand(2,8,0)*1e-3; const theta = 1.22*l/d;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'rad', q:`人眼瞳孔直徑為 ${fmt(d)} m。若入射光波長為 ${fmt(l)} m，求瑞利判據下的最小分辨角。`, a:theta};
+                    if(mode===1) return {unit:'m', q:`若入射光波長為 ${fmt(l)} m，最小分辨角為 ${fmt(theta)} rad。求孔徑直徑。`, a:d};
+                }},
+                {id:'power', label:'焦強 (Optical Power)', latex:'P = \\frac{1}{f}', unit:'D', visual:'wave_lens', gen:()=>{ 
+                    const f=rand(0.1,0.5,1); const P = 1/f;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'D', q:`焦距 ${fmt(f)} m。求焦強。`, a:P};
+                    if(mode===1) return {unit:'m', q:`某透鏡焦強為 ${fmt(P)} D。求焦距。`, a:f};
+                }},
+                {id:'impedance', label:'聲阻抗 (Acoustic Impedance)', latex:'Z = \\rho c', visual:'wave_sine', gen:()=>{ 
+                    const rho=rand(900,1100,0), c=rand(1400,1600,0); const Z = rho*c;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'kg m⁻² s⁻¹', q:`介質密度 ${fmt(rho)} kg m⁻³，聲速 ${fmt(c)} m s⁻¹。求聲阻抗。`, a:Z};
+                    if(mode===1) return {unit:'m s⁻¹', q:`介質密度 ${fmt(rho)} kg m⁻³，聲阻抗 ${fmt(Z)} kg m⁻² s⁻¹。求聲速。`, a:c};
+                }}
+            ],
+            eng: [
+                {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
+                {id:'illum', label:'照明度 (Illuminance)', latex:'E = \\frac{\\Phi}{A}', unit:'lx', visual:'wave_sine', gen:()=>{ 
+                    const P=rand(1000,3000,0), A=rand(2,10,0); const E = P/A;
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'lx', q:`光通量 ${fmt(P)} lm，面積 ${fmt(A)} m²。求照明度。`, a:E};
+                    if(mode===1) return {unit:'lm', q:`面積 ${fmt(A)} m²，照明度 ${fmt(E)} lx。求光通量。`, a:P};
+                }},
+                {id:'wind', label:'風力功率 (Wind Power)', latex:'P = \\frac{1}{2} \\rho A v^3', unit:'W', visual:'mech_linear', gen:()=>{ 
+                    const rho=1.2, A=rand(10,50,0), v=rand(5,15,0); const P = 0.5*1.2*A*Math.pow(v,3);
+                    const mode = Math.floor(Math.random()*2);
+                    if(mode===0) return {unit:'W', q:`風速 ${fmt(v)} m s⁻¹，空氣密度 1.2 kg m⁻³，扇葉掃過面積 ${fmt(A)} m²。求最大風力功率。`, a:P};
+                    if(mode===1) return {unit:'m²', q:`風速 ${fmt(v)} m s⁻¹，空氣密度 1.2 kg m⁻³，最大功率 ${fmt(P)} W。求扇葉掃過面積。`, a:A};
+                }}
+            ]
+        };
+
+        let curTopic='mechanics'; let curId=null; let curData={}; let isRevealed=false;
+
+        function toggleFormula(force){ 
+            const c=document.getElementById('latexContainer'), o=document.getElementById('revealOverlay'); 
+            if(force!==undefined) isRevealed=force; else isRevealed=!isRevealed; 
+            if(isRevealed){c.classList.add('revealed'); o.classList.add('opacity-0','pointer-events-none');}
+            else{c.classList.remove('revealed'); o.classList.remove('opacity-0','pointer-events-none');} 
+        }
+        
+        function nextRound() {
+            // 1. Randomly select a topic
+            const topics = Object.keys(formulaDB);
+            curTopic = topics[Math.floor(Math.random() * topics.length)];
+            
+            // 2. Randomly select a question from that topic
+            const questions = formulaDB[curTopic];
+            const item = questions[Math.floor(Math.random() * questions.length)];
+            curId = item.id;
+
+            // 3. Reset UI
+            isRevealed = false;
+            toggleFormula(false);
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('topicBadge').innerText = topicNames[curTopic] || curTopic;
+
+            // 4. Render Formula
+            const l = document.getElementById('latexFormula'); 
+            l.innerHTML = `$$ ${item.latex} $$`; 
+            if(window.MathJax) MathJax.typesetPromise([l]); 
+
+            // 5. Generate Question Data
+            generateQuestion(item);
+        }
+
+        function generateQuestion(item){ 
+            const inputMode = document.getElementById('inputMode');
+            const mcMode = document.getElementById('mcMode');
+            
+            // Handle MC Type
+            if (item.type === 'mc') {
+                curData = getUnitQuiz(curTopic);
+                inputMode.classList.add('hidden');
+                mcMode.classList.remove('hidden');
+                
+                const mcContainer = document.getElementById('mcContainer');
+                mcContainer.innerHTML = '';
+                curData.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'mc-btn';
+                    btn.innerHTML = opt;
+                    btn.onclick = () => checkMCAnswer(opt, btn);
+                    mcContainer.appendChild(btn);
+                });
+            } else {
+                // Normal Numerical Type
+                curData = item.gen();
+                inputMode.classList.remove('hidden');
+                mcMode.classList.add('hidden');
+                
+                // Dynamic Unit Update (using innerHTML for superscripts)
+                document.getElementById('unitLabel').innerHTML = curData.unit || "--"; 
+                document.getElementById('userAns').value = ''; 
+            }
+
+            const q=document.getElementById('qText'); 
+            q.style.opacity=0; 
+            setTimeout(()=>{ 
+                q.innerHTML=curData.q; 
+                if(window.MathJax) MathJax.typesetPromise([q]); 
+                q.style.opacity=1; 
+            },100); 
+            
+            renderVisual(item.visual);
+        }
+
+        function checkMCAnswer(selected, btnElement) {
+            const correct = selected === curData.answer;
+            const feedback = document.getElementById('feedback');
+            const buttons = document.querySelectorAll('.mc-btn');
+            
+            buttons.forEach(b => {
+                b.disabled = true;
+                if(b.innerHTML === curData.answer) b.classList.add('correct');
+            });
+
+            if (correct) {
+                feedback.innerHTML='<span class="text-green-600">✅ 正確！ Correct! (+10)</span>';
+                gameState.score += 10;
+                updateHUD();
+                setTimeout(nextRound, 1500);
+            } else {
+                btnElement.classList.add('wrong');
+                feedback.innerHTML=`<span class="text-red-500">❌ 錯誤。正確答案：${curData.answer}</span>`;
+                gameState.lives--;
+                updateHUD();
+                if(gameState.lives <= 0) setTimeout(gameOver, 2000);
+                else setTimeout(nextRound, 2500);
+            }
+        }
+
+        function checkAnswer(){ 
+            const v=parseFloat(document.getElementById('userAns').value); 
+            if(isNaN(v)) return; 
+            
+            const tol=Math.abs(curData.a*0.01); 
+            const correct=Math.abs(v-curData.a)<=tol || (Math.abs(curData.a)<1e-9 && Math.abs(v)<1e-9); 
+            const fb=document.getElementById('feedback'); 
+            
+            document.getElementById('checkBtn').disabled=true;
+
+            if(correct){ 
+                gameState.score += 10;
+                fb.innerHTML='<span class="text-green-600">✅ 正確！ Correct! (+10)</span>'; 
+                updateHUD();
+                setTimeout(nextRound, 1500);
+            } else { 
+                gameState.lives--;
+                let ans=curData.a; 
+                // Use fmt function for answer display too
+                ans = fmt(ans);
+                fb.innerHTML=`<span class="text-red-500">❌ 錯誤。答案 Answer: ${ans}</span>`; 
+                updateHUD();
+                if(gameState.lives <= 0) setTimeout(gameOver, 2000);
+                else setTimeout(nextRound, 2500);
+            } 
+        }
+        
+        function renderVisual(t){ 
+            if(t === 'unit_scale') {
+                document.getElementById('visualContainer').innerHTML = `<svg class="w-full h-full" viewBox="0 0 400 300"><path d="M200,250 L200,50 M100,50 L300,50 M100,50 L100,150 M300,50 L300,150" stroke="#64748b" stroke-width="4" fill="none"/><rect x="70" y="150" width="60" height="40" fill="#6366f1"/><rect x="270" y="150" width="60" height="40" fill="#6366f1"/><text x="200" y="280" text-anchor="middle" fill="#64748b" font-weight="bold">Unit Balance</text></svg>`;
+                return;
+            }
+            document.getElementById('visualContainer').innerHTML=`<svg class="w-full h-full"><text x="50%" y="50%" text-anchor="middle" fill="#aaa">Visual: ${t}</text></svg>`; 
+        }
+    </script>
+</body>
+</html>
