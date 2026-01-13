@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>冰的熔解比潛熱虛擬實驗</title>
+    <title>冰的熔解比潛熱虛擬實驗 + AI 助教</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
@@ -19,7 +19,6 @@
             20% { opacity: 1; }
             100% { transform: translateY(120px) scale(0.8); opacity: 0; }
         }
-        /* Controls specifically for the fast dripping when heater is on */
         .drop-fast {
             animation-duration: 0.3s;
         }
@@ -29,6 +28,23 @@
         input[type=range] {
             accent-color: #3b82f6;
         }
+        /* Loading spinner */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .markdown-body ul { list-style-type: disc; margin-left: 1.5em; }
+        .markdown-body ol { list-style-type: decimal; margin-left: 1.5em; }
+        .markdown-body p { margin-bottom: 0.5em; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -36,253 +52,354 @@
     <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl md:text-3xl font-bold">🧊 冰的熔解比潛熱實驗 (Specific Latent Heat of Fusion)</h1>
-            <div class="text-base bg-blue-700 px-3 py-1 rounded">虛擬實驗室</div>
+            <h1 class="text-2xl md:text-3xl font-bold">🧊 冰的熔解比潛熱實驗 (AI 加強版)</h1>
+            <div class="text-base bg-blue-700 px-3 py-1 rounded flex items-center gap-2">
+                <span>✨ Gemini AI inside</span>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow p-4 md:p-8 flex flex-col md:flex-row gap-8 max-w-7xl mx-auto w-full">
+    <main class="flex-grow p-4 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
         
-        <!-- Left Panel: Visualization -->
-        <div class="flex-1 bg-white rounded-xl shadow-lg border border-slate-200 p-4 relative overflow-hidden flex flex-col items-center justify-center">
-            <h2 class="absolute top-4 left-4 text-slate-500 font-bold text-lg">實驗裝置示意圖</h2>
-            
-            <svg id="simulationSvg" viewBox="0 0 800 500" class="w-full h-full max-h-[500px]" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                    <!-- Ice Gradient -->
-                    <linearGradient id="iceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#e0f7fa;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#b2ebf2;stop-opacity:1" />
-                    </linearGradient>
-                    <!-- Water Gradient -->
-                    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:0.6" />
-                        <stop offset="100%" style="stop-color:#0288d1;stop-opacity:0.8" />
-                    </linearGradient>
-                    <!-- Glass Gradient -->
-                    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#fff;stop-opacity:0.1" />
-                        <stop offset="20%" style="stop-color:#fff;stop-opacity:0.3" />
-                        <stop offset="100%" style="stop-color:#fff;stop-opacity:0.1" />
-                    </linearGradient>
-                </defs>
+        <!-- Experiment Section -->
+        <div class="flex flex-col md:flex-row gap-8 w-full">
+            <!-- Left Panel: Visualization -->
+            <div class="flex-1 bg-white rounded-xl shadow-lg border border-slate-200 p-4 relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+                <h2 class="absolute top-4 left-4 text-slate-500 font-bold text-lg">實驗裝置示意圖</h2>
+                
+                <svg id="simulationSvg" viewBox="0 0 800 500" class="w-full h-full max-h-[500px]" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="iceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#e0f7fa;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#b2ebf2;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:0.6" />
+                            <stop offset="100%" style="stop-color:#0288d1;stop-opacity:0.8" />
+                        </linearGradient>
+                        <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#fff;stop-opacity:0.1" />
+                            <stop offset="20%" style="stop-color:#fff;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#fff;stop-opacity:0.1" />
+                        </linearGradient>
+                    </defs>
 
-                <!-- SET A (Control) -->
-                <g transform="translate(100, 50)">
-                    <text x="100" y="-20" text-anchor="middle" font-weight="bold" font-size="18" fill="#64748b">對照組 (Set A)</text>
-                    <text x="100" y="0" text-anchor="middle" font-size="14" fill="#94a3b8">無加熱器 (環境熱量)</text>
+                    <!-- SET A (Control) -->
+                    <g transform="translate(100, 50)">
+                        <text x="100" y="-20" text-anchor="middle" font-weight="bold" font-size="18" fill="#64748b">對照組 (Set A)</text>
+                        <text x="100" y="0" text-anchor="middle" font-size="14" fill="#94a3b8">無加熱器 (環境熱量)</text>
+                        <rect x="10" y="20" width="10" height="300" fill="#475569" />
+                        <rect x="0" y="320" width="80" height="10" fill="#475569" />
+                        <rect x="20" y="80" width="60" height="5" fill="#475569" />
+                        <path d="M50,80 L80,50 L120,50 L150,80 L110,180 L90,180 Z" fill="url(#glassGrad)" stroke="#cbd5e1" stroke-width="2" />
+                        <path d="M60,80 L140,80 L115,160 L85,160 Z" fill="url(#iceGrad)" opacity="0.9" />
+                        <polygon points="70,70 80,60 90,75" fill="#e0f7fa" stroke="#b2ebf2" />
+                        <polygon points="90,65 110,55 120,70" fill="#e0f7fa" stroke="#b2ebf2" />
+                        <polygon points="120,60 135,55 140,75" fill="#e0f7fa" stroke="#b2ebf2" />
+                        <g id="dripA" style="display:none">
+                            <circle cx="100" cy="185" r="4" fill="#0288d1" class="drop drop-slow" />
+                        </g>
+                        <g transform="translate(60, 220)">
+                            <rect x="0" y="0" width="80" height="100" rx="5" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2" />
+                            <rect id="waterLevelA" x="2" y="98" width="76" height="0" fill="url(#waterGrad)" transform="scale(1,-1) translate(0,-100)" />
+                            <text x="40" y="60" text-anchor="middle" fill="#0288d1" font-size="14">水</text>
+                        </g>
+                        <g transform="translate(40, 325)">
+                            <rect x="0" y="0" width="120" height="40" rx="4" fill="#e2e8f0" stroke="#cbd5e1" />
+                            <rect x="10" y="10" width="100" height="20" fill="#fff" stroke="#94a3b8" />
+                            <text id="massDisplayA" x="105" y="25" text-anchor="end" font-family="monospace" font-weight="bold" font-size="16" fill="#0f172a">0.0 g</text>
+                        </g>
+                    </g>
+
+
+                    <!-- SET B (Experimental) -->
+                    <g transform="translate(450, 50)">
+                        <text x="100" y="-20" text-anchor="middle" font-weight="bold" font-size="18" fill="#ef4444">實驗組 (Set B)</text>
+                        <text x="100" y="0" text-anchor="middle" font-size="14" fill="#94a3b8">有加熱器</text>
+                        <rect x="10" y="20" width="10" height="300" fill="#475569" />
+                        <rect x="0" y="320" width="80" height="10" fill="#475569" />
+                        <rect x="20" y="80" width="60" height="5" fill="#475569" />
+                        <path d="M50,80 L80,50 L120,50 L150,80 L110,180 L90,180 Z" fill="url(#glassGrad)" stroke="#cbd5e1" stroke-width="2" />
+                        <path id="heaterCoil" d="M90,40 L90,100 L95,140 L105,140 L110,100 L110,40" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
+                        <circle cx="90" cy="40" r="3" fill="#333" />
+                        <circle cx="110" cy="40" r="3" fill="#333" />
+                        <path d="M90,40 L70,20 M110,40 L130,20" stroke="#333" stroke-width="1.5" fill="none" />
+                        <path d="M60,80 L140,80 L115,160 L85,160 Z" fill="url(#iceGrad)" opacity="0.8" />
+                         <polygon points="70,70 80,60 90,75" fill="#e0f7fa" stroke="#b2ebf2" />
+                         <polygon points="90,65 110,55 120,70" fill="#e0f7fa" stroke="#b2ebf2" />
+                         <polygon points="120,60 135,55 140,75" fill="#e0f7fa" stroke="#b2ebf2" />
+                        <g id="dripB" style="display:none">
+                            <circle cx="100" cy="185" r="4" fill="#0288d1" class="drop drop-fast" />
+                        </g>
+                        <g transform="translate(60, 220)">
+                            <rect x="0" y="0" width="80" height="100" rx="5" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2" />
+                            <rect id="waterLevelB" x="2" y="98" width="76" height="0" fill="url(#waterGrad)" transform="scale(1,-1) translate(0,-100)" />
+                            <text x="40" y="60" text-anchor="middle" fill="#0288d1" font-size="14">水</text>
+                        </g>
+                        <g transform="translate(40, 325)">
+                            <rect x="0" y="0" width="120" height="40" rx="4" fill="#e2e8f0" stroke="#cbd5e1" />
+                            <rect x="10" y="10" width="100" height="20" fill="#fff" stroke="#94a3b8" />
+                            <text id="massDisplayB" x="105" y="25" text-anchor="end" font-family="monospace" font-weight="bold" font-size="16" fill="#0f172a">0.0 g</text>
+                        </g>
+                    </g>
+
+                    <!-- Joulemeter -->
+                    <g transform="translate(600, 100)">
+                        <rect x="0" y="0" width="100" height="60" rx="4" fill="#333" />
+                        <rect x="10" y="10" width="80" height="25" fill="#a5f3fc" />
+                        <text id="energyDisplay" x="85" y="28" text-anchor="end" font-family="monospace" font-size="16" fill="#000">0 J</text>
+                        <text x="50" y="52" text-anchor="middle" fill="#fff" font-size="12">焦耳計 (J)</text>
+                        <path d="M0,30 L-20,30 L-20,-60" stroke="#333" stroke-width="2" fill="none" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Right Panel: Controls & Data -->
+            <div class="w-full md:w-96 flex flex-col gap-6">
+                
+                <!-- Controls Card -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <h3 class="font-bold text-xl mb-4 text-slate-700">實驗控制面板</h3>
                     
-                    <!-- Stand -->
-                    <rect x="10" y="20" width="10" height="300" fill="#475569" />
-                    <rect x="0" y="320" width="80" height="10" fill="#475569" />
-                    <rect x="20" y="80" width="60" height="5" fill="#475569" />
+                    <div class="mb-6">
+                        <label class="block text-base font-medium text-slate-600 mb-2">加熱器功率 (Power): <span id="powerVal" class="text-blue-600 font-bold text-xl">40</span> W</label>
+                        <input type="range" id="powerSlider" min="10" max="60" value="40" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-sm text-slate-400 mt-1">
+                            <span>10W</span>
+                            <span>60W</span>
+                        </div>
+                    </div>
 
-                    <!-- Funnel -->
-                    <path d="M50,80 L80,50 L120,50 L150,80 L110,180 L90,180 Z" fill="url(#glassGrad)" stroke="#cbd5e1" stroke-width="2" />
+                    <div class="flex gap-4">
+                        <button id="startBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold text-lg py-2 px-4 rounded transition">開始實驗</button>
+                        <button id="resetBtn" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white font-bold text-lg py-2 px-4 rounded transition">重置</button>
+                    </div>
+                </div>
+
+                <!-- Data Card -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex-grow">
+                    <h3 class="font-bold text-xl mb-4 text-slate-700">實驗數據</h3>
                     
-                    <!-- Crushed Ice (Static pile) -->
-                    <path d="M60,80 L140,80 L115,160 L85,160 Z" fill="url(#iceGrad)" opacity="0.9" />
-                    <!-- Random Ice Chunks -->
-                    <polygon points="70,70 80,60 90,75" fill="#e0f7fa" stroke="#b2ebf2" />
-                    <polygon points="90,65 110,55 120,70" fill="#e0f7fa" stroke="#b2ebf2" />
-                    <polygon points="120,60 135,55 140,75" fill="#e0f7fa" stroke="#b2ebf2" />
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-50 p-3 rounded border">
+                            <div class="text-sm text-slate-500">經過時間 (t)</div>
+                            <div class="text-2xl font-mono font-bold" id="timerDisplay">0 s</div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded border">
+                            <div class="text-sm text-slate-500">提供能量 (E)</div>
+                            <div class="text-2xl font-mono font-bold text-orange-600" id="energyData">0 J</div>
+                        </div>
+                    </div>
 
-                    <!-- Dripping Water -->
-                    <g id="dripA" style="display:none">
-                        <circle cx="100" cy="185" r="4" fill="#0288d1" class="drop drop-slow" />
-                    </g>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-base">實驗組水質量 ($m_B$):</span>
+                            <span class="font-mono font-bold text-blue-600 text-lg" id="massDataB">0.0 g</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="text-base">對照組水質量 ($m_A$):</span>
+                            <span class="font-mono font-bold text-slate-600 text-lg" id="massDataA">0.0 g</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-blue-50 p-2 rounded">
+                            <span class="text-base font-bold">淨融化質量 ($m$):</span>
+                            <span class="font-mono font-bold text-blue-800 text-lg" id="massNet">0.0 g</span>
+                        </div>
+                    </div>
 
-                    <!-- Beaker -->
-                    <g transform="translate(60, 220)">
-                        <rect x="0" y="0" width="80" height="100" rx="5" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2" />
-                        <!-- Water Level A -->
-                        <rect id="waterLevelA" x="2" y="98" width="76" height="0" fill="url(#waterGrad)" transform="scale(1,-1) translate(0,-100)" />
-                        <text x="40" y="60" text-anchor="middle" fill="#0288d1" font-size="14">水</text>
-                    </g>
+                    <div class="mt-6 pt-4 border-t-2 border-slate-100">
+                        <div class="text-sm text-slate-500 mb-1">計算出的潛熱 ($L_f$):</div>
+                        <div class="text-4xl font-bold text-purple-600 text-center" id="resultDisplay">--- J kg⁻¹</div>
+                        <div class="text-sm text-center text-slate-400 mt-1">(理論值約 334,000 J kg⁻¹)</div>
+                        
+                        <!-- AI Analysis Button -->
+                        <button id="analyzeBtn" class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2">
+                            <span>✨ 生成 AI 數據分析報告</span>
+                            <div id="analyzeLoader" class="loader hidden"></div>
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- Electronic Balance -->
-                    <g transform="translate(40, 325)">
-                        <rect x="0" y="0" width="120" height="40" rx="4" fill="#e2e8f0" stroke="#cbd5e1" />
-                        <rect x="10" y="10" width="100" height="20" fill="#fff" stroke="#94a3b8" />
-                        <text id="massDisplayA" x="105" y="25" text-anchor="end" font-family="monospace" font-weight="bold" font-size="16" fill="#0f172a">0.0 g</text>
-                    </g>
-                </g>
-
-
-                <!-- SET B (Experimental) -->
-                <g transform="translate(450, 50)">
-                    <text x="100" y="-20" text-anchor="middle" font-weight="bold" font-size="18" fill="#ef4444">實驗組 (Set B)</text>
-                    <text x="100" y="0" text-anchor="middle" font-size="14" fill="#94a3b8">有加熱器</text>
-
-                    <!-- Stand -->
-                    <rect x="10" y="20" width="10" height="300" fill="#475569" />
-                    <rect x="0" y="320" width="80" height="10" fill="#475569" />
-                    <rect x="20" y="80" width="60" height="5" fill="#475569" />
-
-                    <!-- Funnel -->
-                    <path d="M50,80 L80,50 L120,50 L150,80 L110,180 L90,180 Z" fill="url(#glassGrad)" stroke="#cbd5e1" stroke-width="2" />
-
-                    <!-- Heater Coil -->
-                    <path id="heaterCoil" d="M90,40 L90,100 L95,140 L105,140 L110,100 L110,40" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
-                    <circle cx="90" cy="40" r="3" fill="#333" />
-                    <circle cx="110" cy="40" r="3" fill="#333" />
-                    
-                    <!-- Wires -->
-                    <path d="M90,40 L70,20 M110,40 L130,20" stroke="#333" stroke-width="1.5" fill="none" />
-
-                    <!-- Crushed Ice -->
-                    <path d="M60,80 L140,80 L115,160 L85,160 Z" fill="url(#iceGrad)" opacity="0.8" />
-                     <!-- Random Ice Chunks -->
-                     <polygon points="70,70 80,60 90,75" fill="#e0f7fa" stroke="#b2ebf2" />
-                     <polygon points="90,65 110,55 120,70" fill="#e0f7fa" stroke="#b2ebf2" />
-                     <polygon points="120,60 135,55 140,75" fill="#e0f7fa" stroke="#b2ebf2" />
-
-                    <!-- Dripping Water -->
-                    <g id="dripB" style="display:none">
-                        <circle cx="100" cy="185" r="4" fill="#0288d1" class="drop drop-fast" />
-                    </g>
-
-                    <!-- Beaker -->
-                    <g transform="translate(60, 220)">
-                        <rect x="0" y="0" width="80" height="100" rx="5" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2" />
-                        <!-- Water Level B -->
-                        <rect id="waterLevelB" x="2" y="98" width="76" height="0" fill="url(#waterGrad)" transform="scale(1,-1) translate(0,-100)" />
-                        <text x="40" y="60" text-anchor="middle" fill="#0288d1" font-size="14">水</text>
-                    </g>
-
-                    <!-- Electronic Balance -->
-                    <g transform="translate(40, 325)">
-                        <rect x="0" y="0" width="120" height="40" rx="4" fill="#e2e8f0" stroke="#cbd5e1" />
-                        <rect x="10" y="10" width="100" height="20" fill="#fff" stroke="#94a3b8" />
-                        <text id="massDisplayB" x="105" y="25" text-anchor="end" font-family="monospace" font-weight="bold" font-size="16" fill="#0f172a">0.0 g</text>
-                    </g>
-                </g>
-
-                <!-- Joulemeter -->
-                <g transform="translate(600, 100)">
-                    <rect x="0" y="0" width="100" height="60" rx="4" fill="#333" />
-                    <rect x="10" y="10" width="80" height="25" fill="#a5f3fc" />
-                    <text id="energyDisplay" x="85" y="28" text-anchor="end" font-family="monospace" font-size="16" fill="#000">0 J</text>
-                    <text x="50" y="52" text-anchor="middle" fill="#fff" font-size="12">焦耳計 (J)</text>
-                    <!-- Wire connection to heater -->
-                    <path d="M0,30 L-20,30 L-20,-60" stroke="#333" stroke-width="2" fill="none" />
-                </g>
-
-            </svg>
+            </div>
         </div>
 
-        <!-- Right Panel: Controls & Data -->
-        <div class="w-full md:w-96 flex flex-col gap-6">
-            
-            <!-- Controls Card -->
+        <!-- AI Assistant Section -->
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Chat Interface -->
             <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                <h3 class="font-bold text-xl mb-4 text-slate-700">實驗控制面板</h3>
-                
-                <div class="mb-6">
-                    <label class="block text-base font-medium text-slate-600 mb-2">加熱器功率 (Power): <span id="powerVal" class="text-blue-600 font-bold text-xl">40</span> W</label>
-                    <input type="range" id="powerSlider" min="10" max="60" value="40" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-sm text-slate-400 mt-1">
-                        <span>10W</span>
-                        <span>60W</span>
+                <h3 class="font-bold text-xl mb-4 text-slate-700 flex items-center gap-2">
+                    🤖 AI 物理助教
+                </h3>
+                <div id="chatHistory" class="bg-slate-50 rounded-lg p-4 h-64 overflow-y-auto mb-4 border border-slate-200 space-y-3">
+                    <div class="bg-blue-100 text-blue-900 p-3 rounded-lg rounded-tl-none inline-block max-w-[85%]">
+                        你好！我是你的物理實驗助教。對這個潛熱實驗有任何問題嗎？例如「為什麼要用對照組？」或「潛熱是什麼？」
                     </div>
                 </div>
-
-                <div class="flex gap-4">
-                    <button id="startBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold text-lg py-2 px-4 rounded transition">開始實驗</button>
-                    <button id="resetBtn" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white font-bold text-lg py-2 px-4 rounded transition">重置</button>
-                </div>
-            </div>
-
-            <!-- Data Card -->
-            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex-grow">
-                <h3 class="font-bold text-xl mb-4 text-slate-700">實驗數據</h3>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-slate-50 p-3 rounded border">
-                        <div class="text-sm text-slate-500">經過時間 (t)</div>
-                        <div class="text-2xl font-mono font-bold" id="timerDisplay">0 s</div>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded border">
-                        <div class="text-sm text-slate-500">提供能量 (E)</div>
-                        <div class="text-2xl font-mono font-bold text-orange-600" id="energyData">0 J</div>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class="text-base">實驗組水質量 ($m_B$):</span>
-                        <span class="font-mono font-bold text-blue-600 text-lg" id="massDataB">0.0 g</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class="text-base">對照組水質量 ($m_A$):</span>
-                        <span class="font-mono font-bold text-slate-600 text-lg" id="massDataA">0.0 g</span>
-                    </div>
-                    <div class="flex justify-between items-center bg-blue-50 p-2 rounded">
-                        <span class="text-base font-bold">淨融化質量 ($m = m_B - m_A$):</span>
-                        <span class="font-mono font-bold text-blue-800 text-lg" id="massNet">0.0 g</span>
-                    </div>
-                </div>
-
-                <div class="mt-6 pt-4 border-t-2 border-slate-100">
-                    <div class="text-sm text-slate-500 mb-1">計算出的潛熱 ($L_f = E / m$):</div>
-                    <div class="text-4xl font-bold text-purple-600 text-center" id="resultDisplay">--- J kg⁻¹</div>
-                    <div class="text-sm text-center text-slate-400 mt-1">(理論值約 334,000 J kg⁻¹)</div>
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="輸入問題..." class="flex-grow border border-slate-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500" onkeypress="if(event.key === 'Enter') sendChat()">
+                    <button onclick="sendChat()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center min-w-[80px]">
+                        <span id="sendBtnText">發送</span>
+                        <div id="chatLoader" class="loader hidden"></div>
+                    </button>
                 </div>
             </div>
 
+            <!-- Report Output Area -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex flex-col">
+                <h3 class="font-bold text-xl mb-4 text-slate-700 flex items-center gap-2">
+                    📊 實驗分析報告
+                </h3>
+                <div id="reportContent" class="flex-grow bg-slate-50 rounded-lg p-4 h-64 overflow-y-auto border border-slate-200 markdown-body text-sm leading-relaxed text-slate-700">
+                    <p class="text-slate-400 italic">點擊上方的「生成 AI 數據分析報告」按鈕，AI 將會根據目前的實驗數據撰寫一份簡短的實驗報告。</p>
+                </div>
+            </div>
         </div>
+
     </main>
 
-    <!-- Footer / Explanation -->
+    <!-- Footer -->
     <footer class="bg-slate-800 text-slate-300 p-6 mt-8">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
-            <div>
-                <h4 class="font-bold text-white text-lg mb-2">原理說明</h4>
-                <p class="text-base leading-relaxed mb-2">
-                    冰熔解成水時，需要吸收能量來破壞分子間的鍵結，但溫度保持在 0°C 不變。這個能量稱為「潛熱」。
-                </p>
-                <p class="text-base leading-relaxed">
-                    公式: $E = m \times L_f$ <br>
-                    為了消除環境熱量的影響，我們使用兩套裝置：
-                    <br>• $m_B$: 實驗組（加熱器 + 環境熱量）熔化的質量
-                    <br>• $m_A$: 對照組（僅環境熱量）熔化的質量
-                    <br>• 實際因加熱器熔化的質量 $m = m_B - m_A$
-                </p>
-            </div>
-            <div>
-                <h4 class="font-bold text-white text-lg mb-2">操作指南</h4>
-                <ol class="text-base list-decimal list-inside space-y-1">
-                    <li>使用滑桿設定加熱器的功率。</li>
-                    <li>點擊「開始實驗」。</li>
-                    <li>觀察水滴落下的速度差異以及質量讀數的變化。</li>
-                    <li>實驗進行一段時間後，查看計算出的比潛熱數值。</li>
-                    <li>為了便於觀察，此模擬將時間流逝速度加快了 10 倍。</li>
-                </ol>
-            </div>
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm">本實驗模擬器使用 Gemini API 提供即時問答與數據分析功能。</p>
         </div>
     </footer>
 
     <script>
-        // Physics Constants & State
-        const LATENT_HEAT_REAL = 334; // J/g (approx)
-        const AMBIENT_MELT_RATE = 0.2; // g/s (simulated environmental effect)
-        const SIMULATION_SPEED = 10; // 1 real second = 10 simulation seconds
+        // --- GEMINI API SETUP ---
+        const apiKey = ""; // API key handled by environment
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+
+        async function callGemini(prompt, systemInstruction = "") {
+            try {
+                const response = await fetch(`${API_URL}?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: systemInstruction }] }
+                    })
+                });
+                
+                if (!response.ok) throw new Error('API Error');
+                
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return "抱歉，AI 助教目前連線不穩定，請稍後再試。";
+            }
+        }
+
+        // --- CHAT FEATURE ---
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const history = document.getElementById('chatHistory');
+            const loader = document.getElementById('chatLoader');
+            const btnText = document.getElementById('sendBtnText');
+            const userText = input.value.trim();
+
+            if (!userText) return;
+
+            // Add user message
+            history.innerHTML += `<div class="text-right"><div class="bg-indigo-100 text-indigo-900 p-3 rounded-lg rounded-tr-none inline-block max-w-[85%] text-left">${userText}</div></div>`;
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            // Show loading
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            const systemPrompt = `你是一個物理實驗室的 AI 助教。學生正在進行「測量冰的熔解比潛熱」的實驗。
+            實驗有兩組：Set A（對照組，無加熱器）和 Set B（實驗組，有加熱器）。
+            目標是消除環境熱量的影響，利用公式 E = m * Lf 計算潛熱。
+            請用繁體中文，親切、簡潔地回答學生的物理問題。如果學生問無關的問題，請禮貌地將話題引導回物理實驗。`;
+
+            const reply = await callGemini(userText, systemPrompt);
+
+            // Hide loading
+            loader.classList.add('hidden');
+            btnText.classList.remove('hidden');
+
+            // Add AI response
+            history.innerHTML += `<div class="bg-blue-100 text-blue-900 p-3 rounded-lg rounded-tl-none inline-block max-w-[85%]">${reply}</div>`;
+            history.scrollTop = history.scrollHeight;
+        }
+
+        // --- REPORT GENERATION FEATURE ---
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const analyzeLoader = document.getElementById('analyzeLoader');
+        const reportContent = document.getElementById('reportContent');
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!state.running && state.energy === 0) {
+                reportContent.innerHTML = '<p class="text-red-500">請先開始實驗並收集一些數據後再生成報告。</p>';
+                return;
+            }
+
+            // UI State
+            analyzeBtn.disabled = true;
+            analyzeLoader.classList.remove('hidden');
+            reportContent.innerHTML = '<p class="text-slate-500 animate-pulse">正在分析實驗數據並撰寫報告中...</p>';
+
+            const netMass = state.massB - state.massA;
+            let calculatedL = "N/A";
+            if (netMass > 0.5) {
+                calculatedL = Math.round((state.energy / netMass) * 1000).toLocaleString();
+            }
+
+            const prompt = `
+            請根據以下學生的實驗數據，寫一份簡短的物理實驗報告分析（繁體中文）：
+            
+            數據：
+            - 加熱器功率：${state.power} W
+            - 實驗時間：${state.time.toFixed(1)} s
+            - 總提供能量 (E)：${Math.floor(state.energy)} J
+            - 對照組熔化質量 (mA)：${state.massA.toFixed(1)} g
+            - 實驗組熔化質量 (mB)：${state.massB.toFixed(1)} g
+            - 淨融化質量 (m = mB - mA)：${netMass.toFixed(2)} g
+            - 計算出的熔解比潛熱 (L)：${calculatedL} J kg⁻¹
+            - 理論值：約 334,000 J kg⁻¹
+
+            要求：
+            1. 檢查計算結果是否合理。
+            2. 解釋為什麼我們要用 (mB - mA) 而不是直接用 mB。
+            3. 分析可能的誤差來源（例如：加熱器效率、絕熱不完全等）。
+            4. 給出一個簡短的總結評價。
+            使用 Markdown 格式。
+            `;
+
+            const report = await callGemini(prompt, "你是一個嚴謹但鼓勵學生的物理老師，負責批改和分析實驗報告。");
+
+            // Render Markdown-like (simple replacement for bold/lists)
+            let formattedReport = report
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/^\* /gm, '• ');
+
+            reportContent.innerHTML = formattedReport;
+            
+            // Reset UI
+            analyzeBtn.disabled = false;
+            analyzeLoader.classList.add('hidden');
+        });
+
+        // --- ORIGINAL PHYSICS SIMULATION CODE ---
+        const LATENT_HEAT_REAL = 334; 
+        const AMBIENT_MELT_RATE = 0.2; 
+        const SIMULATION_SPEED = 10; 
         
         let state = {
             running: false,
             time: 0,
-            massA: 0, // Control
-            massB: 0, // Experiment
-            power: 40, // Watts
+            massA: 0, 
+            massB: 0, 
+            power: 40, 
             energy: 0,
             animationFrame: null,
             lastTick: 0
         };
 
-        // DOM Elements
         const els = {
-            svg: document.getElementById('simulationSvg'),
             heaterCoil: document.getElementById('heaterCoil'),
             dripA: document.getElementById('dripA'),
             dripB: document.getElementById('dripB'),
@@ -305,7 +422,6 @@
             resultDisplay: document.getElementById('resultDisplay')
         };
 
-        // Initialize UI
         els.powerSlider.addEventListener('input', (e) => {
             state.power = parseInt(e.target.value);
             els.powerVal.textContent = state.power;
@@ -317,14 +433,12 @@
 
         function toggleSimulation() {
             if (state.running) {
-                // Pause
                 state.running = false;
                 els.startBtn.textContent = "繼續實驗";
                 els.startBtn.classList.replace('bg-red-500', 'bg-green-500');
                 els.startBtn.classList.replace('hover:bg-red-600', 'hover:bg-green-600');
                 stopAnimation();
             } else {
-                // Start
                 state.running = true;
                 els.startBtn.textContent = "暫停實驗";
                 els.startBtn.classList.replace('bg-green-500', 'bg-red-500');
@@ -343,7 +457,6 @@
             state.massB = 0;
             state.energy = 0;
             
-            // Reset UI
             els.startBtn.textContent = "開始實驗";
             els.startBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
             els.startBtn.classList.add('bg-green-500', 'hover:bg-green-600');
@@ -351,28 +464,26 @@
             updateDisplay();
             updateHeaterVisuals();
             
-            // Reset Visuals
             els.waterLevelA.setAttribute('height', 0);
             els.waterLevelB.setAttribute('height', 0);
             els.dripA.style.display = 'none';
             els.dripB.style.display = 'none';
+            
+            // Reset AI Report content
+            reportContent.innerHTML = '<p class="text-slate-400 italic">點擊上方的「生成 AI 數據分析報告」按鈕，AI 將會根據目前的實驗數據撰寫一份簡短的實驗報告。</p>';
         }
 
         function updateHeaterVisuals() {
             if (state.running) {
-                // Make heater red based on power
                 const intensity = (state.power - 10) / 50; 
-                // Color ranges from dark red to bright orange-red
                 const r = 200 + (55 * intensity);
                 els.heaterCoil.setAttribute('stroke', `rgb(${r}, 50, 50)`);
                 els.heaterCoil.setAttribute('filter', 'drop-shadow(0 0 5px rgba(255,100,100,0.8))');
                 
-                // Show drips
                 els.dripA.style.display = 'block';
                 els.dripB.style.display = 'block';
                 
-                // Adjust drip speed via CSS animation duration (Visual approximation)
-                const speedB = 20 / (state.power + 10); // faster power = lower duration
+                const speedB = 20 / (state.power + 10); 
                 els.dripB.querySelector('circle').style.animationDuration = `${speedB}s`;
 
             } else {
@@ -394,24 +505,16 @@
         function loop(timestamp) {
             if (!state.running) return;
 
-            const dt = (timestamp - state.lastTick) / 1000; // Real delta time in seconds
+            const dt = (timestamp - state.lastTick) / 1000; 
             state.lastTick = timestamp;
 
-            // Physics Calculations
             const simDt = dt * SIMULATION_SPEED; 
             state.time += simDt;
 
-            // Calculate Energy
-            // E = P * t
             const energyIncrement = state.power * simDt;
             state.energy += energyIncrement;
 
-            // Calculate Melting
-            // Mass melted by ambient heat (Control & Exp)
             const massAmbient = AMBIENT_MELT_RATE * simDt;
-            
-            // Mass melted by Heater (Exp only)
-            // L = E/m  => m = E/L
             const massHeater = energyIncrement / LATENT_HEAT_REAL;
 
             state.massA += massAmbient;
@@ -424,7 +527,6 @@
         }
 
         function updateDisplay() {
-            // Numbers
             els.timerDisplay.textContent = state.time.toFixed(1) + " s";
             els.energyDisplay.textContent = Math.floor(state.energy) + " J";
             els.energyData.textContent = Math.floor(state.energy) + " J";
@@ -438,9 +540,7 @@
             const netMass = state.massB - state.massA;
             els.massNet.textContent = netMass.toFixed(2) + " g";
 
-            // Calculated Latent Heat
             if (netMass > 0.5) {
-                // Convert J/g to J/kg (multiply by 1000)
                 const calculatedL = (state.energy / netMass) * 1000;
                 els.resultDisplay.textContent = Math.round(calculatedL).toLocaleString() + " J kg⁻¹";
             } else {
@@ -449,9 +549,7 @@
         }
 
         function updateWaterLevels() {
-            // Max capacity of beaker visual approx 100g
             const maxVisualMass = 100; 
-            
             const hA = Math.min((state.massA / maxVisualMass) * 90, 90);
             const hB = Math.min((state.massB / maxVisualMass) * 90, 90);
 
@@ -459,9 +557,7 @@
             els.waterLevelB.setAttribute('height', hB);
         }
 
-        // Initialize display once
         updateDisplay();
-
     </script>
 </body>
 </html>
