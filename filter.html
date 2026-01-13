@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雙間隔過濾模擬器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f8fafc; margin: 0; padding: 10px; font-family: sans-serif; overflow: hidden; }
+        #root { pointer-events: auto !important; position: relative; z-index: 10; }
+        canvas { background: #fff; border-radius: 1rem; width: 100%; height: auto; pointer-events: none; }
+        .filter-btn { transition: all 0.2s; border: 2px solid #e2e8f0; -webkit-tap-highlight-color: transparent; position: relative; z-index: 20; }
+        .active-l1 { background-color: #2563eb !important; color: white !important; border-color: #1d4ed8 !important; }
+        .active-l2 { background-color: #4f46e5 !important; color: white !important; border-color: #4338ca !important; }
+        .filter-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+<div id="root" class="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-xl p-5">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b pb-4 mb-5">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h1 class="text-lg font-black text-slate-800">雙間隔過濾實驗</h1>
+        </div>
+        <div class="bg-amber-100 px-4 py-1 rounded-full text-amber-700 font-black border border-amber-200 text-sm">
+            成本: $<span id="total-cost">50</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+        <!-- 控制區 -->
+        <div class="md:col-span-4 space-y-4">
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">第 1 層 (左)</p>
+                <div id="l1-group" class="flex flex-col gap-1.5"></div>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">第 2 層 (右)</p>
+                <div id="l2-group" class="flex flex-col gap-1.5"></div>
+            </div>
+        </div>
+
+        <!-- 畫布與數據 -->
+        <div class="md:col-span-8 space-y-4">
+            <div class="relative border-2 border-slate-100 rounded-2xl bg-white overflow-hidden shadow-inner">
+                <canvas id="simCanvas" width="500" height="280"></canvas>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-900 rounded-2xl p-4 text-white">
+                    <p class="text-[9px] text-blue-400 font-bold uppercase">最終流速</p>
+                    <div class="flex items-baseline gap-1">
+                        <span id="flow-val" class="text-3xl font-black">0.0</span>
+                        <span class="text-[9px] text-slate-500 font-bold">CM³/S</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900 rounded-2xl p-4 text-white">
+                    <p class="text-[9px] text-amber-400 font-bold uppercase">效益得分</p>
+                    <div class="flex items-baseline gap-1">
+                        <span id="score-val" class="text-3xl font-black">0</span>
+                        <span class="text-[9px] text-slate-500 font-bold">PTS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const filterData = {
+        smallStone: { name: '小石', speed: 3.5, color: '#94a3b8', cost: 30 },
+        coarseSand: { name: '粗沙', speed: 1.2, color: '#b45309', cost: 20 },
+        fineSand: { name: '幼沙', speed: 0.5, color: '#fcd34d', cost: 40 },
+        filterCotton: { name: '過濾棉', speed: 1.8, color: '#cbd5e1', cost: 35 }
+    };
+
+    let layer1 = 'smallStone';
+    let layer2 = 'coarseSand';
+    let waterDrops = [];
+
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function render() {
+        // 更新按鈕狀態
+        ['l1', 'l2'].forEach(id => {
+            const container = document.getElementById(`${id}-group`);
+            const current = (id === 'l1') ? layer1 : layer2;
+            container.innerHTML = Object.keys(filterData).map(key => `
+                <button data-layer="${id}" data-key="${key}" 
+                    class="filter-btn w-full flex justify-between items-center px-3 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-500 ${current === key ? (id === 'l1' ? 'active-l1' : 'active-l2') : ''}">
+                    <span>${filterData[key].name}</span>
+                    <span class="opacity-60">$${filterData[key].cost}</span>
+                </button>
+            `).join('');
+        });
+
+        // 計算數據
+        const cost = filterData[layer1].cost + filterData[layer2].cost;
+        const flow = (filterData[layer1].speed * 0.4 + filterData[layer2].speed * 0.6).toFixed(1);
+        const score = ((6 - parseFloat(flow)) / (cost || 1) * 1000).toFixed(0);
+
+        document.getElementById('total-cost').innerText = cost;
+        document.getElementById('flow-val').innerText = flow;
+        document.getElementById('score-val').innerText = score;
+    }
+
+    // 事件委派：點擊 root 容器來捕捉按鈕點擊
+    document.getElementById('root').addEventListener('click', function(e) {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        
+        const layer = btn.getAttribute('data-layer');
+        const key = btn.getAttribute('data-key');
+        
+        if (layer === 'l1') layer1 = key;
+        else layer2 = key;
+        
+        render();
+    });
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const mid = canvas.width / 2;
+
+        // 背景
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, mid, 300);
+        ctx.fillStyle = '#f1f5f9'; ctx.fillRect(mid, 0, mid, 300);
+
+        // 濾材
+        [{t: layer1, x: 0}, {t: layer2, x: mid}].forEach(l => {
+            ctx.fillStyle = filterData[l.t].color;
+            if (l.t === 'filterCotton') {
+                ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+                for(let i=0; i<15; i++) {
+                    ctx.beginPath(); ctx.moveTo(l.x + (i*17), 0); ctx.lineTo(l.x + (i*17)+10, 300); ctx.stroke();
+                }
+            } else {
+                const r = l.t === 'fineSand' ? 2 : (l.t === 'coarseSand' ? 4 : 8);
+                for(let i=0; i<25; i++) {
+                    ctx.beginPath(); ctx.arc(l.x + (i%5 * 45) + 20, (Math.floor(i/5) * 55) + 30, r, 0, 7); ctx.fill();
+                }
+            }
+        });
+
+        // 水流
+        const spawn = (filterData[layer1].speed + filterData[layer2].speed) / 12;
+        if (Math.random() < spawn) waterDrops.push({ x: -10, y: Math.random() * 180 + 50 });
+
+        ctx.fillStyle = '#3b82f6';
+        for (let i = waterDrops.length - 1; i >= 0; i--) {
+            let d = waterDrops[i];
+            const s = d.x < mid ? filterData[layer1].speed : filterData[layer2].speed;
+            d.x += s + 1.8; d.y += 0.2;
+            ctx.beginPath(); ctx.arc(d.x, d.y, 4, 0, 7); ctx.fill();
+            if (d.x > 500) waterDrops.splice(i, 1);
+        }
+        requestAnimationFrame(animate);
+    }
+
+    render();
+    animate();
+</script>
+
+</body>
+</html>
