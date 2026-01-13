@@ -197,64 +197,129 @@
         const formulaDB = {
             mechanics: [
                 {id:'unit_quiz', label:'🛡️ 單位挑戰 (Unit Challenge)', latex:'\\text{Unit Check}', visual:'unit_scale', type:'mc'},
-                {id:'suvat_v', latex:'v = u + a t', visual:'mech_linear', gen:()=>{ 
-                    const u=rand(0,10,0), a=rand(1,5,1), t=rand(2,10,0); const v = u + a*t;
-                    const mode = Math.floor(Math.random()*3); // 0:v, 1:u, 2:t
-                    if(mode===0) return {unit:'m s⁻¹', q:`一物體以初速度 ${fmt(u)} m s⁻¹ 及勻加速度 ${fmt(a)} m s⁻² 沿直線運動，歷時 ${fmt(t)} s。求末速度。`, a:v};
-                    if(mode===1) return {unit:'m s⁻¹', q:`一物體以勻加速度 ${fmt(a)} m s⁻² 運動 ${fmt(t)} s 後，速度變為 ${fmt(v)} m s⁻¹。求其初速度。`, a:u};
-                    if(mode===2) return {unit:'s', q:`一物體由初速度 ${fmt(u)} m s⁻¹ 以勻加速度 ${fmt(a)} m s⁻² 加速至 ${fmt(v)} m s⁻¹。求所需時間。`, a:t};
+                {id:'suvat_1', label:'勻加速運動方程 1 (Equations of U.A.M. 1)', latex:'v = u + a t', visual:'mech_linear', gen:()=>{ 
+                    const isGravity = Math.random() < 0.5;
+                    let u, a, t, v, qText;
+
+                    if (isGravity) {
+                        // Free fall or throw up
+                        a = 9.81;
+                        if (Math.random() < 0.5) {
+                            // Drop from rest
+                            u = 0; t = rand(1, 4, 1); v = u + a*t;
+                            qText = `一物體由靜止開始自由下墜，歷時 ${fmt(t)} s。求物體著地前的速率。（取 $g=9.81$ m s⁻²）`;
+                        } else {
+                            // Throw down
+                            u = rand(2, 10, 0); t = rand(1, 3, 1); v = u + a*t;
+                            qText = `一物體以初速率 ${fmt(u)} m s⁻¹ 垂直向下拋出，歷時 ${fmt(t)} s。求末速率。（取 $g=9.81$ m s⁻²）`;
+                        }
+                        return {unit:'m s⁻¹', q:qText, a:v};
+                    } else {
+                        // Horizontal motion
+                        u=rand(0,10,0); a=rand(1,5,1); t=rand(2,10,0); v = u + a*t;
+                        const mode = Math.floor(Math.random()*3); // 0:v, 1:u, 2:t
+                        if(mode===0) return {unit:'m s⁻¹', q:`一物體以初速度 ${fmt(u)} m s⁻¹ 及勻加速度 ${fmt(a)} m s⁻² 沿直線運動，歷時 ${fmt(t)} s。求末速度。`, a:v};
+                        if(mode===1) return {unit:'m s⁻¹', q:`一物體以勻加速度 ${fmt(a)} m s⁻² 運動 ${fmt(t)} s 後，速度變為 ${fmt(v)} m s⁻¹。求其初速度。`, a:u};
+                        if(mode===2) return {unit:'s', q:`一物體由初速度 ${fmt(u)} m s⁻¹ 以勻加速度 ${fmt(a)} m s⁻² 加速至 ${fmt(v)} m s⁻¹。求所需時間。`, a:t};
+                    }
                 }},
-                {id:'newton2', latex:'F = m a', visual:'mech_linear', gen:()=>{ 
+                {id:'suvat_2', label:'勻加速運動方程 2 (Equations of U.A.M. 2)', latex:'s = u t + \\frac{1}{2} a t^2', visual:'mech_linear', gen:()=>{ 
+                    const isGravity = Math.random() < 0.5;
+                    let u, a, t, s, qText;
+
+                    if (isGravity) {
+                        a = 9.81;
+                        if (Math.random() < 0.5) {
+                            // Drop from rest
+                            u = 0; t = rand(1, 5, 1); s = u*t + 0.5*a*t*t;
+                            qText = `一石塊由靜止自由落下，歷時 ${fmt(t)} s。求石塊下墜的距離。（取 $g=9.81$ m s⁻²）`;
+                            return {unit:'m', q:qText, a:s};
+                        } else {
+                            // Throw up (calculate height) - careful with signs
+                            // Let's do simple drop height calculation or throw down distance
+                            u = rand(5, 15, 0); t = rand(1, 2, 1); s = u*t + 0.5*a*t*t;
+                            qText = `一物體以 ${fmt(u)} m s⁻¹ 的初速垂直向下拋出，經過 ${fmt(t)} s。求位移大小。（取 $g=9.81$ m s⁻²）`;
+                            return {unit:'m', q:qText, a:s};
+                        }
+                    } else {
+                        u=rand(0,10,0); a=rand(1,4,1); t=rand(2,8,0); s = u*t + 0.5*a*t*t;
+                        const mode = Math.floor(Math.random()*2); // 0:s, 1:u
+                        if(mode===0) return {unit:'m', q:`一汽車以初速 ${fmt(u)} m s⁻¹ 及勻加速度 ${fmt(a)} m s⁻² 行駛 ${fmt(t)} s。求行駛距離。`, a:s};
+                        if(mode===1) return {unit:'m s⁻¹', q:`一物體以勻加速度 ${fmt(a)} m s⁻² 行駛 ${fmt(t)} s，位移為 ${fmt(s)} m。求初速度。`, a:u};
+                    }
+                }},
+                {id:'suvat_3', label:'勻加速運動方程 3 (Equations of U.A.M. 3)', latex:'v^2 = u^2 + 2 a s', visual:'mech_linear', gen:()=>{ 
+                    const isGravity = Math.random() < 0.5;
+                    let u, a, s, v, qText;
+
+                    if (isGravity) {
+                        a = 9.81;
+                        // Drop from height
+                        u = 0; s = rand(10, 50, 0); 
+                        // v^2 = 0 + 2as => v = sqrt(2as)
+                        v = Math.sqrt(2*a*s);
+                        qText = `一物體由靜止從 ${fmt(s)} m 高處自由落下。求著地時的速率。（取 $g=9.81$ m s⁻²）`;
+                        return {unit:'m s⁻¹', q:qText, a:v};
+                    } else {
+                        u=rand(0,10,0); a=rand(1,5,1); s=rand(10,50,0); 
+                        // Ensure v^2 is positive (it is since u, a, s > 0)
+                        v = Math.sqrt(u*u + 2*a*s);
+                        const mode = Math.floor(Math.random()*2); // 0:v, 1:s
+                        if(mode===0) return {unit:'m s⁻¹', q:`一物體初速 ${fmt(u)} m s⁻¹，以勻加速度 ${fmt(a)} m s⁻² 移動了 ${fmt(s)} m。求末速率。`, a:v};
+                        if(mode===1) return {unit:'m', q:`一物體由靜止以勻加速度 ${fmt(a)} m s⁻² 加速至 ${fmt(v)} m s⁻¹。求加速距離。`, a:(v*v)/(2*a)}; // u=0 case for simplicity in reverse
+                    }
+                }},
+                {id:'newton2', label:'牛頓第二定律 (Newton\'s 2nd Law)', latex:'F = m a', visual:'mech_linear', gen:()=>{ 
                     const m=rand(5,50,0), a=rand(2,10,1); const F = m*a;
                     const mode = Math.floor(Math.random()*3); // 0:F, 1:m, 2:a
                     if(mode===0) return {unit:'N', q:`一個質量為 ${fmt(m)} kg 的物體正以加速度 ${fmt(a)} m s⁻² 運動。求作用在物體上的淨力。`, a:F};
                     if(mode===1) return {unit:'kg', q:`一物體在 ${fmt(F)} N 的淨力作用下，產生 ${fmt(a)} m s⁻² 的加速度。求該物體的質量。`, a:m};
                     if(mode===2) return {unit:'m s⁻²', q:`一恆力 ${fmt(F)} N 作用於質量為 ${fmt(m)} kg 的物體上。求物體產生的加速度。`, a:a};
                 }},
-                {id:'momentum', latex:'p = m v', visual:'mech_linear', gen:()=>{ 
+                {id:'momentum', label:'動量 (Momentum)', latex:'p = m v', visual:'mech_linear', gen:()=>{ 
                     const m=rand(2,20,0), v=rand(5,20,0); const p = m*v;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'kg m s⁻¹', q:`一物體質量為 ${fmt(m)} kg，速度為 ${fmt(v)} m s⁻¹。求該物體的動量。`, a:p};
                     if(mode===1) return {unit:'m s⁻¹', q:`一質量為 ${fmt(m)} kg 的物體擁有 ${fmt(p)} kg m s⁻¹ 的動量。求其速度。`, a:v};
                 }},
-                {id:'impulse', latex:'F \\Delta t = \\Delta p', unit:'N s', visual:'mech_linear', gen:()=>{ 
+                {id:'impulse', label:'衝量 (Impulse)', latex:'F \\Delta t = \\Delta p', unit:'N s', visual:'mech_linear', gen:()=>{ 
                     const f=rand(10,100,0), t=rand(0.2,2,1); const dp = f*t;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'kg m s⁻¹', q:`一恆力 ${fmt(f)} N 作用於某物體 ${fmt(t)} s。求物體的動量變化。`, a:dp};
                     if(mode===1) return {unit:'N', q:`某物體在 ${fmt(t)} s 內的動量變化為 ${fmt(dp)} kg m s⁻¹。求作用在物體上的平均力。`, a:f};
                 }},
-                {id:'moment', latex:'M = F d \\sin\\theta', unit:'N m', visual:'mech_linear', gen:()=>{ 
+                {id:'moment', label:'力矩 (Moment)', latex:'M = F d \\sin\\theta', unit:'N m', visual:'mech_linear', gen:()=>{ 
                     const F=rand(10,50,0), d=rand(1,5,1); const M = F*d*0.5; // sin30=0.5
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'N m', q:`一力 ${fmt(F)} N 作用於距轉軸 ${fmt(d)} m 處，力與力臂夾角為 30°。求該力產生的力矩。`, a:M};
                     if(mode===1) return {unit:'m', q:`一力 ${fmt(F)} N 作用於距轉軸 $d$ 處 (夾角 30°)，產生力矩 ${fmt(M)} N m。求距離 $d$。`, a:d};
                 }},
-                {id:'work', latex:'W = F s \\cos\\theta', unit:'J', visual:'mech_linear', gen:()=>{ 
+                {id:'work', label:'機械功 (Work)', latex:'W = F s \\cos\\theta', unit:'J', visual:'mech_linear', gen:()=>{ 
                     const F=rand(50,200,0), s=rand(5,20,0); const W = F*s;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'J', q:`一外力 ${fmt(F)} N 將物體沿力的方向推動了 ${fmt(s)} m (力與位移平行)。求該力所做的功。`, a:W};
                     if(mode===1) return {unit:'N', q:`某外力將物體沿力的方向推動了 ${fmt(s)} m，作功 ${fmt(W)} J。求該外力的大小。`, a:F};
                 }},
-                {id:'ke', latex:'E_k = \\frac{1}{2} m v^2', unit:'J', visual:'mech_linear', gen:()=>{ 
+                {id:'ke', label:'動能 (Kinetic Energy)', latex:'E_k = \\frac{1}{2} m v^2', unit:'J', visual:'mech_linear', gen:()=>{ 
                     const m=rand(1000,2000,0), v=rand(10,40,0); const ke = 0.5*m*v*v;
                     const mode = Math.floor(Math.random()*3);
                     if(mode===0) return {unit:'J', q:`一輛質量為 ${fmt(m)} kg 的汽車以速率 ${fmt(v)} m s⁻¹ 行駛。求汽車的動能。`, a:ke};
                     if(mode===1) return {unit:'m s⁻¹', q:`一輛質量為 ${fmt(m)} kg 的汽車擁有動能 ${fmt(ke)} J。求其速率。`, a:v};
                     if(mode===2) return {unit:'kg', q:`一物體以速率 ${fmt(v)} m s⁻¹ 行駛，擁有動能 ${fmt(ke)} J。求其質量。`, a:m};
                 }},
-                {id:'pe', latex:'E_p = m g h', unit:'J', visual:'mech_linear', gen:()=>{ 
+                {id:'pe', label:'勢能 (Potential Energy)', latex:'E_p = m g h', unit:'J', visual:'mech_linear', gen:()=>{ 
                     const m=rand(2,20,0), h=rand(5,50,0); const pe = m*9.81*h;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'J', q:`將質量 ${fmt(m)} kg 的物體垂直提升 ${fmt(h)} m。求物體增加的重力勢能。（取 $g = 9.81$ m s⁻²）`, a:pe};
                     if(mode===1) return {unit:'m', q:`將質量 ${fmt(m)} kg 的物體提升後，重力勢能增加了 ${fmt(pe)} J。求提升的高度。（取 $g = 9.81$ m s⁻²）`, a:h};
                 }},
-                {id:'power', latex:'P = F v', unit:'W', visual:'mech_linear', gen:()=>{ 
+                {id:'power', label:'機械功率 (Power)', latex:'P = F v', unit:'W', visual:'mech_linear', gen:()=>{ 
                     const F=rand(100,500,0), v=rand(10,30,0); const P = F*v;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'W', q:`一物體在 ${fmt(F)} N 的推力下以 ${fmt(v)} m s⁻¹ 的恆定速率運動。求推力的功率。`, a:P};
                     if(mode===1) return {unit:'N', q:`某引擎輸出功率為 ${fmt(P)} W，推動汽車以 ${fmt(v)} m s⁻¹ 恆速行駛。求推力。`, a:F};
                 }},
-                {id:'centrip_a', label:'向心加速度', latex:'a = v^2 / r', visual:'mech_circle', gen:()=>{ 
+                {id:'centrip_a', label:'向心加速度 (Centripetal)', latex:'a = v^2 / r', visual:'mech_circle', gen:()=>{ 
                     const v=rand(5,20,0), r=rand(2,10,0); const a = v*v/r;
                     const mode = Math.floor(Math.random()*2);
                     if(mode===0) return {unit:'m s⁻²', q:`一物體以速率 ${fmt(v)} m s⁻¹ 沿半徑 ${fmt(r)} m 的圓形軌道運動。求其向心加速度。`, a:a};
