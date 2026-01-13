@@ -15,28 +15,6 @@
         .filter-btn:active { transform: scale(0.95); }
         .layer-btn { @apply px-3 py-1 rounded-lg font-bold text-sm border-2 border-slate-200 text-slate-500 transition-colors; }
         .layer-btn.active { @apply bg-blue-500 text-white border-blue-600; }
-        
-        /* Markdown Styles */
-        .markdown-body h3 { font-size: 1.1rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; color: #1e293b; }
-        .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-        .markdown-body p { margin-bottom: 0.8rem; line-height: 1.6; color: #334155; }
-        .markdown-body strong { color: #0f172a; font-weight: 700; }
-
-        /* Loading Animation */
-        .dot-flashing {
-            position: relative; width: 10px; height: 10px; border-radius: 5px;
-            background-color: #2563eb; color: #2563eb;
-            animation: dot-flashing 1s infinite linear alternate;
-            animation-delay: 0.5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-            content: ''; display: inline-block; position: absolute; top: 0;
-            width: 10px; height: 10px; border-radius: 5px; background-color: #2563eb; color: #2563eb;
-            animation: dot-flashing 1s infinite alternate;
-        }
-        .dot-flashing::before { left: -15px; animation-delay: 0s; }
-        .dot-flashing::after { left: 15px; animation-delay: 1s; }
-        @keyframes dot-flashing { 0% { background-color: #2563eb; } 50%, 100% { background-color: #bfdbfe; } }
     </style>
 </head>
 <body>
@@ -49,16 +27,15 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
             <div>
-                <h1 class="text-xl font-black text-slate-800 tracking-tight">智慧多層過濾模擬器</h1>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">多層過濾模擬器</h1>
                 <div class="flex items-center gap-2">
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">AI Powered Lab</p>
-                    <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">Gemini Inside ✨</span>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">Physics Lab</p>
                 </div>
             </div>
         </div>
         
         <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
-            <!-- Layer Selector (Changed to Dropdown) -->
+            <!-- Layer Selector -->
             <div class="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200">
                 <label for="layer-select" class="text-xs font-bold text-slate-400 uppercase mx-2">層數</label>
                 <select id="layer-select" onchange="setLayerCount(parseInt(this.value))" class="bg-white text-slate-700 font-bold text-sm rounded-lg border-2 border-slate-200 px-3 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer hover:border-blue-300">
@@ -72,12 +49,6 @@
             <div class="bg-amber-50 px-4 py-2 rounded-xl text-amber-700 font-black border border-amber-200 text-sm whitespace-nowrap shadow-sm">
                 成本: $<span id="total-cost">0</span>
             </div>
-
-            <!-- AI Analyze Button -->
-            <button onclick="analyzeExperiment()" class="group flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all hover:scale-105 active:scale-95">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                ✨ AI 分析報告
-            </button>
         </div>
     </div>
 
@@ -113,42 +84,6 @@
     </div>
 </div>
 
-<!-- AI Report Modal -->
-<div id="ai-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-[2rem] w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" id="ai-modal-content">
-        <!-- Modal Header -->
-        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white rounded-t-[2rem]">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-100 p-2 rounded-lg text-indigo-600">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                </div>
-                <h2 class="text-xl font-bold text-slate-800">AI 實驗分析報告</h2>
-            </div>
-            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-full transition-colors">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        
-        <!-- Modal Body -->
-        <div class="p-6 overflow-y-auto flex-grow bg-white">
-            <div id="ai-loading" class="hidden flex flex-col items-center justify-center py-12 space-y-4">
-                <div class="dot-flashing"></div>
-                <p class="text-slate-500 font-medium text-sm animate-pulse">AI 老師正在分析你的過濾設計...</p>
-            </div>
-            <div id="ai-result" class="markdown-body hidden text-slate-700">
-                <!-- AI Content goes here -->
-            </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-[2rem] flex justify-end">
-            <button onclick="closeModal()" class="px-6 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition shadow-sm">
-                關閉
-            </button>
-        </div>
-    </div>
-</div>
-
 <script>
     // --- Configuration ---
     const filterData = {
@@ -156,7 +91,7 @@
         fineSand: { name: '幼沙', speed: 0.5, color: '#fcd34d', cost: 25 },
         coarseSand: { name: '粗沙', speed: 1.2, color: '#b45309', cost: 15 },
         smallStone: { name: '小石', speed: 3.5, color: '#94a3b8', cost: 10 },
-        empty: { name: '無 (空)', speed: 8.0, color: 'transparent', cost: 0 } // 新增選項
+        empty: { name: '無 (空)', speed: 8.0, color: 'transparent', cost: 0 }
     };
 
     // --- State ---
@@ -166,18 +101,11 @@
     const canvas = document.getElementById('simCanvas');
     const ctx = canvas.getContext('2d');
 
-    // --- Gemini API Setup ---
-    const apiKey = ""; // System will inject the key
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
-
     // --- Core Logic ---
     function setLayerCount(n) {
         numLayers = n;
-        
-        // Update dropdown UI if called programmatically (like on init)
         const select = document.getElementById('layer-select');
         if (select) select.value = n;
-
         waterDrops = [];
         renderControls();
         renderStats();
@@ -280,13 +208,13 @@
                 }
             }
             
-            // Labels (Layer Number) - Moved to bottom
+            // Labels (Layer Number)
             ctx.fillStyle = 'rgba(0,0,0,0.05)';
             ctx.font = 'bold 40px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText((i+1).toString(), xStart + sectionWidth/2, canvas.height - 20);
 
-            // Material Name Label - Centered
+            // Material Name Label
             ctx.fillStyle = '#64748b';
             ctx.font = 'bold 16px sans-serif';
             ctx.textAlign = 'center';
@@ -317,87 +245,6 @@
             if (d.x > canvas.width) waterDrops.splice(i, 1);
         }
         requestAnimationFrame(animate);
-    }
-
-    // --- AI Logic ---
-    async function callGemini(prompt) {
-        try {
-            const response = await fetch(`${API_URL}?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "AI 分析失敗，請稍後再試。";
-        } catch (error) {
-            console.error(error);
-            return "連線錯誤，無法取得 AI 回應。";
-        }
-    }
-
-    async function analyzeExperiment() {
-        const modal = document.getElementById('ai-modal');
-        const content = document.getElementById('ai-modal-content');
-        const loading = document.getElementById('ai-loading');
-        const result = document.getElementById('ai-result');
-        
-        // Show Modal
-        modal.classList.remove('hidden');
-        // Small delay to allow display:block to apply before opacity transition
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }, 10);
-
-        loading.classList.remove('hidden');
-        result.classList.add('hidden');
-        result.innerHTML = '';
-
-        // Construct Prompt
-        const activeLayers = currentLayers.slice(0, numLayers).map(k => filterData[k].name);
-        const cost = document.getElementById('total-cost').innerText;
-        const flow = document.getElementById('flow-val').innerText;
-        const score = document.getElementById('score-val').innerText;
-
-        const prompt = `你是一位專業的自然科學老師。學生在過濾模擬器中設計了一個過濾裝置。
-        
-        **裝置配置：**
-        - 水流方向：從左(第1層)流向右(第${numLayers}層)
-        - 材質順序：${activeLayers.join(' ➔ ')}
-        
-        **實驗數據：**
-        - 總成本：$${cost}
-        - 平均流速：${flow} (數值越大越快)
-        - 性價比得分：${score} 分
-
-        請用**繁體中文**給出一段約 200 字的實驗報告分析。
-        
-        **內容要求：**
-        1. **原理檢查**：檢查材質排列是否符合「顆粒由大到小」(例如：小石->粗沙->幼沙->棉花) 的過濾原理。若順序不佳(例如棉花在第一層)，請指出可能會發生「堵塞」的問題。
-        2. **效能點評**：根據流速和成本，評價這個設計的實用性。
-        3. **優化建議**：給出具體的調整建議，如何能提高過濾效果或性價比。
-
-        請使用 Markdown 格式，語氣親切、鼓勵學生。`;
-
-        // Call API
-        const text = await callGemini(prompt);
-        
-        // Render Result
-        loading.classList.add('hidden');
-        result.classList.remove('hidden');
-        result.innerHTML = marked.parse(text);
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('ai-modal');
-        const content = document.getElementById('ai-modal-content');
-        
-        modal.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
     }
 
     // --- Init ---
