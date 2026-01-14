@@ -71,7 +71,7 @@
             
             <!-- Stats & Upload Button Area -->
             <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <!-- 新增的上傳按鈕 -->
+                <!-- 上傳按鈕 -->
                 <button onclick="window.uploadData()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition text-sm flex items-center gap-2 shadow-lg shadow-green-900/20">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                     上傳數據
@@ -159,14 +159,11 @@
         </div>
     </div>
 
-    <!-- 1. 引入 Firebase SDK (使用模組化版本) -->
+    <!-- Firebase Integration -->
     <script type="module">
-        // 引入必要的 Firebase 函式庫
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   
-        // 2. 貼上你在 Firebase 控制台取得的設定檔
-        // TODO: 請將下方的字串替換為你真實的 Firebase Config
         const firebaseConfig = {
            apiKey: "AIzaSyBEH9UZ7dfCb93kPxuncjWCTG3Qq6mJPFg",
            authDomain: "phy-sim.firebaseapp.com",
@@ -177,42 +174,34 @@
            measurementId: "G-RCWNRGR1CS"
         };
 
-  
-        // 3. 初始化 Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
   
-        // 4. 定義一個全域函數讓原本的 JS 可以呼叫
+        // Expose upload function to window
         window.uploadData = async function() {
-          // 修改：取得當前畫面的數值 (對應遊戲實際的 ID)
           const scoreEl = document.getElementById('scoreDisplay');
           const score = scoreEl ? scoreEl.innerText : "0";
-          
-          // 這裡我們將遊戲的愛心數量作為 flowRate 傳入，確保欄位有值
           const livesEl = document.getElementById('livesDisplay');
-          // 簡單計算愛心符號的數量 (每個愛心2個字元長度，因為是emoji)
           const flow = livesEl ? (livesEl.innerText.length / 2) : 0; 
-          
-          // 這些欄位在遊戲中沒有，我們給定預設值以符合資料庫結構
-          const cost = 0;
-          const layerCount = 1;
+          const playerNameInput = document.getElementById('playerNameInput');
+          const playerName = playerNameInput ? playerNameInput.value : "Unknown";
   
           try {
-            // 寫入資料庫
             const docRef = await addDoc(collection(db, "experiments"), {
               score: Number(score),
-              flowRate: Number(flow), // 這裡實際上存的是剩餘生命值
-              cost: Number(cost),
-              layers: Number(layerCount),
-              timestamp: serverTimestamp() // 紀錄時間
+              flowRate: Number(flow), 
+              cost: 0,
+              layers: 1,
+              playerName: playerName, // 順便紀錄玩家名字
+              timestamp: serverTimestamp()
             });
-            alert("數據上傳成功！ID: " + docRef.id);
+            alert("數據上傳成功！\nRecord ID: " + docRef.id);
           } catch (e) {
             console.error("Error adding document: ", e);
             alert("上傳失敗，請檢查網路或 Console (按 F12 查看)");
           }
         }
-      </script>
+    </script>
 
     <!-- Game Logic -->
     <script>
