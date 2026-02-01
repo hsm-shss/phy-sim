@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HKDSE Physics Arena (Full Syllabus)</title>
+    <title>HKDSE Physics Arena (Full Variable Diversity)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Roboto+Mono:wght@500&display=swap');
@@ -13,18 +13,23 @@
             background-color: #f8fafc; 
         }
         
-        /* DSE Paper Style Font */
+        /* DSE Paper Style Font - Times New Roman for Physics variables/units */
         .paper-font {
             font-family: 'Times New Roman', Times, serif;
         }
 
         /* Scientific Notation Superscript */
         .sci-exp {
-            font-size: 0.75em;
+            font-size: 0.7em;
             vertical-align: super;
-            margin-left: 1px;
+            line-height: 0;
         }
 
+        /* Variable Italics (Physics Standard) */
+        .var {
+            font-style: italic;
+        }
+        
         /* Calculator Styles */
         .calc-grid {
             display: grid;
@@ -51,6 +56,12 @@
         /* Scrollbar for nav */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
@@ -85,9 +96,14 @@
         <!-- Formula Selector & Display -->
         <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
             <div class="flex flex-col md:flex-row gap-4 items-center">
-                <div class="w-full md:w-1/3">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">公式 Formula</label>
-                    <select id="formulaSelect" class="w-full p-2 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 text-sm" onchange="loadFormula(this.value)"></select>
+                <div class="w-full md:w-1/3 flex gap-2 items-end">
+                    <div class="flex-grow">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">公式 Formula</label>
+                        <select id="formulaSelect" class="w-full p-2 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 text-sm" onchange="loadFormula(this.value)"></select>
+                    </div>
+                    <button onclick="openSymbolModal()" class="h-[38px] w-[38px] flex-shrink-0 bg-blue-100 text-blue-600 rounded border border-blue-200 hover:bg-blue-200 flex items-center justify-center" title="符號意思 Symbol Meanings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    </button>
                 </div>
                 <div class="w-full md:w-2/3 relative cursor-pointer group" onclick="toggleFormula()">
                     <div class="absolute top-0 left-0 text-[10px] text-slate-400 uppercase font-bold tracking-wider">Tap to reveal</div>
@@ -105,7 +121,7 @@
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 lg:w-3/5 flex flex-col relative">
                 <div class="flex justify-between items-start mb-4">
                     <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" id="qTag">TOPIC</span>
-                    <button onclick="generateQuestion()" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded transition">
+                    <button onclick="generateQuestion()" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded transition" title="Next Question">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     </button>
                 </div>
@@ -153,6 +169,40 @@
         </div>
     </main>
 
+    <!-- Symbol Modal -->
+    <div id="symbolModal" class="fixed inset-0 z-[100] hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeSymbolModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+            <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        符號意思 Symbol Meanings
+                    </h3>
+                    <button onclick="closeSymbolModal()" class="text-slate-400 hover:text-slate-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-0 max-h-[60vh] overflow-y-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-bold sticky top-0">
+                            <tr>
+                                <th class="px-4 py-2 border-b">符號</th>
+                                <th class="px-4 py-2 border-b">意義 (單位)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="symbolTableBody" class="divide-y divide-slate-100">
+                            <!-- Content injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 bg-slate-50 border-t border-slate-200 text-center">
+                    <button onclick="closeSymbolModal()" class="px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded hover:bg-slate-700 w-full">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Constants ---
         const C = { 
@@ -163,8 +213,6 @@
         };
 
         // --- Formatting Helpers ---
-
-        // 1. Unicode Superscript for Units (e.g. m s^-1)
         function unitSup(str) {
             const map = {
                 '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
@@ -174,7 +222,6 @@
             return str.replace(/[-+0-9]/g, char => map[char] || char);
         }
 
-        // 2. Scientific Notation HTML (A x 10^n)
         function toSci(num, precision = 2) {
             if (num === 0) return "0";
             let str = num.toExponential(precision); 
@@ -184,14 +231,10 @@
             return `${mantissa} × 10<sup class="sci-exp">${expInt}</sup>`;
         }
 
-        // 3. Smart Formatter
         function fmt(n) {
             let abs = Math.abs(n);
             if (abs === 0) return "0";
-            
-            if (abs >= 0.001 && abs <= 9999) {
-                return parseFloat(n.toPrecision(4)).toString(); 
-            }
+            if (abs >= 0.001 && abs <= 9999) return parseFloat(n.toPrecision(4)).toString(); 
             return toSci(n);
         }
 
@@ -199,268 +242,844 @@
             return parseFloat((Math.random()*(max-min)+min).toFixed(dec)); 
         }
 
-        // --- Formula Database (Updated: Removed $ symbols, used <i> for variables) ---
+        // Helper to solve for one variable
+        function solveFor(vars, targetKey, unit, symbolMap) {
+            // vars: object with all known values { Q:100, m:2, ... }
+            // targetKey: string 'Q'
+            // unit: string 'J'
+            // symbolMap: object mapping keys to display HTML { Q: '<i>Q</i>', m: '<i>m</i>' }
+            
+            let qStr = "";
+            for (let k in vars) {
+                if (k !== targetKey && k !== 'ans') {
+                    // Skip constants if they are implicit, but here we usually pass them
+                    let val = vars[k];
+                    let displaySym = symbolMap[k] || `<i>${k}</i>`;
+                    // Special handling for constants display if needed, but simple is fine
+                    qStr += `${displaySym} = ${fmt(val)}，`;
+                }
+            }
+            // Remove last comma
+            qStr = qStr.slice(0, -1);
+            let targetSym = symbolMap[targetKey] || `<i>${targetKey}</i>`;
+            
+            return {
+                unit: unit,
+                q: `${qStr}。求 ${targetSym}。`,
+                a: vars[targetKey]
+            };
+        }
+
+        // --- Formula Database (With Symbols) ---
         const formulaDB = {
             heat: [
-                {id:'h1', label:'比熱容量 Q=mcΔT', html:'Q = mc&Delta;T', unit:'J', gen:()=>{ 
-                    const m=rand(0.5, 5, 1); const dt=rand(10, 40, 0); const Q = m * 4200 * dt;
-                    return {unit:'J', q:`質量 ${fmt(m)} kg 的水，溫度上升 ${fmt(dt)}°C。求 <i>Q</i>。<br>(<i>c</i> = 4200 J kg${unitSup('-1')} °C${unitSup('-1')})`, a:Q};
-                }},
-                {id:'h2', label:'熱容量 Q=CΔT', html:'Q = C&Delta;T', unit:'J', gen:()=>{ 
-                    const C=rand(200, 800, 0); const dt=rand(5, 20, 0); const Q = C * dt;
-                    return {unit:'J', q:`熱容量 ${fmt(C)} J °C${unitSup('-1')}，溫升 ${fmt(dt)}°C。求 <i>Q</i>。`, a:Q};
-                }},
-                {id:'h3', label:'熔解潛熱 Q=ml_f', html:'Q = ml<sub>f</sub>', unit:'J', gen:()=>{ 
-                    const m=rand(0.1, 1, 2); const Q = m * C.ice_lf;
-                    return {unit:'J', q:`熔解 ${fmt(m)} kg 的冰。求 <i>Q</i>。<br>(<i>l<sub>f</sub></i> = ${fmt(C.ice_lf)} J kg${unitSup('-1')})`, a:Q};
-                }},
-                {id:'h4', label:'汽化潛熱 Q=ml_v', html:'Q = ml<sub>v</sub>', unit:'J', gen:()=>{ 
-                    const m=rand(0.1, 0.5, 2); const Q = m * C.water_lv;
-                    return {unit:'J', q:`汽化 ${fmt(m)} kg 的水。求 <i>Q</i>。<br>(<i>l<sub>v</sub></i> = ${fmt(C.water_lv)} J kg${unitSup('-1')})`, a:Q};
-                }},
-                {id:'h5', label:'氣體定律 pV=nRT', html:'pV = nRT', unit:'Pa', gen:()=>{ 
-                    const n=rand(1, 3, 1); const T=rand(300, 400, 0); const V=rand(0.02, 0.05, 3);
-                    const p = (n * C.R * T) / V;
-                    return {unit:'Pa', q:`${fmt(n)} mol 氣體，${fmt(T)} K，體積 ${fmt(V)} m${unitSup('3')}。求 <i>p</i>。`, a:p};
-                }},
-                {id:'h6', label:'分子運動論 pV=1/3Nmc²', html:'pV = &frac{1}{3}Nm<span style="text-decoration:overline">c<sup>2</sup></span>', unit:'Pa', gen:()=>{ 
-                    const N=rand(1e23, 5e23, 0); const m=5e-26; const c2=250000; const V=0.1;
-                    const p = (1/3 * N * m * c2) / V;
-                    return {unit:'Pa', q:`<i>N</i>=${fmt(N)}，<i>m</i>=${fmt(m)} kg，方均速率 ${fmt(Math.sqrt(c2))} m s${unitSup('-1')}，體積 ${fmt(V)} m${unitSup('3')}。求 <i>p</i>。`, a:p};
-                }},
-                {id:'h7', label:'氣體動能 Ek=3RT/2NA', html:'E<sub>k</sub> = 3RT / 2N<sub>A</sub>', unit:'J', gen:()=>{ 
-                    const T=rand(200, 600, 0); const Ek = (3 * C.R * T) / (2 * C.NA);
-                    return {unit:'J', q:`溫度 ${fmt(T)} K。求單原子分子的平均動能。`, a:Ek};
-                }}
+                {
+                    id:'h1', label:'比熱容量 Q=mcΔT', html:'Q = mc&Delta;T',
+                    symbols: { 'Q': '能量 (J)', 'm': '質量 (kg)', 'c': '比熱容量', '&Delta;T': '溫差 (°C)' },
+                    gen:()=>{ 
+                        const m=rand(0.5, 5, 1); const dt=rand(10, 40, 0); const c=4200; const Q = m * c * dt;
+                        const vars = { 'Q':Q, 'm':m, '&Delta;T':dt }; // c is const
+                        const choice = Math.random() < 0.33 ? 'Q' : (Math.random() < 0.5 ? 'm' : '&Delta;T');
+                        const units = { 'Q':'J', 'm':'kg', '&Delta;T':'°C' };
+                        
+                        let q = "";
+                        if(choice === 'Q') q = `質量 <i>m</i> = ${fmt(m)} kg，溫差 &Delta;<i>T</i> = ${fmt(dt)}°C。求 <i>Q</i>。`;
+                        else if(choice === 'm') q = `能量 <i>Q</i> = ${fmt(Q)} J，溫差 &Delta;<i>T</i> = ${fmt(dt)}°C。求質量 <i>m</i>。`;
+                        else q = `能量 <i>Q</i> = ${fmt(Q)} J，質量 <i>m</i> = ${fmt(m)} kg。求溫差 &Delta;<i>T</i>。`;
+                        
+                        return { unit: units[choice], q: q + `<br>(<i>c</i> = 4200 J kg${unitSup('-1')} °C${unitSup('-1')})`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'h2', label:'熱容量 Q=CΔT', html:'Q = C&Delta;T',
+                    symbols: { 'Q': '能量 (J)', 'C': '熱容量', '&Delta;T': '溫差 (°C)' },
+                    gen:()=>{ 
+                        const C=rand(200, 800, 0); const dt=rand(5, 20, 0); const Q = C * dt;
+                        const vars = { 'Q':Q, 'C':C, '&Delta;T':dt };
+                        const choice = ['Q','C','&Delta;T'][Math.floor(Math.random()*3)];
+                        const units = { 'Q':'J', 'C':'J °C⁻¹', '&Delta;T':'°C' };
+                        
+                        let q = "";
+                        if(choice==='Q') q=`熱容量 <i>C</i> = ${fmt(C)} J °C${unitSup('-1')}，溫差 &Delta;<i>T</i> = ${fmt(dt)}°C。求 <i>Q</i>。`;
+                        else if(choice==='C') q=`能量 <i>Q</i> = ${fmt(Q)} J，溫差 &Delta;<i>T</i> = ${fmt(dt)}°C。求熱容量 <i>C</i>。`;
+                        else q=`能量 <i>Q</i> = ${fmt(Q)} J，熱容量 <i>C</i> = ${fmt(C)} J °C${unitSup('-1')}。求溫差 &Delta;<i>T</i>。`;
+                        
+                        return { unit: units[choice], q: q, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'h3', label:'熔解潛熱 Q=ml_f', html:'Q = ml<sub>f</sub>',
+                    symbols: { 'Q': '能量 (J)', 'm': '質量 (kg)', 'l<sub>f</sub>': '熔解比潛熱' },
+                    gen:()=>{ 
+                        const m=rand(0.1, 1, 2); const lf=C.ice_lf; const Q = m * lf;
+                        const choice = Math.random() < 0.5 ? 'Q' : 'm';
+                        const units = { 'Q':'J', 'm':'kg' };
+                        let q = choice==='Q' ? `質量 <i>m</i> = ${fmt(m)} kg。求 <i>Q</i>。` : `能量 <i>Q</i> = ${fmt(Q)} J。求 <i>m</i>。`;
+                        return { unit: units[choice], q: q + `<br>(<i>l<sub>f</sub></i> = ${fmt(lf)} J kg${unitSup('-1')})`, a: choice==='Q'?Q:m };
+                    }
+                },
+                {
+                    id:'h4', label:'汽化潛熱 Q=ml_v', html:'Q = ml<sub>v</sub>',
+                    symbols: { 'Q': '能量 (J)', 'm': '質量 (kg)', 'l<sub>v</sub>': '汽化比潛熱' },
+                    gen:()=>{ 
+                        const m=rand(0.1, 0.5, 2); const lv=C.water_lv; const Q = m * lv;
+                        const choice = Math.random() < 0.5 ? 'Q' : 'm';
+                        const units = { 'Q':'J', 'm':'kg' };
+                        let q = choice==='Q' ? `質量 <i>m</i> = ${fmt(m)} kg。求 <i>Q</i>。` : `能量 <i>Q</i> = ${fmt(Q)} J。求 <i>m</i>。`;
+                        return { unit: units[choice], q: q + `<br>(<i>l<sub>v</sub></i> = ${fmt(lv)} J kg${unitSup('-1')})`, a: choice==='Q'?Q:m };
+                    }
+                },
+                {
+                    id:'h5', label:'氣體定律 pV=nRT', html:'pV = nRT',
+                    symbols: { 'p':'壓強 (Pa)', 'V':'體積 (m³)', 'n':'摩爾數', 'T':'溫度 (K)' },
+                    gen:()=>{ 
+                        const n=rand(1, 3, 1); const T=rand(300, 400, 0); const V=rand(0.02, 0.05, 3);
+                        const p = (n * C.R * T) / V;
+                        const vars = { 'p':p, 'V':V, 'n':n, 'T':T };
+                        const keys = ['p','V','n','T'];
+                        const choice = keys[Math.floor(Math.random()*keys.length)];
+                        const units = { 'p':'Pa', 'V':'m³', 'n':'mol', 'T':'K' };
+                        
+                        let qStr = "";
+                        keys.forEach(k => {
+                            if(k !== choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        });
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'h6', label:'分子運動論 pV=1/3Nmc²', html:'pV = 1/3 Nm<span style="text-decoration:overline">c<sup>2</sup></span>', 
+                    symbols: { 'p':'壓強', 'V':'體積', 'N':'分子數', 'm':'分子質量', 'c2':'方均速率' },
+                    gen:()=>{ 
+                        const N = rand(1e23, 5e23, 0); const m = 5e-26; const c2 = 250000; const V = 0.1;
+                        const p = (1/3 * N * m * c2) / V;
+                        const c = Math.sqrt(c2);
+                        
+                        // Variables to play with: p, V, N. (Assume m and c are given constants for simplicity in question text flow, or vary them too)
+                        // Let's vary p, V, N.
+                        const choice = ['p','V','N'][Math.floor(Math.random()*3)];
+                        const common = `<i>m</i> = ${fmt(m)} kg，方均速率 = ${fmt(c)} m s${unitSup('-1')}`;
+                        
+                        if(choice==='p') return { unit:'Pa', q:`<i>N</i> = ${fmt(N)}，體積 <i>V</i> = ${fmt(V)} m${unitSup('3')}，${common}。求 <i>p</i>。`, a:p };
+                        if(choice==='V') return { unit:'m³', q:`<i>N</i> = ${fmt(N)}，壓強 <i>p</i> = ${fmt(p)} Pa，${common}。求 <i>V</i>。`, a:V };
+                        return { unit:'', q:`壓強 <i>p</i> = ${fmt(p)} Pa，體積 <i>V</i> = ${fmt(V)} m${unitSup('3')}，${common}。求 <i>N</i>。`, a:N };
+                    }
+                },
+                {
+                    id:'h7', label:'氣體動能 Ek=3RT/2NA', html:'E<sub>k</sub> = 3RT / 2N<sub>A</sub>',
+                    symbols: { 'E<sub>k</sub>':'平均動能', 'T':'溫度' },
+                    gen:()=>{ 
+                        const T=rand(200, 600, 0); const Ek = (3 * C.R * T) / (2 * C.NA);
+                        const choice = Math.random() < 0.5 ? 'Ek' : 'T';
+                        if(choice==='Ek') return { unit:'J', q:`溫度 <i>T</i> = ${fmt(T)} K。求 <i>E<sub>k</sub></i>。`, a:Ek };
+                        return { unit:'K', q:`平均動能 <i>E<sub>k</sub></i> = ${fmt(Ek)} J。求 <i>T</i>。`, a:T };
+                    }
+                }
             ],
             mechanics: [
-                {id:'m1', label:'運動方程 v=u+at', html:'v = u + at', unit:'m s⁻¹', gen:()=>{ 
-                    const u=rand(0, 10, 0); const a=rand(2, 5, 0); const t=rand(2, 6, 0);
-                    return {unit:'m s⁻¹', q:`<i>u</i>=${fmt(u)} m s${unitSup('-1')}，<i>a</i>=${fmt(a)} m s${unitSup('-2')}，<i>t</i>=${fmt(t)} s。求 <i>v</i>。`, a:u+a*t};
-                }},
-                {id:'m2', label:'運動方程 s=(u+v)t/2', html:'s = (u+v)t / 2', unit:'m', gen:()=>{ 
-                    const u=10; const v=20; const t=4;
-                    return {unit:'m', q:`<i>u</i>=${u} m s${unitSup('-1')}，<i>v</i>=${v} m s${unitSup('-1')}，<i>t</i>=${t} s。求 <i>s</i>。`, a:(u+v)*t/2};
-                }},
-                {id:'m3', label:'運動方程 s=ut+½at²', html:'s = ut + &frac{1}{2}at<sup>2</sup>', unit:'m', gen:()=>{ 
-                    const u=0; const a=4; const t=5;
-                    return {unit:'m', q:`<i>u</i>=${u}，<i>a</i>=${a} m s${unitSup('-2')}，<i>t</i>=${t} s。求 <i>s</i>。`, a:u*t + 0.5*a*t*t};
-                }},
-                {id:'m4', label:'運動方程 v²=u²+2as', html:'v<sup>2</sup> = u<sup>2</sup> + 2as', unit:'m s⁻¹', gen:()=>{ 
-                    const u=0; const a=2; const s=100;
-                    return {unit:'m s⁻¹', q:`<i>u</i>=${u}，<i>a</i>=${a} m s${unitSup('-2')}，<i>s</i>=${s} m。求 <i>v</i>。`, a:Math.sqrt(u*u + 2*a*s)};
-                }},
-                {id:'m5', label:'牛頓第二定律 F=ma', html:'F = ma', unit:'N', gen:()=>{ 
-                    const m=50; const a=2; 
-                    return {unit:'N', q:`質量 ${m} kg，加速度 ${a} m s${unitSup('-2')}。求 <i>F</i>。`, a:m*a};
-                }},
-                {id:'m6', label:'動量 p=mv', html:'p = mv', unit:'kg m s⁻¹', gen:()=>{ 
-                    const m=2; const v=10;
-                    return {unit:'kg m s⁻¹', q:`質量 ${m} kg，速度 ${v} m s${unitSup('-1')}。求 <i>p</i>。`, a:m*v};
-                }},
-                {id:'m7', label:'力與動量 F=Δp/Δt', html:'F = &Delta;p / &Delta;t', unit:'N', gen:()=>{ 
-                    const dp=20; const dt=0.5;
-                    return {unit:'N', q:`動量變化 ${dp} kg m s${unitSup('-1')}，歷時 ${dt} s。求平均力 <i>F</i>。`, a:dp/dt};
-                }},
-                {id:'m8', label:'衝量 Δp=FΔt', html:'&Delta;p = F&Delta;t', unit:'N s', gen:()=>{ 
-                    const F=100; const dt=0.2;
-                    return {unit:'N s', q:`力 ${F} N 作用 ${dt} s。求衝量。`, a:F*dt};
-                }},
-                {id:'m9', label:'機械功 W=Fs cosθ', html:'W = Fs cos&theta;', unit:'J', gen:()=>{ 
-                    const F=50; const s=10; const deg=60;
-                    return {unit:'J', q:`力 ${F} N，位移 ${s} m，夾角 ${deg}°。求功 <i>W</i>。`, a:F*s*Math.cos(deg*Math.PI/180)};
-                }},
-                {id:'m10', label:'動能 Ek=½mv²', html:'E<sub>k</sub> = &frac{1}{2}mv<sup>2</sup>', unit:'J', gen:()=>{ 
-                    const m=1000; const v=20;
-                    return {unit:'J', q:`質量 ${m} kg，速率 ${v} m s${unitSup('-1')}。求 <i>E<sub>k</sub></i>。`, a:0.5*m*v*v};
-                }},
-                {id:'m11', label:'勢能 Ep=mgh', html:'E<sub>p</sub> = mgh', unit:'J', gen:()=>{ 
-                    const m=10; const h=50;
-                    return {unit:'J', q:`質量 ${m} kg，高度 ${h} m。求 <i>E<sub>p</sub></i>。`, a:m*C.g*h};
-                }},
-                {id:'m12', label:'功率 P=Fv', html:'P = Fv', unit:'W', gen:()=>{ 
-                    const F=500; const v=10;
-                    return {unit:'W', q:`驅動力 ${F} N，速率 ${v} m s${unitSup('-1')}。求功率 <i>P</i>。`, a:F*v};
-                }},
-                {id:'m13', label:'向心加速度 a=v²/r', html:'a = v<sup>2</sup> / r', unit:'m s⁻²', gen:()=>{ 
-                    const v=10; const r=5;
-                    return {unit:'m s⁻²', q:`速率 ${v} m s${unitSup('-1')}，半徑 ${r} m。求 <i>a</i>。`, a:v*v/r};
-                }},
-                {id:'m14', label:'向心力 F=mv²/r', html:'F = mv<sup>2</sup> / r', unit:'N', gen:()=>{ 
-                    const m=2; const v=5; const r=1;
-                    return {unit:'N', q:`質量 ${m} kg，速率 ${v} m s${unitSup('-1')}，半徑 ${r} m。求 <i>F</i>。`, a:m*v*v/r};
-                }},
-                {id:'m15', label:'萬有引力 F=GMm/r²', html:'F = GMm / r<sup>2</sup>', unit:'N', gen:()=>{ 
-                    const M=6e24; const m=1000; const r=7e6;
-                    return {unit:'N', q:`<i>M</i>=${fmt(M)} kg，<i>m</i>=${fmt(m)} kg，<i>r</i>=${fmt(r)} m。求 <i>F</i>。`, a:(C.G*M*m)/(r*r)};
-                }},
-                {id:'m16', label:'引力場 g=GM/r²', html:'g = GM / r<sup>2</sup>', unit:'N kg⁻¹', gen:()=>{ 
-                    const M=6e24; const r=6.4e6;
-                    return {unit:'N kg⁻¹', q:`地球質量 ${fmt(M)} kg，半徑 ${fmt(r)} m。求表面 <i>g</i>。`, a:(C.G*M)/(r*r)};
-                }},
-                {id:'m17', label:'引力勢能 U=-GMm/r', html:'U = -GMm / r', unit:'J', gen:()=>{ 
-                    const M=6e24; const m=500; const r=8e6;
-                    return {unit:'J', q:`<i>M</i>=${fmt(M)} kg，<i>m</i>=${fmt(m)} kg，<i>r</i>=${fmt(r)} m。求 <i>U</i>。`, a:-(C.G*M*m)/r};
-                }}
+                {
+                    id:'m1', label:'運動方程 v=u+at', html:'v = u + at', 
+                    symbols: { 'v':'末速', 'u':'初速', 'a':'加速度', 't':'時間' },
+                    gen:()=>{ 
+                        const u=rand(0, 10, 0); const a=rand(2, 5, 0); const t=rand(2, 6, 0); const v = u+a*t;
+                        const vars = { 'v':v, 'u':u, 'a':a, 't':t };
+                        const choice = ['v','u','a','t'][Math.floor(Math.random()*4)];
+                        const units = { 'v':'m s⁻¹', 'u':'m s⁻¹', 'a':'m s⁻²', 't':'s' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m2', label:'運動方程 s=(u+v)t/2', html:'s = (u+v)t / 2', 
+                    symbols: { 's':'位移', 'u':'初速', 'v':'末速', 't':'時間' },
+                    gen:()=>{ 
+                        const u=10; const v=20; const t=4; const s = (u+v)*t/2;
+                        const vars = { 's':s, 'u':u, 'v':v, 't':t };
+                        const choice = ['s','u','v','t'][Math.floor(Math.random()*4)];
+                        const units = { 's':'m', 'u':'m s⁻¹', 'v':'m s⁻¹', 't':'s' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m3', label:'運動方程 s=ut+½at²', html:'s = ut + &frac{1}{2}at<sup>2</sup>', 
+                    symbols: { 's':'位移', 'u':'初速', 't':'時間', 'a':'加速度' },
+                    gen:()=>{ 
+                        const u=5; const a=4; const t=3; const s = u*t + 0.5*a*t*t;
+                        const vars = { 's':s, 'u':u, 'a':a, 't':t };
+                        // Solving for t is quadratic, let's stick to s, u, a for simplicity, or ensure t is positive if solved
+                        const choice = ['s','u','a'][Math.floor(Math.random()*3)]; 
+                        const units = { 's':'m', 'u':'m s⁻¹', 'a':'m s⁻²', 't':'s' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m4', label:'運動方程 v²=u²+2as', html:'v<sup>2</sup> = u<sup>2</sup> + 2as', 
+                    symbols: { 'v':'末速', 'u':'初速', 'a':'加速度', 's':'位移' },
+                    gen:()=>{ 
+                        const u=5; const a=2; const s=100; const v = Math.sqrt(u*u + 2*a*s);
+                        const vars = { 'v':v, 'u':u, 'a':a, 's':s };
+                        const choice = ['v','u','a','s'][Math.floor(Math.random()*4)];
+                        const units = { 'v':'m s⁻¹', 'u':'m s⁻¹', 'a':'m s⁻²', 's':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m5', label:'牛頓第二定律 F=ma', html:'F = ma', 
+                    symbols: { 'F':'淨力', 'm':'質量', 'a':'加速度' },
+                    gen:()=>{ 
+                        const m=50; const a=2; const F=m*a;
+                        const vars = { 'F':F, 'm':m, 'a':a };
+                        const choice = ['F','m','a'][Math.floor(Math.random()*3)];
+                        const units = { 'F':'N', 'm':'kg', 'a':'m s⁻²' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m6', label:'動量 p=mv', html:'p = mv', 
+                    symbols: { 'p':'動量', 'm':'質量', 'v':'速度' },
+                    gen:()=>{ 
+                        const m=2; const v=10; const p=m*v;
+                        const vars = { 'p':p, 'm':m, 'v':v };
+                        const choice = ['p','m','v'][Math.floor(Math.random()*3)];
+                        const units = { 'p':'kg m s⁻¹', 'm':'kg', 'v':'m s⁻¹' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m7', label:'力與動量 F=Δp/Δt', html:'F = &Delta;p / &Delta;t', 
+                    symbols: { 'F':'力', '&Delta;p':'動量變', '&Delta;t':'時間' },
+                    gen:()=>{ 
+                        const dp=20; const dt=0.5; const F=dp/dt;
+                        const vars = { 'F':F, '&Delta;p':dp, '&Delta;t':dt };
+                        const choice = ['F','&Delta;p','&Delta;t'][Math.floor(Math.random()*3)];
+                        const units = { 'F':'N', '&Delta;p':'kg m s⁻¹', '&Delta;t':'s' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k === '&Delta;p' ? '&Delta;<i>p</i>' : (k === '&Delta;t' ? '&Delta;<i>t</i>' : '<i>F</i>')} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice === '&Delta;p' ? '&Delta;<i>p</i>' : (choice === '&Delta;t' ? '&Delta;<i>t</i>' : '<i>F</i>')}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m8', label:'衝量 I=FΔt', html:'I = F&Delta;t', 
+                    symbols: { 'I':'衝量', 'F':'力', '&Delta;t':'時間' },
+                    gen:()=>{ 
+                        const F=100; const dt=0.2; const I=F*dt;
+                        const vars = { 'I':I, 'F':F, '&Delta;t':dt };
+                        const choice = ['I','F','&Delta;t'][Math.floor(Math.random()*3)];
+                        const units = { 'I':'N s', 'F':'N', '&Delta;t':'s' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&Delta;t'?'&Delta;<i>t</i>':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&Delta;t'?'&Delta;<i>t</i>':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m9', label:'機械功 W=Fs cosθ', html:'W = Fs cos&theta;', 
+                    symbols: { 'W':'功', 'F':'力', 's':'位移', '&theta;':'角度' },
+                    gen:()=>{ 
+                        const F=50; const s=10; const deg=60; const W = F*s*Math.cos(deg*Math.PI/180);
+                        // Solve for W, F, s. Solving for theta involves acos, maybe too complex for simple drill? Let's include it.
+                        const vars = { 'W':W, 'F':F, 's':s, '&theta;':deg };
+                        const choice = ['W','F','s'][Math.floor(Math.random()*3)]; // Keep to linear vars for now
+                        const units = { 'W':'J', 'F':'N', 's':'m', '&theta;':'°' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&theta;'?'&theta;':`<i>${k}</i>`} = ${fmt(vars[k])}${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m10', label:'動能 Ek=½mv²', html:'E<sub>k</sub> = &frac{1}{2}mv<sup>2</sup>', 
+                    symbols: { 'E<sub>k</sub>':'動能', 'm':'質量', 'v':'速率' },
+                    gen:()=>{ 
+                        const m=1000; const v=20; const Ek = 0.5*m*v*v;
+                        const vars = { 'E<sub>k</sub>':Ek, 'm':m, 'v':v };
+                        const choice = ['E<sub>k</sub>','m','v'][Math.floor(Math.random()*3)];
+                        const units = { 'E<sub>k</sub>':'J', 'm':'kg', 'v':'m s⁻¹' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m11', label:'勢能 Ep=mgh', html:'E<sub>p</sub> = mgh', 
+                    symbols: { 'E<sub>p</sub>':'勢能', 'm':'質量', 'h':'高度' },
+                    gen:()=>{ 
+                        const m=10; const h=50; const Ep = m*C.g*h;
+                        const vars = { 'E<sub>p</sub>':Ep, 'm':m, 'h':h };
+                        const choice = ['E<sub>p</sub>','m','h'][Math.floor(Math.random()*3)];
+                        const units = { 'E<sub>p</sub>':'J', 'm':'kg', 'h':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m12', label:'功率 P=Fv', html:'P = Fv', 
+                    symbols: { 'P':'功率', 'F':'力', 'v':'速率' },
+                    gen:()=>{ 
+                        const F=500; const v=10; const P=F*v;
+                        const vars = { 'P':P, 'F':F, 'v':v };
+                        const choice = ['P','F','v'][Math.floor(Math.random()*3)];
+                        const units = { 'P':'W', 'F':'N', 'v':'m s⁻¹' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m13', label:'向心加速度 a=v²/r', html:'a = v<sup>2</sup> / r', 
+                    symbols: { 'a':'加速度', 'v':'速率', 'r':'半徑' },
+                    gen:()=>{ 
+                        const v=10; const r=5; const a=v*v/r;
+                        const vars = { 'a':a, 'v':v, 'r':r };
+                        const choice = ['a','v','r'][Math.floor(Math.random()*3)];
+                        const units = { 'a':'m s⁻²', 'v':'m s⁻¹', 'r':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m14', label:'向心力 F=mv²/r', html:'F = mv<sup>2</sup> / r', 
+                    symbols: { 'F':'向心力', 'm':'質量', 'v':'速率', 'r':'半徑' },
+                    gen:()=>{ 
+                        const m=2; const v=5; const r=1; const F=m*v*v/r;
+                        const vars = { 'F':F, 'm':m, 'v':v, 'r':r };
+                        const choice = ['F','m','v','r'][Math.floor(Math.random()*4)];
+                        const units = { 'F':'N', 'm':'kg', 'v':'m s⁻¹', 'r':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m15', label:'萬有引力 F=GMm/r²', html:'F = GMm / r<sup>2</sup>', 
+                    symbols: { 'F':'引力', 'M':'質量1', 'm':'質量2', 'r':'距離' },
+                    gen:()=>{ 
+                        const M=6e24; const m=1000; const r=7e6; const F=(C.G*M*m)/(r*r);
+                        const vars = { 'F':F, 'M':M, 'm':m, 'r':r };
+                        const choice = ['F','r'][Math.floor(Math.random()*2)]; // Solving for M/m is linear, r is sqrt. Let's do F and r.
+                        const units = { 'F':'N', 'M':'kg', 'm':'kg', 'r':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m16', label:'引力場 g=GM/r²', html:'g = GM / r<sup>2</sup>', 
+                    symbols: { 'g':'場強', 'M':'質量', 'r':'距離' },
+                    gen:()=>{ 
+                        const M=6e24; const r=6.4e6; const g=(C.G*M)/(r*r);
+                        const vars = { 'g':g, 'M':M, 'r':r };
+                        const choice = ['g','M','r'][Math.floor(Math.random()*3)];
+                        const units = { 'g':'N kg⁻¹', 'M':'kg', 'r':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'m17', label:'引力勢能 U=-GMm/r', html:'U = -GMm / r', 
+                    symbols: { 'U':'勢能', 'M':'質量1', 'm':'質量2', 'r':'距離' },
+                    gen:()=>{ 
+                        const M=6e24; const m=500; const r=8e6; const U=-(C.G*M*m)/r;
+                        const vars = { 'U':U, 'M':M, 'm':m, 'r':r };
+                        const choice = ['U','r'][Math.floor(Math.random()*2)];
+                        const units = { 'U':'J', 'M':'kg', 'm':'kg', 'r':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                }
             ],
             waves: [
-                {id:'w1', label:'波速 v=fλ', html:'v = f&lambda;', unit:'m s⁻¹', gen:()=>{ 
-                    const f=200; const l=1.5;
-                    return {unit:'m s⁻¹', q:`頻率 ${f} Hz，波長 ${l} m。求 <i>v</i>。`, a:f*l};
-                }},
-                {id:'w2', label:'頻率 f=1/T', html:'f = 1 / T', unit:'Hz', gen:()=>{ 
-                    const T=0.02;
-                    return {unit:'Hz', q:`週期 ${T} s。求 <i>f</i>。`, a:1/T};
-                }},
-                {id:'w3', label:'折射率 n=c/v', html:'n = c / v', unit:'', gen:()=>{ 
-                    const v=2e8;
-                    return {unit:'', q:`介質光速 ${fmt(v)} m s${unitSup('-1')}。求 <i>n</i>。`, a:C.c/v};
-                }},
-                {id:'w4', label:'斯涅耳定律', html:'n<sub>1</sub>sin&theta;<sub>1</sub> = n<sub>2</sub>sin&theta;<sub>2</sub>', unit:'', gen:()=>{ 
-                    const n1=1; const t1=45; const t2=30;
-                    const n2 = (n1 * Math.sin(t1*Math.PI/180)) / Math.sin(t2*Math.PI/180);
-                    return {unit:'', q:`光由空氣(<i>n</i>=1)射入，入射角 45°，折射角 30°。求介質 <i>n</i>。`, a:n2};
-                }},
-                {id:'w5', label:'透鏡公式 1/f=1/u+1/v', html:'1/f = 1/u + 1/v', unit:'m', gen:()=>{ 
-                    const u=0.2; const f=0.1;
-                    const v = 1/(1/f - 1/u);
-                    return {unit:'m', q:`物距 ${u} m，焦距 ${f} m (凸透鏡)。求像距 <i>v</i>。`, a:v};
-                }},
-                {id:'w6', label:'放大率 m=v/u', html:'m = v / u', unit:'', gen:()=>{ 
-                    const v=0.3; const u=0.1;
-                    return {unit:'', q:`像距 ${v} m，物距 ${u} m。求 <i>m</i>。`, a:v/u};
-                }},
-                {id:'w7', label:'雙縫干涉 Δy=λD/a', html:'&Delta;y = &lambda;D / a', unit:'m', gen:()=>{ 
-                    const l=6e-7; const D=1; const a=1e-3;
-                    return {unit:'m', q:`波長 ${fmt(l)} m，縫屏距 ${D} m，縫距 ${fmt(a)} m。求條紋間距。`, a:(l*D)/a};
-                }},
-                {id:'w8', label:'光柵 d sinθ=nλ', html:'d sin&theta; = n&lambda;', unit:'°', gen:()=>{ 
-                    const d=2e-6; const l=5e-7; const n=1;
-                    const sinT = (n*l)/d;
-                    return {unit:'°', q:`光柵間距 ${fmt(d)} m，波長 ${fmt(l)} m。求第一級角度。`, a:Math.asin(sinT)*180/Math.PI};
-                }}
+                {
+                    id:'w1', label:'波速 v=fλ', html:'v = f&lambda;', 
+                    symbols: { 'v':'波速', 'f':'頻率', '&lambda;':'波長' },
+                    gen:()=>{ 
+                        const f=200; const l=1.5; const v=f*l;
+                        const vars = { 'v':v, 'f':f, '&lambda;':l };
+                        const choice = ['v','f','&lambda;'][Math.floor(Math.random()*3)];
+                        const units = { 'v':'m s⁻¹', 'f':'Hz', '&lambda;':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&lambda;'?'&lambda;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&lambda;'?'&lambda;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'w2', label:'頻率 f=1/T', html:'f = 1 / T', 
+                    symbols: { 'f':'頻率', 'T':'週期' },
+                    gen:()=>{ 
+                        const T=0.02; const f=1/T;
+                        const choice = Math.random()<0.5 ? 'f':'T';
+                        if(choice==='f') return { unit:'Hz', q:`週期 <i>T</i> = ${T} s。求 <i>f</i>。`, a:f };
+                        return { unit:'s', q:`頻率 <i>f</i> = ${f} Hz。求 <i>T</i>。`, a:T };
+                    }
+                },
+                {
+                    id:'w3', label:'折射率 n=c/v', html:'n = c / v', 
+                    symbols: { 'n':'折射率', 'v':'介質光速' },
+                    gen:()=>{ 
+                        const v=2e8; const n=C.c/v;
+                        const choice = Math.random()<0.5 ? 'n':'v';
+                        if(choice==='n') return { unit:'', q:`介質光速 <i>v</i> = ${fmt(v)} m s${unitSup('-1')}。求 <i>n</i>。`, a:n };
+                        return { unit:'m s⁻¹', q:`折射率 <i>n</i> = ${fmt(n)}。求 <i>v</i>。`, a:v };
+                    }
+                },
+                {
+                    id:'w4', label:'斯涅耳定律', html:'n<sub>1</sub>sin&theta;<sub>1</sub> = n<sub>2</sub>sin&theta;<sub>2</sub>', 
+                    symbols: { 'n<sub>1</sub>':'n1', '&theta;<sub>1</sub>':'θ1', 'n<sub>2</sub>':'n2', '&theta;<sub>2</sub>':'θ2' },
+                    gen:()=>{ 
+                        const n1=1; const t1=45; const t2=30; 
+                        const n2 = (n1 * Math.sin(t1*Math.PI/180)) / Math.sin(t2*Math.PI/180);
+                        // Solve for n2 or n1 usually. Solving for angle requires asin.
+                        const vars = { 'n<sub>1</sub>':n1, '&theta;<sub>1</sub>':t1, 'n<sub>2</sub>':n2, '&theta;<sub>2</sub>':t2 };
+                        const choice = 'n<sub>2</sub>'; // Keep simple for now or expand logic
+                        return { unit:'', q:`<i>n<sub>1</sub></i>=${n1}，&theta;<sub>1</sub>=${t1}°，&theta;<sub>2</sub>=${t2}°。求 <i>n<sub>2</sub></i>。`, a:n2 };
+                    }
+                },
+                {
+                    id:'w5', label:'透鏡公式 1/f=1/u+1/v', html:'1/f = 1/u + 1/v', 
+                    symbols: { 'f':'焦距', 'u':'物距', 'v':'像距' },
+                    gen:()=>{ 
+                        const u=0.2; const f=0.1; const v = 1/(1/f - 1/u);
+                        const vars = { 'f':f, 'u':u, 'v':v };
+                        const choice = ['f','u','v'][Math.floor(Math.random()*3)];
+                        const units = { 'f':'m', 'u':'m', 'v':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: 'm', q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'w6', label:'放大率 m=v/u', html:'m = v / u', 
+                    symbols: { 'm':'放大率', 'v':'像距', 'u':'物距' },
+                    gen:()=>{ 
+                        const v=0.3; const u=0.1; const m=v/u;
+                        const vars = { 'm':m, 'v':v, 'u':u };
+                        const choice = ['m','v','u'][Math.floor(Math.random()*3)];
+                        const units = { 'm':'', 'v':'m', 'u':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'w7', label:'雙縫干涉 Δy=λD/a', html:'&Delta;y = &lambda;D / a', 
+                    symbols: { '&Delta;y':'間距', '&lambda;':'波長', 'D':'縫屏距', 'a':'縫距' },
+                    gen:()=>{ 
+                        const l=6e-7; const D=1; const a=1e-3; const dy=(l*D)/a;
+                        const vars = { '&Delta;y':dy, '&lambda;':l, 'D':D, 'a':a };
+                        const choice = ['&Delta;y','&lambda;','D','a'][Math.floor(Math.random()*4)];
+                        const units = { '&Delta;y':'m', '&lambda;':'m', 'D':'m', 'a':'m' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&lambda;'?'&lambda;':(k==='&Delta;y'?'&Delta;<i>y</i>':`<i>${k}</i>`)} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&lambda;'?'&lambda;':(choice==='&Delta;y'?'&Delta;<i>y</i>':`<i>${choice}</i>`)}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'w8', label:'光柵 d sinθ=nλ', html:'d sin&theta; = n&lambda;', 
+                    symbols: { 'd':'光柵距', '&theta;':'角度', 'n':'級數', '&lambda;':'波長' },
+                    gen:()=>{ 
+                        const d=2e-6; const l=5e-7; const n=1; const sinT = (n*l)/d; const theta = Math.asin(sinT)*180/Math.PI;
+                        const vars = { 'd':d, '&lambda;':l, 'n':n, '&theta;':theta };
+                        const choice = ['d','&lambda;','&theta;'][Math.floor(Math.random()*3)]; // n usually integer given
+                        const units = { 'd':'m', '&lambda;':'m', '&theta;':'°', 'n':'' };
+                        
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&lambda;'?'&lambda;':(k==='&theta;'?'&theta;':`<i>${k}</i>`)} = ${fmt(vars[k])}${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&lambda;'?'&lambda;':(choice==='&theta;'?'&theta;':`<i>${choice}</i>`)}。`, a: vars[choice] };
+                    }
+                }
             ],
             em: [
-                {id:'e1', label:'庫侖定律', html:'F = Q<sub>1</sub>Q<sub>2</sub> / 4&pi;&epsilon;<sub>0</sub>r<sup>2</sup>', unit:'N', gen:()=>{ 
-                    const Q=1e-6; const r=0.1;
-                    return {unit:'N', q:`兩電荷均為 ${fmt(Q)} C，相距 ${r} m。求靜電力。`, a:(Q*Q)/(4*Math.PI*C.epsilon0*r*r)};
-                }},
-                {id:'e2', label:'點電荷電場', html:'E = Q / 4&pi;&epsilon;<sub>0</sub>r<sup>2</sup>', unit:'N C⁻¹', gen:()=>{ 
-                    const Q=2e-6; const r=0.5;
-                    return {unit:'N C⁻¹', q:`電荷 ${fmt(Q)} C，距離 ${r} m。求電場強度。`, a:Q/(4*Math.PI*C.epsilon0*r*r)};
-                }},
-                {id:'e3', label:'勻強電場 E=V/d', html:'E = V / d', unit:'V m⁻¹', gen:()=>{ 
-                    const V=100; const d=0.05;
-                    return {unit:'V m⁻¹', q:`電壓 ${V} V，板間距 ${d} m。求 <i>E</i>。`, a:V/d};
-                }},
-                {id:'e4', label:'歐姆定律 V=IR', html:'V = IR', unit:'V', gen:()=>{ 
-                    const I=2; const R=10;
-                    return {unit:'V', q:`電流 ${I} A，電阻 ${R} &Omega;。求 <i>V</i>。`, a:I*R};
-                }},
-                {id:'e5', label:'電阻率 R=ρl/A', html:'R = &rho;l / A', unit:'Ω', gen:()=>{ 
-                    const rho=1e-6; const l=2; const A=1e-6;
-                    return {unit:'Ω', q:`&rho;=${fmt(rho)} &Omega; m，<i>l</i>=${l} m，<i>A</i>=${fmt(A)} m${unitSup('2')}。求 <i>R</i>。`, a:(rho*l)/A};
-                }},
-                {id:'e6', label:'電功率 P=V²/R', html:'P = V<sup>2</sup> / R', unit:'W', gen:()=>{ 
-                    const V=12; const R=6;
-                    return {unit:'W', q:`電壓 ${V} V，電阻 ${R} &Omega;。求 <i>P</i>。`, a:(V*V)/R};
-                }},
-                {id:'e7', label:'直導線磁場', html:'B = &mu;<sub>0</sub>I / 2&pi;r', unit:'T', gen:()=>{ 
-                    const I=5; const r=0.02;
-                    return {unit:'T', q:`電流 ${I} A，距離 ${r} m。求 <i>B</i>。`, a:(C.mu0*I)/(2*Math.PI*r)};
-                }},
-                {id:'e8', label:'磁力 F=BIl sinθ', html:'F = BIl sin&theta;', unit:'N', gen:()=>{ 
-                    const B=0.5; const I=2; const l=0.5;
-                    return {unit:'N', q:`<i>B</i>=${B} T，<i>I</i>=${I} A，長 ${l} m (垂直)。求 <i>F</i>。`, a:B*I*l};
-                }},
-                {id:'e9', label:'磁力 F=BQv sinθ', html:'F = BQv sin&theta;', unit:'N', gen:()=>{ 
-                    const B=0.1; const Q=1.6e-19; const v=1e6;
-                    return {unit:'N', q:`<i>B</i>=${B} T，質子速率 ${fmt(v)} m s${unitSup('-1')} (垂直)。求 <i>F</i>。`, a:B*Q*v};
-                }},
-                {id:'e10', label:'磁通量 Φ=BA cosθ', html:'&Phi; = BA cos&theta;', unit:'Wb', gen:()=>{ 
-                    const B=0.2; const A=0.5; const deg=0;
-                    return {unit:'Wb', q:`<i>B</i>=${B} T，面積 ${A} m${unitSup('2')} (垂直)。求 &Phi;。`, a:B*A};
-                }},
-                {id:'e11', label:'法拉第定律', html:'&epsilon; = N&Delta;&Phi; / &Delta;t', unit:'V', gen:()=>{ 
-                    const N=100; const dPhi=0.05; const dt=0.1;
-                    return {unit:'V', q:`線圈 ${N} 匝，磁通改變 ${dPhi} Wb，歷時 ${dt} s。求 &epsilon;。`, a:N*dPhi/dt};
-                }},
-                {id:'e12', label:'方均根 Vrms', html:'V<sub>rms</sub> = V<sub>0</sub> / &radic;2', unit:'V', gen:()=>{ 
-                    const V0=311;
-                    return {unit:'V', q:`峰值電壓 ${V0} V。求 <i>V<sub>rms</sub></i>。`, a:V0/Math.sqrt(2)};
-                }},
-                {id:'e13', label:'變壓器', html:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>', unit:'V', gen:()=>{ 
-                    const Vp=220; const Np=1000; const Ns=50;
-                    return {unit:'V', q:`原線圈 ${Np} 匝，副線圈 ${Ns} 匝，輸入 ${Vp} V。求輸出。`, a:Vp*(Ns/Np)};
-                }}
+                {
+                    id:'e1', label:'庫侖定律', html:'F = Q<sub>1</sub>Q<sub>2</sub> / 4&pi;&epsilon;<sub>0</sub>r<sup>2</sup>', 
+                    symbols: { 'F':'力', 'Q':'電荷', 'r':'距離' },
+                    gen:()=>{ 
+                        const Q=1e-6; const r=0.1; const F=(Q*Q)/(4*Math.PI*C.epsilon0*r*r);
+                        // Simplify: Q1=Q2=Q
+                        const vars = { 'F':F, 'Q':Q, 'r':r };
+                        const choice = ['F','Q','r'][Math.floor(Math.random()*3)];
+                        const units = { 'F':'N', 'Q':'C', 'r':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + ` (兩電荷相等)。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e2', label:'點電荷電場', html:'E = Q / 4&pi;&epsilon;<sub>0</sub>r<sup>2</sup>', 
+                    symbols: { 'E':'電場', 'Q':'電荷', 'r':'距離' },
+                    gen:()=>{ 
+                        const Q=2e-6; const r=0.5; const E=Q/(4*Math.PI*C.epsilon0*r*r);
+                        const vars = { 'E':E, 'Q':Q, 'r':r };
+                        const choice = ['E','Q','r'][Math.floor(Math.random()*3)];
+                        const units = { 'E':'N C⁻¹', 'Q':'C', 'r':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e3', label:'勻強電場 E=V/d', html:'E = V / d', 
+                    symbols: { 'E':'電場', 'V':'電壓', 'd':'距離' },
+                    gen:()=>{ 
+                        const V=100; const d=0.05; const E=V/d;
+                        const vars = { 'E':E, 'V':V, 'd':d };
+                        const choice = ['E','V','d'][Math.floor(Math.random()*3)];
+                        const units = { 'E':'V m⁻¹', 'V':'V', 'd':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e4', label:'歐姆定律 V=IR', html:'V = IR', 
+                    symbols: { 'V':'電壓', 'I':'電流', 'R':'電阻' },
+                    gen:()=>{ 
+                        const I=2; const R=10; const V=I*R;
+                        const vars = { 'V':V, 'I':I, 'R':R };
+                        const choice = ['V','I','R'][Math.floor(Math.random()*3)];
+                        const units = { 'V':'V', 'I':'A', 'R':'Ω' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e5', label:'電阻率 R=ρl/A', html:'R = &rho;l / A', 
+                    symbols: { 'R':'電阻', '&rho;':'電阻率', 'l':'長度', 'A':'面積' },
+                    gen:()=>{ 
+                        const rho=1e-6; const l=2; const A=1e-6; const R=(rho*l)/A;
+                        const vars = { 'R':R, '&rho;':rho, 'l':l, 'A':A };
+                        const choice = ['R','&rho;','l','A'][Math.floor(Math.random()*4)];
+                        const units = { 'R':'Ω', '&rho;':'Ω m', 'l':'m', 'A':'m²' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&rho;'?'&rho;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&rho;'?'&rho;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e6', label:'電功率 P=V²/R', html:'P = V<sup>2</sup> / R', 
+                    symbols: { 'P':'功率', 'V':'電壓', 'R':'電阻' },
+                    gen:()=>{ 
+                        const V=12; const R=6; const P=(V*V)/R;
+                        const vars = { 'P':P, 'V':V, 'R':R };
+                        const choice = ['P','V','R'][Math.floor(Math.random()*3)];
+                        const units = { 'P':'W', 'V':'V', 'R':'Ω' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e7', label:'直導線磁場', html:'B = &mu;<sub>0</sub>I / 2&pi;r', 
+                    symbols: { 'B':'磁場', 'I':'電流', 'r':'距離' },
+                    gen:()=>{ 
+                        const I=5; const r=0.02; const B=(C.mu0*I)/(2*Math.PI*r);
+                        const vars = { 'B':B, 'I':I, 'r':r };
+                        const choice = ['B','I','r'][Math.floor(Math.random()*3)];
+                        const units = { 'B':'T', 'I':'A', 'r':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e8', label:'磁力 F=BIl sinθ', html:'F = BIl sin&theta;', 
+                    symbols: { 'F':'磁力', 'B':'磁場', 'I':'電流', 'l':'長度' },
+                    gen:()=>{ 
+                        const B=0.5; const I=2; const l=0.5; const F=B*I*l; // Assume theta=90
+                        const vars = { 'F':F, 'B':B, 'I':I, 'l':l };
+                        const choice = ['F','B','I','l'][Math.floor(Math.random()*4)];
+                        const units = { 'F':'N', 'B':'T', 'I':'A', 'l':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + ` (垂直)。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e9', label:'磁力 F=BQv sinθ', html:'F = BQv sin&theta;', 
+                    symbols: { 'F':'磁力', 'B':'磁場', 'Q':'電荷', 'v':'速率' },
+                    gen:()=>{ 
+                        const B=0.1; const Q=1.6e-19; const v=1e6; const F=B*Q*v;
+                        const vars = { 'F':F, 'B':B, 'Q':Q, 'v':v };
+                        const choice = ['F','B','v'][Math.floor(Math.random()*3)]; // Q is constant usually
+                        const units = { 'F':'N', 'B':'T', 'Q':'C', 'v':'m s⁻¹' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + ` (垂直)。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e10', label:'磁通量 Φ=BA cosθ', html:'&Phi; = BA cos&theta;', 
+                    symbols: { '&Phi;':'磁通量', 'B':'磁場', 'A':'面積' },
+                    gen:()=>{ 
+                        const B=0.2; const A=0.5; const Phi=B*A;
+                        const vars = { '&Phi;':Phi, 'B':B, 'A':A };
+                        const choice = ['&Phi;','B','A'][Math.floor(Math.random()*3)];
+                        const units = { '&Phi;':'Wb', 'B':'T', 'A':'m²' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&Phi;'?'&Phi;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + ` (垂直)。求 ${choice==='&Phi;'?'&Phi;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e11', label:'法拉第定律', html:'&epsilon; = N&Delta;&Phi; / &Delta;t', 
+                    symbols: { '&epsilon;':'電動勢', 'N':'匝數', '&Delta;&Phi;':'磁通變', '&Delta;t':'時間' },
+                    gen:()=>{ 
+                        const N=100; const dPhi=0.05; const dt=0.1; const eps=N*dPhi/dt;
+                        const vars = { '&epsilon;':eps, 'N':N, '&Delta;&Phi;':dPhi, '&Delta;t':dt };
+                        const choice = ['&epsilon;','N','&Delta;&Phi;','&Delta;t'][Math.floor(Math.random()*4)];
+                        const units = { '&epsilon;':'V', 'N':'', '&Delta;&Phi;':'Wb', '&Delta;t':'s' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k.includes('&')?k:`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice.includes('&')?choice:`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'e12', label:'方均根 Vrms', html:'V<sub>rms</sub> = V<sub>0</sub> / &radic;2', 
+                    symbols: { 'V<sub>rms</sub>':'Vrms', 'V<sub>0</sub>':'V0' },
+                    gen:()=>{ 
+                        const V0=311; const Vrms=V0/Math.sqrt(2);
+                        const choice = Math.random()<0.5 ? 'V<sub>rms</sub>' : 'V<sub>0</sub>';
+                        if(choice==='V<sub>rms</sub>') return { unit:'V', q:`<i>V<sub>0</sub></i> = ${V0} V。求 <i>V<sub>rms</sub></i>。`, a:Vrms };
+                        return { unit:'V', q:`<i>V<sub>rms</sub></i> = ${fmt(Vrms)} V。求 <i>V<sub>0</sub></i>。`, a:V0 };
+                    }
+                },
+                {
+                    id:'e13', label:'變壓器', html:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>', 
+                    symbols: { 'V<sub>s</sub>':'Vs', 'V<sub>p</sub>':'Vp', 'N<sub>s</sub>':'Ns', 'N<sub>p</sub>':'Np' },
+                    gen:()=>{ 
+                        const Vp=220; const Np=1000; const Ns=50; const Vs=Vp*(Ns/Np);
+                        const vars = { 'V<sub>s</sub>':Vs, 'V<sub>p</sub>':Vp, 'N<sub>s</sub>':Ns, 'N<sub>p</sub>':Np };
+                        const choice = ['V<sub>s</sub>','V<sub>p</sub>','N<sub>s</sub>','N<sub>p</sub>'][Math.floor(Math.random()*4)];
+                        const units = { 'V<sub>s</sub>':'V', 'V<sub>p</sub>':'V', 'N<sub>s</sub>':'', 'N<sub>p</sub>':'' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                }
             ],
             atomic: [
-                {id:'a1', label:'放射強度 A=kN', html:'A = kN', unit:'Bq', gen:()=>{ 
-                    const k=0.05; const N=10000;
-                    return {unit:'Bq', q:`衰變常數 ${k} s${unitSup('-1')}，核數目 ${N}。求 <i>A</i>。`, a:k*N};
-                }},
-                {id:'a2', label:'半衰期', html:'k = ln2 / t<sub>1/2</sub>', unit:'s⁻¹', gen:()=>{ 
-                    const t=100;
-                    return {unit:'s⁻¹', q:`半衰期 ${t} s。求 <i>k</i>。`, a:Math.log(2)/t};
-                }},
-                {id:'a3', label:'衰變定律', html:'N = N<sub>0</sub>e<sup>-kt</sup>', unit:'', gen:()=>{ 
-                    const N0=1000; const k=0.1; const t=10;
-                    return {unit:'(數目)', q:`初始 ${N0}，常數 ${k} s${unitSup('-1')}，經過 ${t} s。求剩餘核數。`, a:N0*Math.exp(-k*t)};
-                }},
-                {id:'a4', label:'質能關係', html:'&Delta;E = &Delta;mc<sup>2</sup>', unit:'J', gen:()=>{ 
-                    const dm=1.66e-27;
-                    return {unit:'J', q:`質量虧損 ${fmt(dm)} kg。求能量。`, a:dm*C.c*C.c};
-                }}
+                {
+                    id:'a1', label:'放射強度 A=kN', html:'A = kN', 
+                    symbols: { 'A':'強度', 'k':'常數', 'N':'數目' },
+                    gen:()=>{ 
+                        const k=0.05; const N=10000; const A=k*N;
+                        const vars = { 'A':A, 'k':k, 'N':N };
+                        const choice = ['A','k','N'][Math.floor(Math.random()*3)];
+                        const units = { 'A':'Bq', 'k':'s⁻¹', 'N':'' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'a2', label:'半衰期', html:'k = ln2 / t<sub>1/2</sub>', 
+                    symbols: { 'k':'常數', 't<sub>1/2</sub>':'半衰期' },
+                    gen:()=>{ 
+                        const t=100; const k=Math.log(2)/t;
+                        const choice = Math.random()<0.5 ? 'k':'t<sub>1/2</sub>';
+                        if(choice==='k') return { unit:'s⁻¹', q:`<i>t<sub>1/2</sub></i> = ${t} s。求 <i>k</i>。`, a:k };
+                        return { unit:'s', q:`<i>k</i> = ${fmt(k)} s${unitSup('-1')}。求 <i>t<sub>1/2</sub></i>。`, a:t };
+                    }
+                },
+                {
+                    id:'a3', label:'衰變定律', html:'N = N<sub>0</sub>e<sup>-kt</sup>', 
+                    symbols: { 'N':'剩餘', 'N<sub>0</sub>':'初始', 'k':'常數', 't':'時間' },
+                    gen:()=>{ 
+                        const N0=1000; const k=0.1; const t=10; const N=N0*Math.exp(-k*t);
+                        const vars = { 'N':N, 'N<sub>0</sub>':N0, 'k':k, 't':t };
+                        const choice = ['N','N<sub>0</sub>'][Math.floor(Math.random()*2)]; // Solving for k/t involves ln, maybe too hard for mental?
+                        const units = { 'N':'', 'N<sub>0</sub>':'', 'k':'s⁻¹', 't':'s' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'a4', label:'質能關係', html:'&Delta;E = &Delta;mc<sup>2</sup>', 
+                    symbols: { '&Delta;E':'能量', '&Delta;m':'質量虧損' },
+                    gen:()=>{ 
+                        const dm=1.66e-27; const E=dm*C.c*C.c;
+                        const choice = Math.random()<0.5 ? '&Delta;E':'&Delta;m';
+                        if(choice==='&Delta;E') return { unit:'J', q:`&Delta;<i>m</i> = ${fmt(dm)} kg。求 &Delta;<i>E</i>。`, a:E };
+                        return { unit:'kg', q:`&Delta;<i>E</i> = ${fmt(E)} J。求 &Delta;<i>m</i>。`, a:dm };
+                    }
+                }
             ],
             medical: [
-                {id:'med1', label:'瑞利判據', html:'&theta; &approx; 1.22&lambda; / d', unit:'rad', gen:()=>{ 
-                    const l=5e-7; const d=0.002;
-                    return {unit:'rad', q:`波長 ${fmt(l)} m，瞳孔直徑 ${fmt(d)} m。求角解像度。`, a:1.22*l/d};
-                }},
-                {id:'med2', label:'聲強級', html:'L = 10 log(I/I<sub>0</sub>)', unit:'dB', gen:()=>{ 
-                    const I=1e-6;
-                    return {unit:'dB', q:`聲強 ${fmt(I)} W m${unitSup('-2')}。求聲強級。`, a:10*Math.log10(I/C.I0)};
-                }},
-                {id:'med3', label:'聲阻抗 Z=ρc', html:'Z = &rho;c', unit:'kg m⁻² s⁻¹', gen:()=>{ 
-                    const rho=1000; const c=1500;
-                    return {unit:'kg m⁻² s⁻¹', q:`密度 ${rho} kg m${unitSup('-3')}，聲速 ${c} m s${unitSup('-1')}。求 <i>Z</i>。`, a:rho*c};
-                }},
-                {id:'med4', label:'反射係數', html:'&alpha; = (Z<sub>2</sub>-Z<sub>1</sub>)<sup>2</sup> / (Z<sub>2</sub>+Z<sub>1</sub>)<sup>2</sup>', unit:'', gen:()=>{ 
-                    const Z1=400; const Z2=1200;
-                    const num = Math.pow(Z2-Z1, 2);
-                    const den = Math.pow(Z2+Z1, 2);
-                    return {unit:'(比率)', q:`<i>Z<sub>1</sub></i>=${Z1}，<i>Z<sub>2</sub></i>=${Z2}。求反射係數。`, a:num/den};
-                }},
-                {id:'med5', label:'衰減 I=I₀e^-μx', html:'I = I<sub>0</sub>e<sup>-&mu;x</sup>', unit:'W m⁻²', gen:()=>{ 
-                    const I0=100; const mu=2; const x=0.5;
-                    return {unit:'W m⁻²', q:`<i>I<sub>0</sub></i>=${I0}，衰減系數 ${mu} m${unitSup('-1')}，厚度 ${x} m。求透射強度。`, a:I0*Math.exp(-mu*x)};
-                }}
+                {
+                    id:'med1', label:'瑞利判據', html:'&theta; &approx; 1.22&lambda; / d', 
+                    symbols: { '&theta;':'角解像度', '&lambda;':'波長', 'd':'直徑' },
+                    gen:()=>{ 
+                        const l=5e-7; const d=0.002; const theta=1.22*l/d;
+                        const vars = { '&theta;':theta, '&lambda;':l, 'd':d };
+                        const choice = ['&theta;','&lambda;','d'][Math.floor(Math.random()*3)];
+                        const units = { '&theta;':'rad', '&lambda;':'m', 'd':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&lambda;'?'&lambda;':(k==='&theta;'?'&theta;':`<i>${k}</i>`)} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&lambda;'?'&lambda;':(choice==='&theta;'?'&theta;':`<i>${choice}</i>`)}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'med2', label:'聲強級', html:'L = 10 log(I/I<sub>0</sub>)', 
+                    symbols: { 'L':'聲強級', 'I':'聲強' },
+                    gen:()=>{ 
+                        const I=1e-6; const L=10*Math.log10(I/C.I0);
+                        const choice = Math.random()<0.5 ? 'L':'I';
+                        if(choice==='L') return { unit:'dB', q:`<i>I</i> = ${fmt(I)} W m${unitSup('-2')}。求 <i>L</i>。`, a:L };
+                        return { unit:'W m⁻²', q:`<i>L</i> = ${fmt(L)} dB。求 <i>I</i>。`, a:I };
+                    }
+                },
+                {
+                    id:'med3', label:'聲阻抗 Z=ρc', html:'Z = &rho;c', 
+                    symbols: { 'Z':'聲阻抗', '&rho;':'密度', 'c':'聲速' },
+                    gen:()=>{ 
+                        const rho=1000; const c=1500; const Z=rho*c;
+                        const vars = { 'Z':Z, '&rho;':rho, 'c':c };
+                        const choice = ['Z','&rho;','c'][Math.floor(Math.random()*3)];
+                        const units = { 'Z':'kg m⁻² s⁻¹', '&rho;':'kg m⁻³', 'c':'m s⁻¹' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&rho;'?'&rho;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&rho;'?'&rho;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'med4', label:'反射係數', html:'&alpha; = (Z<sub>2</sub>-Z<sub>1</sub>)<sup>2</sup> / (Z<sub>2</sub>+Z<sub>1</sub>)<sup>2</sup>', 
+                    symbols: { '&alpha;':'係數', 'Z<sub>1</sub>':'Z1', 'Z<sub>2</sub>':'Z2' },
+                    gen:()=>{ 
+                        const Z1=400; const Z2=1200; 
+                        const num = Math.pow(Z2-Z1, 2); const den = Math.pow(Z2+Z1, 2);
+                        const alpha = num/den;
+                        // Only solve for alpha for simplicity
+                        return { unit:'', q:`<i>Z<sub>1</sub></i>=${Z1}，<i>Z<sub>2</sub></i>=${Z2}。求 &alpha;。`, a:alpha };
+                    }
+                },
+                {
+                    id:'med5', label:'衰減 I=I₀e^-μx', html:'I = I<sub>0</sub>e<sup>-&mu;x</sup>', 
+                    symbols: { 'I':'透射', 'I<sub>0</sub>':'入射', '&mu;':'系數', 'x':'厚度' },
+                    gen:()=>{ 
+                        const I0=100; const mu=2; const x=0.5; const I=I0*Math.exp(-mu*x);
+                        const vars = { 'I':I, 'I<sub>0</sub>':I0, '&mu;':mu, 'x':x };
+                        const choice = ['I','I<sub>0</sub>'][Math.floor(Math.random()*2)];
+                        const units = { 'I':'W m⁻²', 'I<sub>0</sub>':'W m⁻²', '&mu;':'m⁻¹', 'x':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&mu;'?'&mu;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&mu;'?'&mu;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                }
             ],
             energy: [
-                {id:'en1', label:'風力功率', html:'P = &frac{1}{2}&eta;&rho;Av<sup>3</sup>', unit:'W', gen:()=>{ 
-                    const eta=0.4; const A=100; const v=10; const rho=1.2;
-                    return {unit:'W', q:`效率 ${eta}，面積 ${A} m${unitSup('2')}，風速 ${v} m s${unitSup('-1')}，密度 ${rho}。求 <i>P</i>。`, a:0.5*eta*rho*A*Math.pow(v,3)};
-                }},
-                {id:'en2', label:'太陽能板', html:'P = S &times; A &times; cos&theta; &times; &eta;', unit:'W', gen:()=>{ 
-                    const S=1000; const A=2; const eta=0.15;
-                    return {unit:'W', q:`輻射強度 ${S} W m${unitSup('-2')}，面積 ${A} m${unitSup('2')}，垂直照射，效率 ${eta}。求 <i>P</i>。`, a:S*A*eta};
-                }},
-                {id:'en3', label:'熱傳導 Q/t', html:'Q/t = &kappa;A&Delta;T / d', unit:'W', gen:()=>{ 
-                    const k=0.8; const A=2; const dt=10; const d=0.2;
-                    return {unit:'W', q:`&kappa;=${k}，面積 ${A} m${unitSup('2')}，溫差 ${dt}，厚度 ${d} m。求傳熱率。`, a:(k*A*dt)/d};
-                }},
-                {id:'en4', label:'U-值', html:'U = &kappa; / d', unit:'W m⁻² K⁻¹', gen:()=>{ 
-                    const k=0.6; const d=0.15;
-                    return {unit:'W m⁻² K⁻¹', q:`&kappa;=${k} W m${unitSup('-1')} K${unitSup('-1')}，厚度 ${d} m。求 U-value。`, a:k/d};
-                }},
-                {id:'en5', label:'COP', html:'COP = Q<sub>c</sub> / P', unit:'', gen:()=>{ 
-                    const Qc=3000; const P=1000;
-                    return {unit:'', q:`製冷量 ${Qc} W，輸入功率 ${P} W。求 COP。`, a:Qc/P};
-                }},
-                {id:'en6', label:'能源效益', html:'Eff = E<sub>out</sub> / E<sub>in</sub>', unit:'%', gen:()=>{ 
-                    const out=800; const inp=1000;
-                    return {unit:'%', q:`輸出 ${out} J，輸入 ${inp} J。求效益 (%)。`, a:(out/inp)*100};
-                }}
+                {
+                    id:'en1', label:'風力功率', html:'P = &frac{1}{2}&eta;&rho;Av<sup>3</sup>', 
+                    symbols: { 'P':'功率', '&eta;':'效率', '&rho;':'密度', 'A':'面積', 'v':'風速' },
+                    gen:()=>{ 
+                        const eta=0.4; const A=100; const v=10; const rho=1.2; const P=0.5*eta*rho*A*Math.pow(v,3);
+                        const vars = { 'P':P, '&eta;':eta, 'A':A, 'v':v, '&rho;':rho };
+                        const choice = ['P','&eta;','A','v','&rho;'][Math.floor(Math.random()*5)];
+                        const units = { 'P':'W', '&eta;':'', 'A':'m²', 'v':'m s⁻¹', '&rho;':'kg m⁻³' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k.includes('&')?k:`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice.includes('&')?choice:`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'en2', label:'太陽能板', html:'P = S A cos&theta; &eta;', 
+                    symbols: { 'P':'功率', 'S':'強度', 'A':'面積', '&eta;':'效率' },
+                    gen:()=>{ 
+                        const S=1000; const A=2; const eta=0.15; const P=S*A*eta; // Assume theta=0
+                        const vars = { 'P':P, 'S':S, 'A':A, '&eta;':eta };
+                        const choice = ['P','S','A','&eta;'][Math.floor(Math.random()*4)];
+                        const units = { 'P':'W', 'S':'W m⁻²', 'A':'m²', '&eta;':'' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k.includes('&')?k:`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + ` (垂直)。求 ${choice.includes('&')?choice:`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'en3', label:'熱傳導 Q/t', html:'Q/t = &kappa;A&Delta;T / d', 
+                    symbols: { 'Q/t':'傳熱率', '&kappa;':'熱導率', 'A':'面積', '&Delta;T':'溫差', 'd':'厚度' },
+                    gen:()=>{ 
+                        const k=0.8; const A=2; const dt=10; const d=0.2; const P=(k*A*dt)/d;
+                        const vars = { 'Q/t':P, '&kappa;':k, 'A':A, '&Delta;T':dt, 'd':d };
+                        const choice = ['Q/t','&kappa;','A','&Delta;T','d'][Math.floor(Math.random()*5)];
+                        const units = { 'Q/t':'W', '&kappa;':'W m⁻¹ K⁻¹', 'A':'m²', '&Delta;T':'K', 'd':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k.includes('&')?k:(k==='Q/t'?'<i>Q/t</i>':`<i>${k}</i>`)} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice.includes('&')?choice:(choice==='Q/t'?'<i>Q/t</i>':`<i>${choice}</i>`)}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'en4', label:'U-值', html:'U = &kappa; / d', 
+                    symbols: { 'U':'U-值', '&kappa;':'熱導率', 'd':'厚度' },
+                    gen:()=>{ 
+                        const k=0.6; const d=0.15; const U=k/d;
+                        const vars = { 'U':U, '&kappa;':k, 'd':d };
+                        const choice = ['U','&kappa;','d'][Math.floor(Math.random()*3)];
+                        const units = { 'U':'W m⁻² K⁻¹', '&kappa;':'W m⁻¹ K⁻¹', 'd':'m' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `${k==='&kappa;'?'&kappa;':`<i>${k}</i>`} = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 ${choice==='&kappa;'?'&kappa;':`<i>${choice}</i>`}。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'en5', label:'COP', html:'COP = Q<sub>c</sub> / P', 
+                    symbols: { 'COP':'COP', 'Q<sub>c</sub>':'製冷量', 'P':'功率' },
+                    gen:()=>{ 
+                        const Qc=3000; const P=1000; const COP=Qc/P;
+                        const vars = { 'COP':COP, 'Q<sub>c</sub>':Qc, 'P':P };
+                        const choice = ['COP','Q<sub>c</sub>','P'][Math.floor(Math.random()*3)];
+                        const units = { 'COP':'', 'Q<sub>c</sub>':'W', 'P':'W' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                },
+                {
+                    id:'en6', label:'能源效益', html:'Eff = E<sub>out</sub> / E<sub>in</sub>', 
+                    symbols: { 'Eff':'效率', 'E<sub>out</sub>':'輸出', 'E<sub>in</sub>':'輸入' },
+                    gen:()=>{ 
+                        const out=800; const inp=1000; const eff=(out/inp)*100;
+                        const vars = { 'Eff':eff, 'E<sub>out</sub>':out, 'E<sub>in</sub>':inp };
+                        const choice = ['Eff','E<sub>out</sub>','E<sub>in</sub>'][Math.floor(Math.random()*3)];
+                        const units = { 'Eff':'%', 'E<sub>out</sub>':'J', 'E<sub>in</sub>':'J' };
+                        let qStr = "";
+                        for(let k in vars) if(k!==choice) qStr += `<i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`;
+                        return { unit: units[choice], q: qStr.slice(0,-1) + `。求 <i>${choice}</i>。`, a: vars[choice] };
+                    }
+                }
             ]
         };
 
@@ -476,13 +1095,11 @@
 
         function setTopic(t) {
             curTopic = t;
-            // Update Nav Styles
             document.querySelectorAll('.nav-btn').forEach(b => {
                 const active = b.dataset.topic === t;
                 b.className = `nav-btn whitespace-nowrap px-4 py-2 text-sm font-bold border-b-2 transition ${active ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600'}`;
             });
             
-            // Populate Select
             const s = document.getElementById('formulaSelect');
             s.innerHTML = '';
             formulaDB[t].forEach(f => {
@@ -492,14 +1109,16 @@
                 s.add(o);
             });
             
-            loadFormula(formulaDB[t][0].id);
+            // Sync dropdown
+            const firstId = formulaDB[t][0].id;
+            s.value = firstId;
+            loadFormula(firstId);
         }
 
         function loadFormula(id) {
             curId = id;
             const item = formulaDB[curTopic].find(i => i.id === id);
             
-            // Reset Reveal
             isRevealed = false;
             const c = document.getElementById('latexContainer');
             c.classList.remove('revealed');
@@ -520,26 +1139,49 @@
             curData = item.gen();
             
             document.getElementById('qTag').innerText = curTopic.toUpperCase();
-            document.getElementById('unitLabel').innerText = curData.unit;
+            document.getElementById('unitLabel').innerText = curData.unit || '--';
             
-            // Reset Calc
             calcBuffer = "";
             updateDisplay();
             const btn = document.getElementById('enterBtn');
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
 
-            // Reset Feedback
             document.getElementById('feedback').innerHTML = '<span class="text-slate-400 text-sm font-sans font-normal">請輸入答案 Input Answer</span>';
             document.getElementById('feedback').className = "text-center font-bold p-3 rounded bg-slate-50 border border-slate-100 min-h-[3.5rem] flex items-center justify-center paper-font text-lg";
 
-            // Fade in Question
             const q = document.getElementById('qText');
             q.style.opacity = 0;
             setTimeout(() => {
                 q.innerHTML = curData.q;
                 q.style.opacity = 1;
             }, 100);
+        }
+
+        // --- Symbol Modal Logic ---
+        function openSymbolModal() {
+            const item = formulaDB[curTopic].find(i => i.id === curId);
+            const tbody = document.getElementById('symbolTableBody');
+            tbody.innerHTML = '';
+
+            if (item.symbols) {
+                for (const [sym, meaning] of Object.entries(item.symbols)) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 border-b font-mono font-bold text-blue-700 text-base md:text-lg">${sym}</td>
+                        <td class="px-4 py-3 border-b text-slate-700">${meaning}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            } else {
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-slate-500">No symbol data available.</td></tr>';
+            }
+
+            document.getElementById('symbolModal').classList.remove('hidden');
+        }
+
+        function closeSymbolModal() {
+            document.getElementById('symbolModal').classList.add('hidden');
         }
 
         // --- Calculator ---
@@ -573,7 +1215,7 @@
             if (isNaN(userVal)) return;
 
             const correct = curData.a;
-            // Tolerance: 1% or 1e-15 absolute
+            // Adaptive tolerance: 1.5% relative error or absolute error for small numbers
             const tol = Math.abs(correct) < 1e-15 ? 1e-15 : Math.abs(correct * 0.015);
             const diff = Math.abs(userVal - correct);
             const isCorrect = diff <= tol;
