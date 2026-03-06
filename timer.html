@@ -1,585 +1,511 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Settings, Trophy, Clock, Shield, Volume2, VolumeX, LayoutTemplate, Columns, Rows, Palette, Minus } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>無人機足球計時器 | Drone Soccer Timer</title>
+    
+    <!-- 1. 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 引入 React 和 ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. 引入 Babel (用於在瀏覽器中編譯 JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-// --- 音效系統 ---
-const audioCtxRef = { current: null };
+    <style>
+        body { background-color: #f0f9ff; font-family: system-ui, -apple-system, sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        /* 隱藏捲軸但保持功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-const playTone = (type) => {
-  try {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === 'suspended') ctx.resume();
+    <!-- 4. React 程式碼邏輯 -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+        // --- 圖示組件 (SVG) ---
+        const Icons = {
+            Play: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>,
+            Pause: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>,
+            RotateCcw: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>,
+            Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+            Volume2: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>,
+            VolumeX: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>,
+            Minus: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
+            Home: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        };
 
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+        // --- 音效系統 ---
+        const audioCtxRef = { current: null };
+        const playTone = (type) => {
+            try {
+                if (!audioCtxRef.current) {
+                    audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const ctx = audioCtxRef.current;
+                if (ctx.state === 'suspended') ctx.resume();
 
-    const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
 
-    if (type === 'tick') {
-      // 一般滴答聲 (880Hz)
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, now);
-      gainNode.gain.setValueAtTime(0.6, now); 
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } else if (type === 'last-tick') {
-      // 高音提示 (1500Hz) - 用於 26s 和 1s
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1500, now); 
-      gainNode.gain.setValueAtTime(0.7, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } else if (type === 'end') {
-      // 結束/進球音效
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.exponentialRampToValueAtTime(220, now + 0.5);
-      gainNode.gain.setValueAtTime(0.8, now);
-      gainNode.gain.linearRampToValueAtTime(0.01, now + 0.8);
-      osc.start(now);
-      osc.stop(now + 0.8);
-    } else if (type === 'whistle') {
-      // 哨音
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(1500, now);
-      osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-      gainNode.gain.setValueAtTime(0.8, now);
-      gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
-      osc.start(now);
-      osc.stop(now + 0.3);
-    }
-  } catch (e) {
-    console.error("Audio play failed", e);
-  }
-};
+                const now = ctx.currentTime;
 
-const MODES = { NATIONAL: 'national', SCHOOL: 'school' };
-const LAYOUTS = { VERTICAL: 'vertical', HORIZONTAL: 'horizontal' };
-
-const NATIONAL_CONFIG = { TOTAL_TIME: 180, TURN_TIME: 30, SAFETY_TIME: 5 };
-const SCHOOL_CONFIG = { HALF_TIME: 180, BREAK_TIME: 60 };
-
-// 預定義顏色選項
-const COLOR_OPTIONS = [
-  { id: 'red', name: '紅', label: 'RED', bg: 'bg-red-600', text: 'text-red-100', ring: 'ring-red-600' },
-  { id: 'blue', name: '藍', label: 'BLUE', bg: 'bg-blue-600', text: 'text-blue-100', ring: 'ring-blue-600' },
-  { id: 'green', name: '綠', label: 'GREEN', bg: 'bg-green-600', text: 'text-green-100', ring: 'ring-green-600' },
-  { id: 'yellow', name: '黃', label: 'YELLOW', bg: 'bg-yellow-500', text: 'text-yellow-900', ring: 'ring-yellow-500' },
-  { id: 'purple', name: '紫', label: 'PURPLE', bg: 'bg-purple-600', text: 'text-purple-100', ring: 'ring-purple-600' },
-  { id: 'orange', name: '橙', label: 'ORANGE', bg: 'bg-orange-500', text: 'text-orange-100', ring: 'ring-orange-500' },
-  { id: 'black', name: '黑', label: 'BLACK', bg: 'bg-gray-800', text: 'text-gray-100', ring: 'ring-gray-800' },
-];
-
-const TeamPanel = React.memo(({ 
-  teamId,
-  colorConfig, 
-  score, 
-  isFirstPanel, 
-  layout, 
-  mode, 
-  attacker, 
-  turnTime, 
-  goalMessage, 
-  onScore, 
-  onAdjust 
-}) => {
-  
-  let isAttacker = false;
-  let isSafety = false;
-  
-  if (mode === MODES.NATIONAL) {
-    isAttacker = attacker === teamId;
-    isSafety = isAttacker && turnTime > (NATIONAL_CONFIG.TURN_TIME - NATIONAL_CONFIG.SAFETY_TIME);
-  }
-
-  // 文字位置調整：左右分割時，文字統一在上方
-  const textPositionClass = layout === LAYOUTS.VERTICAL 
-    ? (isFirstPanel ? 'bottom-12' : 'top-12') 
-    : 'top-6';
-
-  // 扣分按鈕位置邏輯
-  let buttonPositionClass = "right-4 top-1/2 -translate-y-1/2"; 
-  
-  if (layout === LAYOUTS.HORIZONTAL) {
-    // 左右分割時，按鈕放在底部兩側
-    if (isFirstPanel) {
-      buttonPositionClass = "left-6 bottom-6"; 
-    } else {
-      buttonPositionClass = "right-6 bottom-6"; 
-    }
-  }
-
-  const teamName = mode === MODES.NATIONAL 
-    ? colorConfig.label 
-    : (teamId === 'team1' ? 'HOME' : 'GUEST');
-
-  return (
-    <div 
-      className={`relative flex-1 flex flex-col items-center justify-center ${colorConfig.bg} transition-all duration-500 overflow-hidden cursor-pointer active:brightness-110`}
-      onClick={() => onScore(teamId)}
-    >
-      {/* 安全時間視覺特效 */}
-      <AnimatePresence>
-        {isSafety && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white/20 z-0 flex items-center justify-center pointer-events-none"
-          >
-            <div className="absolute top-4 right-4 flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full shadow-lg animate-pulse">
-              <Shield size={24} />
-              <span className="font-bold text-lg">安全時間</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* GOAL 特效 */}
-      <AnimatePresence>
-        {goalMessage === teamId && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1.5, opacity: 1 }}
-            exit={{ scale: 2, opacity: 0 }}
-            className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
-          >
-            <span className="text-8xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)] tracking-tighter border-4 border-white px-8 py-2 rounded-xl bg-black/20 backdrop-blur-sm">
-              GOAL!
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 隊名與狀態 */}
-      <div className={`absolute ${textPositionClass} flex flex-col items-center z-10 pointer-events-none w-full px-4 transition-all`}>
-        <h2 className={`text-4xl font-bold uppercase tracking-widest drop-shadow-md ${colorConfig.text}`}>
-          {teamName}
-        </h2>
-        {mode === MODES.NATIONAL && (
-          <div className="mt-2">
-            {isAttacker ? (
-              <motion.span 
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                className={`inline-block px-4 py-1 rounded-full text-lg font-black shadow-lg border-2 border-white/50 ${isSafety ? 'bg-green-400 text-green-900' : 'bg-yellow-400 text-yellow-900'}`}
-              >
-                {isSafety ? '安全保護' : '進攻 ATTACK'}
-              </motion.span>
-            ) : (
-              <span className="text-white/80 text-sm font-bold bg-black/30 px-3 py-1 rounded backdrop-blur-sm">防守 DEFENSE</span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* 分數顯示 */}
-      <div className="relative z-0 flex items-center justify-center w-full h-full pointer-events-none select-none">
-        <motion.span 
-          key={score}
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="font-black text-white leading-none tabular-nums opacity-90 drop-shadow-xl"
-          style={{ 
-            // 根據佈局動態調整字體大小，避免在左右分割時過大
-            fontSize: layout === LAYOUTS.VERTICAL ? 'min(35vw, 40vh)' : 'min(20vw, 40vh)',
-          }}
-        >
-          {score}
-        </motion.span>
-      </div>
-
-      {/* 扣分按鈕 */}
-      <button 
-        onClick={(e) => { e.stopPropagation(); onAdjust(teamId, -1); }}
-        className={`absolute ${buttonPositionClass} w-16 h-16 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/40 active:scale-95 transition-all z-20 pointer-events-auto border-2 border-white/10`}
-      >
-        <Minus size={32} strokeWidth={4} />
-      </button>
-    </div>
-  );
-});
-
-export default function DroneSoccerScoreboard() {
-  const [mode, setMode] = useState(MODES.NATIONAL);
-  // 初始狀態設為 Horizontal
-  const [layout, setLayout] = useState(LAYOUTS.HORIZONTAL);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  
-  // 顏色狀態
-  const [color1, setColor1] = useState(COLOR_OPTIONS[1]); // Team 1 (Left/Top) = Blue
-  const [color2, setColor2] = useState(COLOR_OPTIONS[0]); // Team 2 (Right/Bottom) = Red
-
-  const [score1, setScore1] = useState(0);
-  const [score2, setScore2] = useState(0);
-
-  const [gameTime, setGameTime] = useState(NATIONAL_CONFIG.TOTAL_TIME);
-  const [turnTime, setTurnTime] = useState(NATIONAL_CONFIG.TURN_TIME);
-  const [attacker, setAttacker] = useState('team2'); 
-
-  const [goalMessage, setGoalMessage] = useState(null);
-  const [period, setPeriod] = useState(1); 
-  const [periodTime, setPeriodTime] = useState(SCHOOL_CONFIG.HALF_TIME);
-  const [showSettings, setShowSettings] = useState(false);
-  
-  const timerRef = useRef(null);
-
-  // 強制修正：在元件掛載時，強制設定為左右分割
-  useEffect(() => {
-    setLayout(LAYOUTS.HORIZONTAL);
-  }, []);
-
-  const switchTurn = useCallback(() => {
-    setAttacker(prev => (prev === 'team2' ? 'team1' : 'team2'));
-    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
-  }, []);
-
-  const handleScore = useCallback((teamId) => {
-    if (teamId === 'team1') setScore1(prev => prev + 1);
-    if (teamId === 'team2') setScore2(prev => prev + 1);
-
-    if (mode === MODES.NATIONAL && isPlaying) {
-      if (teamId === attacker) {
-        if (soundEnabled) playTone('end');
-        setGoalMessage(teamId);
-        setTimeout(() => setGoalMessage(null), 1500);
-        switchTurn();
-      }
-    }
-  }, [mode, isPlaying, attacker, soundEnabled, switchTurn]);
-
-  useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        if (mode === MODES.NATIONAL) {
-          setGameTime(gt => {
-            if (gt <= 0) {
-              setIsPlaying(false);
-              if (soundEnabled) playTone('end');
-              return 0;
+                if (type === 'tick') {
+                    // 一般滴答聲 (880Hz)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    gainNode.gain.setValueAtTime(0.6, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'last-tick') {
+                    // 高音提示 (1500Hz)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1500, now);
+                    gainNode.gain.setValueAtTime(0.7, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'end') {
+                    // 結束/進球音效
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(220, now + 0.5);
+                    gainNode.gain.setValueAtTime(0.8, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.8);
+                    osc.start(now);
+                    osc.stop(now + 0.8);
+                } else if (type === 'whistle') {
+                    // 哨音
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(1500, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+                    gainNode.gain.setValueAtTime(0.8, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                console.error("Audio play failed", e);
             }
-            return gt - 1;
-          });
+        };
 
-          setTurnTime(tt => {
-            // 音效邏輯修正
-            if (soundEnabled) {
-              // 30s, 29s, 28s, 27s -> 880Hz (tick)
-              if (tt >= 27 && tt <= 30) {
-                 playTone('tick');
-              }
-              // 26s -> 1500Hz (last-tick)
-              else if (tt === 26) {
-                 playTone('last-tick');
-              }
-              // 最後倒數 5, 4, 3, 2 -> 880Hz
-              else if (tt <= 5 && tt > 1) {
-                 playTone('tick');
-              }
-              // 1s -> 1500Hz
-              else if (tt === 1) {
-                 playTone('last-tick');
-              }
-            }
-
-            if (tt <= 0) {
-              if (soundEnabled) playTone('end');
-              switchTurn(); 
-              return NATIONAL_CONFIG.TURN_TIME;
-            }
-            return tt - 1;
-          });
-
-        } else {
-          setPeriodTime(pt => {
-            if (pt <= 0) {
-              setIsPlaying(false);
-              if (soundEnabled) playTone('end');
-              return 0;
-            }
-            if (soundEnabled) {
-              if (pt <= 5 && pt > 1) playTone('tick');
-              if (pt === 1) playTone('last-tick');
-            }
-            return pt - 1;
-          });
-        }
-      }, 1000);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [isPlaying, mode, soundEnabled, switchTurn]);
-
-  useEffect(() => {
-    if (mode === MODES.SCHOOL && periodTime === 0 && !isPlaying) {
-       if (period === 1) {
-        setPeriod(2);
-        setPeriodTime(SCHOOL_CONFIG.BREAK_TIME);
-      } else if (period === 2) {
-        setPeriod(3);
-        setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
-      } else if (period === 3) {
-        setPeriod(4);
-        setPeriodTime(0);
-      }
-    }
-  }, [periodTime, isPlaying, mode, period]);
-
-  const adjustScore = (teamId, amount) => {
-    if (teamId === 'team1') setScore1(prev => Math.max(0, prev + amount));
-    if (teamId === 'team2') setScore2(prev => Math.max(0, prev + amount));
-  };
-
-  const resetGame = () => {
-    setIsPlaying(false);
-    setScore1(0);
-    setScore2(0);
-    setGoalMessage(null);
-    if (mode === MODES.NATIONAL) {
-      setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
-      setTurnTime(NATIONAL_CONFIG.TURN_TIME);
-      setAttacker('team2');
-    } else {
-      setPeriod(1);
-      setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
-    }
-  };
-
-  const toggleMode = (newMode) => {
-    setMode(newMode);
-    resetGame();
-  };
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  return (
-    <div className={`flex ${layout === LAYOUTS.VERTICAL ? 'flex-col' : 'flex-row'} h-screen w-full bg-gray-900 overflow-hidden font-sans select-none relative`}>
-      
-      {/* 隊伍 1 (左/上) */}
-      <TeamPanel 
-        teamId="team1"
-        colorConfig={color1}
-        score={score1} 
-        isFirstPanel={true} 
-        layout={layout}
-        mode={mode}
-        attacker={attacker}
-        turnTime={turnTime}
-        goalMessage={goalMessage}
-        onScore={handleScore}
-        onAdjust={adjustScore}
-      />
-
-      {/* 中央控制區 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 w-full max-w-lg px-4 pointer-events-none">
+        // --- 常數設定 ---
+        const MODES = { NATIONAL: 'national', SCHOOL: 'school' };
+        const LAYOUTS = { VERTICAL: 'vertical', HORIZONTAL: 'horizontal' };
         
-        {/* 主控制條 */}
-        <div className="bg-white rounded-2xl shadow-2xl py-2 px-4 flex items-center justify-between pointer-events-auto border-4 border-gray-200">
-          <button onClick={() => setShowSettings(true)} className="p-3 text-gray-500 hover:bg-gray-100 rounded-full active:bg-gray-200 transition-colors">
-            <Settings size={28} />
-          </button>
+        // 預設設定
+        const NATIONAL_CONFIG = { TOTAL_TIME: 180, TURN_TIME: 30, SAFETY_TIME: 5 };
+        const SCHOOL_CONFIG = { HALF_TIME: 180, BREAK_TIME: 60 };
 
-          <div className="flex flex-col items-center px-4">
-            <div className={`text-5xl font-black tabular-nums tracking-tighter ${gameTime <= 10 && mode === MODES.NATIONAL ? 'text-red-600 animate-pulse' : 'text-gray-800'}`}>
-              {mode === MODES.NATIONAL ? formatTime(gameTime) : formatTime(periodTime)}
-            </div>
-            <div className="text-xs font-bold text-gray-400 uppercase">
-              {mode === MODES.NATIONAL ? '全國賽' : `學界賽 - P${period}`}
-            </div>
-          </div>
+        const COLOR_OPTIONS = [
+            { id: 'red', name: '紅', label: 'RED', bg: 'bg-red-600', text: 'text-red-100', ring: 'ring-red-600' },
+            { id: 'blue', name: '藍', label: 'BLUE', bg: 'bg-blue-600', text: 'text-blue-100', ring: 'ring-blue-600' },
+            { id: 'green', name: '綠', label: 'GREEN', bg: 'bg-green-600', text: 'text-green-100', ring: 'ring-green-600' },
+            { id: 'yellow', name: '黃', label: 'YELLOW', bg: 'bg-yellow-500', text: 'text-yellow-900', ring: 'ring-yellow-500' },
+            { id: 'purple', name: '紫', label: 'PURPLE', bg: 'bg-purple-600', text: 'text-purple-100', ring: 'ring-purple-600' },
+            { id: 'orange', name: '橙', label: 'ORANGE', bg: 'bg-orange-500', text: 'text-orange-100', ring: 'ring-orange-500' },
+            { id: 'black', name: '黑', label: 'BLACK', bg: 'bg-gray-800', text: 'text-gray-100', ring: 'ring-gray-800' },
+        ];
 
-          <button 
-            onClick={() => {
-              setIsPlaying(!isPlaying);
-              if (!isPlaying && soundEnabled) playTone('whistle');
-            }} 
-            className={`p-4 rounded-full text-white shadow-lg transition-all active:scale-95 ${isPlaying ? 'bg-yellow-500' : 'bg-green-500'}`}
-          >
-            {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" />}
-          </button>
-        </div>
-
-        {/* 全國賽：回合倒數進度條 */}
-        {mode === MODES.NATIONAL && (
-          <div className="mt-3 bg-gray-900/90 backdrop-blur rounded-xl p-3 text-white pointer-events-auto border border-gray-700 shadow-xl">
-            <div className="flex justify-between items-end mb-1">
-              <span className="text-xs text-gray-400">進攻回合倒數</span>
-              <span className={`text-3xl font-bold tabular-nums ${turnTime <= 5 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
-                {turnTime}<span className="text-sm font-normal text-gray-400">s</span>
-              </span>
-            </div>
+        // --- 子組件: 隊伍面板 ---
+        const TeamPanel = React.memo(({ teamId, colorConfig, score, isFirstPanel, layout, mode, attacker, turnTime, goalMessage, onScore, onAdjust }) => {
+            let isAttacker = false;
+            let isSafety = false;
             
-            <div className="relative w-full h-4 bg-gray-700 rounded-full overflow-hidden">
-              <div className="absolute left-[16.6%] top-0 bottom-0 w-0.5 bg-white z-20 opacity-50"></div>
-              <motion.div 
-                className={`h-full ${turnTime > 25 ? 'bg-green-500' : 'bg-red-500'}`}
-                initial={{ width: "100%" }}
-                animate={{ width: `${(turnTime / 30) * 100}%` }}
-                transition={{ duration: 1, ease: "linear" }}
-              />
-            </div>
-            <div className="flex justify-between text-[10px] text-gray-500 mt-1">
-              <span>0s</span>
-              <span className="pl-8">進攻 (25s)</span>
-              <span>安全 (5s)</span>
-              <span>30s</span>
-            </div>
-          </div>
-        )}
-      </div>
+            if (mode === MODES.NATIONAL) {
+                isAttacker = attacker === teamId;
+                isSafety = isAttacker && turnTime > (NATIONAL_CONFIG.TURN_TIME - NATIONAL_CONFIG.SAFETY_TIME);
+            }
 
-      {/* 隊伍 2 (右/下) */}
-      <TeamPanel 
-        teamId="team2"
-        colorConfig={color2}
-        score={score2} 
-        isFirstPanel={false} 
-        layout={layout}
-        mode={mode}
-        attacker={attacker}
-        turnTime={turnTime}
-        goalMessage={goalMessage}
-        onScore={handleScore}
-        onAdjust={adjustScore}
-      />
+            // 版面樣式計算
+            const isHorizontal = layout === LAYOUTS.HORIZONTAL;
+            const containerClass = isHorizontal 
+                ? `flex-1 h-full flex flex-col items-center justify-center relative transition-all duration-500 ${colorConfig.bg} ${colorConfig.text}`
+                : `w-full flex-1 flex flex-row items-center justify-between px-8 relative transition-all duration-500 ${colorConfig.bg} ${colorConfig.text}`;
 
-      {/* 設定彈窗 */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowSettings(false)}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-5 relative z-50 max-h-[90vh] overflow-y-auto" 
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <Settings className="w-6 h-6" /> 設定
-                </h3>
-                <button 
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                  className={`p-2 rounded-full ${soundEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}
+            return (
+                <div 
+                    className={containerClass}
+                    onClick={() => onScore(teamId)}
                 >
-                  {soundEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
-                </button>
-              </div>
-              
-              {/* 版面配置設定 */}
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                  <LayoutTemplate size={16} /> 版面配置
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={() => setLayout(LAYOUTS.VERTICAL)}
-                    className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${layout === LAYOUTS.VERTICAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-400'}`}
-                  >
-                    <Rows size={24} />
-                    <span className="text-sm font-bold">上下分割</span>
-                  </button>
-                  <button 
-                    onClick={() => setLayout(LAYOUTS.HORIZONTAL)}
-                    className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${layout === LAYOUTS.HORIZONTAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-400'}`}
-                  >
-                    <Columns size={24} />
-                    <span className="text-sm font-bold">左右分割</span>
-                  </button>
+                    {/* 背景特效 (GOAL) */}
+                    {goalMessage === teamId && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10 animate-pulse">
+                            <span className="text-6xl md:text-9xl font-black text-white tracking-widest transform scale-150">GOAL!</span>
+                        </div>
+                    )}
+
+                    {/* 隊伍名稱與狀態 */}
+                    <div className={`flex flex-col items-center z-0 ${isHorizontal ? 'mb-4' : ''}`}>
+                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-wider opacity-90">
+                            {mode === MODES.NATIONAL ? colorConfig.label : (teamId === 'team1' ? 'HOME' : 'GUEST')}
+                        </h2>
+                        
+                        {mode === MODES.NATIONAL && (
+                            <div className="mt-2">
+                                {isAttacker ? (
+                                    <span className={`px-4 py-1 rounded-full text-sm md:text-lg font-bold border-2 border-white/40 ${isSafety ? 'bg-green-500/50' : 'bg-red-500/50'}`}>
+                                        {isSafety ? '安全保護 SAFETY' : '進攻 ATTACK'}
+                                    </span>
+                                ) : (
+                                    <span className="px-4 py-1 rounded-full text-sm md:text-lg font-bold border-2 border-white/20 bg-black/20">
+                                        防守 DEFENSE
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 分數顯示 */}
+                    <div className={`font-mono font-bold leading-none select-none ${isHorizontal ? 'text-[10rem] md:text-[14rem]' : 'text-[8rem]'}`}>
+                        {score}
+                    </div>
+
+                    {/* 扣分按鈕 */}
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onAdjust(teamId, -1); }}
+                        className="absolute bottom-6 right-6 w-12 h-12 md:w-16 md:h-16 bg-black/20 hover:bg-black/40 rounded-full flex items-center justify-center text-white/80 border-2 border-white/10 transition-all active:scale-95 z-20"
+                        title="扣分 -1"
+                    >
+                        <Icons.Minus />
+                    </button>
                 </div>
-              </div>
+            );
+        });
 
-              {/* 顏色設定 */}
-              <div className="space-y-3">
-                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                  <Palette size={16} /> 隊伍顏色
-                </p>
-                
-                {/* Team 1 Color */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-600">Left / Top</span>
-                  <div className="flex gap-1">
-                    {COLOR_OPTIONS.map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => setColor1(c)}
-                        className={`w-6 h-6 rounded-full ${c.bg} ${color1.id === c.id ? 'ring-2 ring-offset-2 ring-black' : ''}`}
-                      />
-                    ))}
-                  </div>
+        // --- 主程式: 計分板 ---
+        function DroneSoccerScoreboard() {
+            const [mode, setMode] = useState(MODES.NATIONAL);
+            const [layout, setLayout] = useState(LAYOUTS.HORIZONTAL); // 預設左右分割
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [soundEnabled, setSoundEnabled] = useState(true);
+            
+            // 隊伍設定
+            const [color1, setColor1] = useState(COLOR_OPTIONS[1]); // 藍
+            const [color2, setColor2] = useState(COLOR_OPTIONS[0]); // 紅
+            const [score1, setScore1] = useState(0);
+            const [score2, setScore2] = useState(0);
+
+            // 時間狀態
+            const [gameTime, setGameTime] = useState(NATIONAL_CONFIG.TOTAL_TIME);
+            const [turnTime, setTurnTime] = useState(NATIONAL_CONFIG.TURN_TIME);
+            const [attacker, setAttacker] = useState('team2'); // 預設紅隊先攻
+            const [goalMessage, setGoalMessage] = useState(null);
+            
+            // 學界賽狀態
+            const [period, setPeriod] = useState(1);
+            const [periodTime, setPeriodTime] = useState(SCHOOL_CONFIG.HALF_TIME);
+            
+            const [showSettings, setShowSettings] = useState(false);
+            const timerRef = useRef(null);
+
+            // 切換攻守
+            const switchTurn = useCallback(() => {
+                setAttacker(prev => (prev === 'team2' ? 'team1' : 'team2'));
+                setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+            }, []);
+
+            // 處理得分
+            const handleScore = useCallback((teamId) => {
+                if (teamId === 'team1') setScore1(prev => prev + 1);
+                if (teamId === 'team2') setScore2(prev => prev + 1);
+
+                if (mode === MODES.NATIONAL && isPlaying) {
+                    if (teamId === attacker) {
+                        // 進攻方得分 -> 換邊
+                        if (soundEnabled) playTone('end');
+                        setGoalMessage(teamId);
+                        setTimeout(() => setGoalMessage(null), 1500);
+                        switchTurn();
+                    }
+                }
+            }, [mode, isPlaying, attacker, soundEnabled, switchTurn]);
+
+            // 計時器邏輯
+            useEffect(() => {
+                if (isPlaying) {
+                    timerRef.current = setInterval(() => {
+                        if (mode === MODES.NATIONAL) {
+                            // 全國賽邏輯
+                            setGameTime(gt => {
+                                if (gt <= 0) {
+                                    setIsPlaying(false);
+                                    if (soundEnabled) playTone('end');
+                                    return 0;
+                                }
+                                return gt - 1;
+                            });
+
+                            setTurnTime(tt => {
+                                // 音效
+                                if (soundEnabled) {
+                                    if (tt >= 27 && tt <= 30) playTone('tick');
+                                    else if (tt === 26) playTone('last-tick');
+                                    else if (tt <= 5 && tt > 1) playTone('tick');
+                                    else if (tt === 1) playTone('last-tick');
+                                }
+                                
+                                if (tt <= 0) {
+                                    if (soundEnabled) playTone('end');
+                                    switchTurn();
+                                    return NATIONAL_CONFIG.TURN_TIME;
+                                }
+                                return tt - 1;
+                            });
+
+                        } else {
+                            // 學界賽邏輯
+                            setPeriodTime(pt => {
+                                if (pt <= 0) {
+                                    setIsPlaying(false);
+                                    if (soundEnabled) playTone('end');
+                                    return 0;
+                                }
+                                if (soundEnabled) {
+                                    if (pt <= 5 && pt > 1) playTone('tick');
+                                    if (pt === 1) playTone('last-tick');
+                                }
+                                return pt - 1;
+                            });
+                        }
+                    }, 1000);
+                }
+                return () => clearInterval(timerRef.current);
+            }, [isPlaying, mode, soundEnabled, switchTurn]);
+
+            // 學界賽自動切換節數
+            useEffect(() => {
+                if (mode === MODES.SCHOOL && periodTime === 0 && !isPlaying) {
+                    if (period === 1) {
+                        setPeriod(2);
+                        setPeriodTime(SCHOOL_CONFIG.BREAK_TIME);
+                    } else if (period === 2) {
+                        setPeriod(3);
+                        setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
+                    } else if (period === 3) {
+                        setPeriod(4);
+                        setPeriodTime(0); // End
+                    }
+                }
+            }, [periodTime, isPlaying, mode, period]);
+
+            const adjustScore = (teamId, amount) => {
+                if (teamId === 'team1') setScore1(prev => Math.max(0, prev + amount));
+                if (teamId === 'team2') setScore2(prev => Math.max(0, prev + amount));
+            };
+
+            const resetGame = () => {
+                setIsPlaying(false);
+                setScore1(0);
+                setScore2(0);
+                setGoalMessage(null);
+                if (mode === MODES.NATIONAL) {
+                    setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
+                    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                    setAttacker('team2');
+                } else {
+                    setPeriod(1);
+                    setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
+                }
+            };
+
+            const toggleMode = (newMode) => {
+                setMode(newMode);
+                resetGame();
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const mainContainerClass = layout === LAYOUTS.HORIZONTAL 
+                ? "flex flex-row h-screen w-full overflow-hidden" 
+                : "flex flex-col h-screen w-full overflow-hidden";
+
+            return (
+                <div className={mainContainerClass}>
+                    
+                    {/* 返回首頁按鈕 */}
+                    <a href="index.html" className="fixed top-4 left-4 z-50 bg-white/20 hover:bg-white/40 backdrop-blur text-white p-2 rounded-full transition-all border border-white/20 shadow-lg">
+                        <Icons.Home />
+                    </a>
+
+                    {/* 隊伍 1 */}
+                    <TeamPanel 
+                        teamId="team1" 
+                        colorConfig={color1} 
+                        score={score1} 
+                        isFirstPanel={true}
+                        layout={layout}
+                        mode={mode}
+                        attacker={attacker}
+                        turnTime={turnTime}
+                        goalMessage={goalMessage}
+                        onScore={handleScore}
+                        onAdjust={adjustScore}
+                    />
+
+                    {/* 中央控制區 */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-4 w-full max-w-sm pointer-events-none">
+                        
+                        {/* 主控制條 */}
+                        <div className="bg-white rounded-2xl shadow-2xl p-2 flex items-center gap-4 pointer-events-auto border border-slate-200">
+                            
+                            {/* 設定按鈕 */}
+                            <button onClick={() => setShowSettings(true)} className="p-3 text-slate-500 hover:bg-slate-100 rounded-xl active:bg-slate-200 transition-colors">
+                                <Icons.Settings />
+                            </button>
+
+                            {/* 時間顯示 */}
+                            <div className="flex flex-col items-center min-w-[100px]">
+                                <span className="text-3xl font-black font-mono text-slate-800 tracking-tight">
+                                    {mode === MODES.NATIONAL ? formatTime(gameTime) : formatTime(periodTime)}
+                                </span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    {mode === MODES.NATIONAL ? '全國賽' : `學界賽 - P${period}`}
+                                </span>
+                            </div>
+
+                            {/* 播放/暫停 */}
+                            <button 
+                                onClick={() => {
+                                    setIsPlaying(!isPlaying);
+                                    if (!isPlaying && soundEnabled) playTone('whistle');
+                                }}
+                                className={`p-4 rounded-xl text-white shadow-lg transition-all active:scale-95 ${isPlaying ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
+                            >
+                                {isPlaying ? <Icons.Pause /> : <Icons.Play />}
+                            </button>
+                        </div>
+
+                        {/* 全國賽：回合倒數進度條 */}
+                        {mode === MODES.NATIONAL && (
+                            <div className="w-64 bg-white/90 backdrop-blur rounded-xl p-3 shadow-xl border border-white/50 pointer-events-auto">
+                                <div className="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                    <span>進攻回合倒數</span>
+                                    <span className={turnTime <= 5 ? 'text-red-500' : 'text-slate-700'}>{turnTime}s</span>
+                                </div>
+                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full transition-all duration-1000 ease-linear ${turnTime > 25 ? 'bg-emerald-500' : turnTime <= 5 ? 'bg-red-500' : 'bg-blue-500'}`}
+                                        style={{ width: `${(turnTime / 30) * 100}%` }}
+                                    ></div>
+                                </div>
+                                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                                    <span>0s</span>
+                                    <span>30s</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 隊伍 2 */}
+                    <TeamPanel 
+                        teamId="team2" 
+                        colorConfig={color2} 
+                        score={score2} 
+                        isFirstPanel={false}
+                        layout={layout}
+                        mode={mode}
+                        attacker={attacker}
+                        turnTime={turnTime}
+                        goalMessage={goalMessage}
+                        onScore={handleScore}
+                        onAdjust={adjustScore}
+                    />
+
+                    {/* 設定彈窗 */}
+                    {showSettings && (
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
+                            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 animate-[fadeIn_0.2s_ease-out]" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                        <Icons.Settings /> 設定
+                                    </h3>
+                                    <button 
+                                        onClick={() => setSoundEnabled(!soundEnabled)}
+                                        className={`p-2 rounded-full transition-colors ${soundEnabled ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}
+                                    >
+                                        {soundEnabled ? <Icons.Volume2 /> : <Icons.VolumeX />}
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {/* 版面配置 */}
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">版面配置 Layout</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button onClick={() => setLayout(LAYOUTS.VERTICAL)} className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${layout === LAYOUTS.VERTICAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <span className="font-bold">上下分割</span>
+                                            </button>
+                                            <button onClick={() => setLayout(LAYOUTS.HORIZONTAL)} className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${layout === LAYOUTS.HORIZONTAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <span className="font-bold">左右分割</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* 顏色設定 */}
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">隊伍顏色 Team Colors</label>
+                                        <div className="flex justify-between items-center gap-4 bg-slate-50 p-3 rounded-xl">
+                                            <div className="flex gap-1">
+                                                {COLOR_OPTIONS.slice(0,4).map(c => (
+                                                    <button key={c.id} onClick={() => setColor1(c)} className={`w-6 h-6 rounded-full ${c.bg} border-2 ${color1.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
+                                                ))}
+                                            </div>
+                                            <span className="text-xs text-slate-400 font-bold">VS</span>
+                                            <div className="flex gap-1">
+                                                {COLOR_OPTIONS.slice(0,4).map(c => (
+                                                    <button key={c.id} onClick={() => setColor2(c)} className={`w-6 h-6 rounded-full ${c.bg} border-2 ${color2.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 賽制選擇 */}
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">賽制 Mode</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button onClick={() => toggleMode(MODES.NATIONAL)} className={`p-3 rounded-xl border-2 transition-all ${mode === MODES.NATIONAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <div className="font-bold">全國賽</div>
+                                                <div className="text-xs opacity-70">30s 回合制</div>
+                                            </button>
+                                            <button onClick={() => toggleMode(MODES.SCHOOL)} className={`p-3 rounded-xl border-2 transition-all ${mode === MODES.SCHOOL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <div className="font-bold">學界賽</div>
+                                                <div className="text-xs opacity-70">3min 半場制</div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button onClick={() => { resetGame(); setShowSettings(false); }} className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                                        <Icons.RotateCcw /> 重置比賽
+                                    </button>
+                                </div>
+                                
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-4 py-2 text-slate-400 text-sm hover:text-slate-600">
+                                    關閉選單
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
+            );
+        }
 
-                {/* Team 2 Color */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-600">Right / Bottom</span>
-                  <div className="flex gap-1">
-                    {COLOR_OPTIONS.map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => setColor2(c)}
-                        className={`w-6 h-6 rounded-full ${c.bg} ${color2.id === c.id ? 'ring-2 ring-offset-2 ring-black' : ''}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <hr className="border-gray-100" />
-
-              {/* 賽制設定 */}
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">賽制選擇</p>
-                <div className="grid grid-cols-2 gap-3">
-                   <button 
-                    onClick={() => toggleMode(MODES.NATIONAL)}
-                    className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${mode === MODES.NATIONAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-500'}`}
-                  >
-                    <Trophy size={20} />
-                    <span className="text-xs font-bold">全國賽</span>
-                  </button>
-                   <button 
-                    onClick={() => toggleMode(MODES.SCHOOL)}
-                    className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${mode === MODES.SCHOOL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-500'}`}
-                  >
-                    <Clock size={20} />
-                    <span className="text-xs font-bold">學界賽</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button 
-                  onClick={() => { resetGame(); setShowSettings(false); }}
-                  className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
-                >
-                  <RotateCcw size={20} /> 重置比賽
-                </button>
-              </div>
-              
-              <button onClick={() => setShowSettings(false)} className="w-full py-2 text-gray-400 font-medium hover:text-gray-600 text-sm">
-                關閉選單
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<DroneSoccerScoreboard />);
+    </script>
+</body>
+</html>
