@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>無人機足球計時器 | Drone Soccer Timer</title>
     
+    <!-- 使用穩定的 CDN 替換原本的 unpkg -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
 
     <style>
         body { background-color: #f0f9ff; font-family: system-ui, -apple-system, sans-serif; }
@@ -192,7 +193,6 @@
             const [showSettings, setShowSettings] = useState(false);
             const timerRef = useRef(null);
 
-            // --- 關鍵修正：當顏色改變時，自動將紅色設為先攻 ---
             useEffect(() => {
                 if (mode === MODES.NATIONAL && !isPlaying) {
                     if (color1.id === 'red') {
@@ -202,7 +202,6 @@
                     }
                 }
             }, [color1, color2, mode, isPlaying]);
-            // ------------------------------------------------
 
             const switchTurn = useCallback(() => {
                 setAttacker(prev => (prev === 'team2' ? 'team1' : 'team2'));
@@ -300,13 +299,12 @@
                     setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
                     setTurnTime(NATIONAL_CONFIG.TURN_TIME);
                     
-                    // 重置時也強制檢查紅色
                     if (color1.id === 'red') {
                         setAttacker('team1');
                     } else if (color2.id === 'red') {
                         setAttacker('team2');
                     } else {
-                        setAttacker('team2'); // 預設
+                        setAttacker('team2');
                     }
 
                 } else {
