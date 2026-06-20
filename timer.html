@@ -2,20 +2,32 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>無人機足球計時器 | Drone Soccer Timer</title>
     
-    <!-- 使用穩定的 CDN 替換原本的 unpkg -->
+    <!-- 使用穩定的 CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
 
     <style>
-        body { background-color: #f0f9ff; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #f0f9ff; font-family: system-ui, -apple-system, sans-serif; touch-action: manipulation; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 防止手機點擊時出現高光 */
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        /* 隱藏數字輸入框的上下箭頭 */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
     </style>
 </head>
 <body>
@@ -94,7 +106,7 @@
         const LAYOUTS = { VERTICAL: 'vertical', HORIZONTAL: 'horizontal' };
         
         const NATIONAL_CONFIG = { TOTAL_TIME: 180, TURN_TIME: 30, SAFETY_TIME: 5 };
-        const SCHOOL_CONFIG = { HALF_TIME: 180, BREAK_TIME: 60 };
+        const SCHOOL_CONFIG = { BREAK_TIME: 60 };
 
         const COLOR_OPTIONS = [
             { id: 'red', name: '紅', label: 'RED', bg: 'bg-red-600', text: 'text-red-100', ring: 'ring-red-600' },
@@ -119,7 +131,7 @@
             const isHorizontal = layout === LAYOUTS.HORIZONTAL;
             const containerClass = isHorizontal 
                 ? `flex-1 h-full flex flex-col items-center justify-center relative transition-all duration-500 ${colorConfig.bg} ${colorConfig.text}`
-                : `w-full flex-1 flex flex-row items-center justify-between px-8 relative transition-all duration-500 ${colorConfig.bg} ${colorConfig.text}`;
+                : `w-full flex-1 flex flex-row items-center justify-between px-4 sm:px-8 relative transition-all duration-500 ${colorConfig.bg} ${colorConfig.text}`;
 
             return (
                 <div 
@@ -127,24 +139,24 @@
                     onClick={() => onScore(teamId)}
                 >
                     {goalMessage === teamId && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10 animate-pulse">
-                            <span className="text-6xl md:text-9xl font-black text-white tracking-widest transform scale-150">GOAL!</span>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10 animate-pulse pointer-events-none">
+                            <span className="text-5xl sm:text-6xl md:text-9xl font-black text-white tracking-widest transform scale-125 md:scale-150">GOAL!</span>
                         </div>
                     )}
 
-                    <div className={`flex flex-col items-center z-0 ${isHorizontal ? 'mb-4' : ''}`}>
-                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-wider opacity-90">
+                    <div className={`flex flex-col items-center z-0 ${isHorizontal ? 'mb-2 md:mb-4' : ''}`}>
+                        <h2 className="text-2xl sm:text-3xl md:text-5xl font-black uppercase tracking-wider opacity-90">
                             {mode === MODES.NATIONAL ? colorConfig.label : (teamId === 'team1' ? 'HOME' : 'GUEST')}
                         </h2>
                         
                         {mode === MODES.NATIONAL && (
-                            <div className="mt-2">
+                            <div className="mt-1 md:mt-2">
                                 {isAttacker ? (
-                                    <span className={`px-4 py-1 rounded-full text-sm md:text-lg font-bold border-2 border-white/40 ${isSafety ? 'bg-green-500/50' : 'bg-red-500/50'}`}>
+                                    <span className={`px-2 md:px-4 py-1 rounded-full text-xs sm:text-sm md:text-lg font-bold border-2 border-white/40 ${isSafety ? 'bg-green-500/50' : 'bg-red-500/50'}`}>
                                         {isSafety ? '安全保護 SAFETY' : '進攻 ATTACK'}
                                     </span>
                                 ) : (
-                                    <span className="px-4 py-1 rounded-full text-sm md:text-lg font-bold border-2 border-white/20 bg-black/20">
+                                    <span className="px-2 md:px-4 py-1 rounded-full text-xs sm:text-sm md:text-lg font-bold border-2 border-white/20 bg-black/20">
                                         防守 DEFENSE
                                     </span>
                                 )}
@@ -152,13 +164,13 @@
                         )}
                     </div>
 
-                    <div className={`font-mono font-bold leading-none select-none ${isHorizontal ? 'text-[10rem] md:text-[14rem]' : 'text-[8rem]'}`}>
+                    <div className={`font-mono font-bold leading-none select-none ${isHorizontal ? 'text-[6rem] sm:text-[8rem] md:text-[14rem]' : 'text-[5rem] sm:text-[7rem] md:text-[8rem]'}`}>
                         {score}
                     </div>
 
                     <button 
                         onClick={(e) => { e.stopPropagation(); onAdjust(teamId, -1); }}
-                        className="absolute bottom-6 right-6 w-12 h-12 md:w-16 md:h-16 bg-black/20 hover:bg-black/40 rounded-full flex items-center justify-center text-white/80 border-2 border-white/10 transition-all active:scale-95 z-20"
+                        className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-black/20 hover:bg-black/40 rounded-full flex items-center justify-center text-white/80 border-2 border-white/10 transition-all active:scale-95 z-20"
                         title="扣分 -1"
                     >
                         <Icons.Minus />
@@ -183,12 +195,13 @@
             // 時間狀態
             const [gameTime, setGameTime] = useState(NATIONAL_CONFIG.TOTAL_TIME);
             const [turnTime, setTurnTime] = useState(NATIONAL_CONFIG.TURN_TIME);
-            const [attacker, setAttacker] = useState('team2'); // 初始預設 Team 2 (因為預設 Team 2 是紅)
+            const [attacker, setAttacker] = useState('team2');
             const [goalMessage, setGoalMessage] = useState(null);
             
             // 學界賽狀態
+            const [schoolHalfTime, setSchoolHalfTime] = useState(180); // 自訂學界賽半場時間
             const [period, setPeriod] = useState(1);
-            const [periodTime, setPeriodTime] = useState(SCHOOL_CONFIG.HALF_TIME);
+            const [periodTime, setPeriodTime] = useState(180);
             
             const [showSettings, setShowSettings] = useState(false);
             const timerRef = useRef(null);
@@ -277,13 +290,13 @@
                         setPeriodTime(SCHOOL_CONFIG.BREAK_TIME);
                     } else if (period === 2) {
                         setPeriod(3);
-                        setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
+                        setPeriodTime(schoolHalfTime === '' ? 180 : schoolHalfTime);
                     } else if (period === 3) {
                         setPeriod(4);
                         setPeriodTime(0);
                     }
                 }
-            }, [periodTime, isPlaying, mode, period]);
+            }, [periodTime, isPlaying, mode, period, schoolHalfTime]);
 
             const adjustScore = (teamId, amount) => {
                 if (teamId === 'team1') setScore1(prev => Math.max(0, prev + amount));
@@ -309,16 +322,27 @@
 
                 } else {
                     setPeriod(1);
-                    setPeriodTime(SCHOOL_CONFIG.HALF_TIME);
+                    setPeriodTime(schoolHalfTime === '' ? 180 : schoolHalfTime);
                 }
             };
 
             const toggleMode = (newMode) => {
                 setMode(newMode);
-                resetGame();
+                setIsPlaying(false);
+                setScore1(0);
+                setScore2(0);
+                setGoalMessage(null);
+                if (newMode === MODES.NATIONAL) {
+                    setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
+                    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                } else {
+                    setPeriod(1);
+                    setPeriodTime(schoolHalfTime === '' ? 180 : schoolHalfTime);
+                }
             };
 
             const formatTime = (seconds) => {
+                if (seconds === '' || isNaN(seconds)) return "00:00";
                 const m = Math.floor(seconds / 60);
                 const s = seconds % 60;
                 return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
@@ -331,7 +355,7 @@
             return (
                 <div className={mainContainerClass}>
                     
-                    <a href="index.html" className="fixed top-4 left-4 z-50 bg-white/20 hover:bg-white/40 backdrop-blur text-white p-2 rounded-full transition-all border border-white/20 shadow-lg">
+                    <a href="index.html" className="fixed top-2 left-2 sm:top-4 sm:left-4 z-50 bg-white/20 hover:bg-white/40 backdrop-blur text-white p-2 rounded-full transition-all border border-white/20 shadow-lg">
                         <Icons.Home />
                     </a>
 
@@ -349,19 +373,19 @@
                         onAdjust={adjustScore}
                     />
 
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-4 w-full max-w-sm pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 sm:gap-4 w-[90%] max-w-sm pointer-events-none">
                         
-                        <div className="bg-white rounded-2xl shadow-2xl p-2 flex items-center gap-4 pointer-events-auto border border-slate-200">
+                        <div className="bg-white rounded-2xl shadow-2xl p-2 flex items-center justify-between w-full pointer-events-auto border border-slate-200">
                             
-                            <button onClick={() => setShowSettings(true)} className="p-3 text-slate-500 hover:bg-slate-100 rounded-xl active:bg-slate-200 transition-colors">
+                            <button onClick={() => setShowSettings(true)} className="p-2 sm:p-3 text-slate-500 hover:bg-slate-100 rounded-xl active:bg-slate-200 transition-colors">
                                 <Icons.Settings />
                             </button>
 
-                            <div className="flex flex-col items-center min-w-[100px]">
-                                <span className="text-3xl font-black font-mono text-slate-800 tracking-tight">
+                            <div className="flex flex-col items-center min-w-[90px] sm:min-w-[100px]">
+                                <span className="text-2xl sm:text-3xl font-black font-mono text-slate-800 tracking-tight">
                                     {mode === MODES.NATIONAL ? formatTime(gameTime) : formatTime(periodTime)}
                                 </span>
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     {mode === MODES.NATIONAL ? '全國賽' : `學界賽 - P${period}`}
                                 </span>
                             </div>
@@ -371,25 +395,25 @@
                                     setIsPlaying(!isPlaying);
                                     if (!isPlaying && soundEnabled) playTone('whistle');
                                 }}
-                                className={`p-4 rounded-xl text-white shadow-lg transition-all active:scale-95 ${isPlaying ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
+                                className={`p-3 sm:p-4 rounded-xl text-white shadow-lg transition-all active:scale-95 ${isPlaying ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
                             >
                                 {isPlaying ? <Icons.Pause /> : <Icons.Play />}
                             </button>
                         </div>
 
                         {mode === MODES.NATIONAL && (
-                            <div className="w-64 bg-white/90 backdrop-blur rounded-xl p-3 shadow-xl border border-white/50 pointer-events-auto">
-                                <div className="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                            <div className="w-full bg-white/90 backdrop-blur rounded-xl p-2 sm:p-3 shadow-xl border border-white/50 pointer-events-auto">
+                                <div className="flex justify-between text-[10px] sm:text-xs font-bold text-slate-500 mb-1">
                                     <span>進攻回合倒數</span>
                                     <span className={turnTime <= 5 ? 'text-red-500' : 'text-slate-700'}>{turnTime}s</span>
                                 </div>
-                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="h-1.5 sm:h-2 bg-slate-200 rounded-full overflow-hidden">
                                     <div 
                                         className={`h-full transition-all duration-1000 ease-linear ${turnTime > 25 ? 'bg-emerald-500' : turnTime <= 5 ? 'bg-red-500' : 'bg-blue-500'}`}
                                         style={{ width: `${(turnTime / 30) * 100}%` }}
                                     ></div>
                                 </div>
-                                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-400 mt-1">
                                     <span>0s</span>
                                     <span>30s</span>
                                 </div>
@@ -413,9 +437,9 @@
 
                     {showSettings && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
-                            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 animate-[fadeIn_0.2s_ease-out]" onClick={e => e.stopPropagation()}>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-5 sm:p-6 animate-[fadeIn_0.2s_ease-out] max-h-[90vh] overflow-y-auto no-scrollbar" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                                    <h3 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
                                         <Icons.Settings /> 設定
                                     </h3>
                                     <button 
@@ -426,56 +450,101 @@
                                     </button>
                                 </div>
 
-                                <div className="space-y-6">
+                                <div className="space-y-4 sm:space-y-6">
                                     <div>
-                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">版面配置 Layout</label>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button onClick={() => setLayout(LAYOUTS.VERTICAL)} className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${layout === LAYOUTS.VERTICAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
-                                                <span className="font-bold">上下分割</span>
+                                        <label className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-2 block">版面配置 Layout</label>
+                                        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                                            <button onClick={() => setLayout(LAYOUTS.VERTICAL)} className={`p-2 sm:p-3 rounded-xl border-2 flex flex-col items-center gap-1 sm:gap-2 transition-all ${layout === LAYOUTS.VERTICAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <span className="font-bold text-sm">上下分割</span>
                                             </button>
-                                            <button onClick={() => setLayout(LAYOUTS.HORIZONTAL)} className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${layout === LAYOUTS.HORIZONTAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
-                                                <span className="font-bold">左右分割</span>
+                                            <button onClick={() => setLayout(LAYOUTS.HORIZONTAL)} className={`p-2 sm:p-3 rounded-xl border-2 flex flex-col items-center gap-1 sm:gap-2 transition-all ${layout === LAYOUTS.HORIZONTAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <span className="font-bold text-sm">左右分割</span>
                                             </button>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">隊伍顏色 Team Colors</label>
-                                        <div className="flex justify-between items-center gap-4 bg-slate-50 p-3 rounded-xl">
+                                        <label className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-2 block">隊伍顏色 Team Colors</label>
+                                        <div className="flex justify-between items-center gap-2 sm:gap-4 bg-slate-50 p-2 sm:p-3 rounded-xl">
                                             <div className="flex gap-1">
                                                 {COLOR_OPTIONS.slice(0,4).map(c => (
-                                                    <button key={c.id} onClick={() => setColor1(c)} className={`w-6 h-6 rounded-full ${c.bg} border-2 ${color1.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
+                                                    <button key={c.id} onClick={() => setColor1(c)} className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${c.bg} border-2 ${color1.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
                                                 ))}
                                             </div>
-                                            <span className="text-xs text-slate-400 font-bold">VS</span>
+                                            <span className="text-[10px] sm:text-xs text-slate-400 font-bold">VS</span>
                                             <div className="flex gap-1">
                                                 {COLOR_OPTIONS.slice(0,4).map(c => (
-                                                    <button key={c.id} onClick={() => setColor2(c)} className={`w-6 h-6 rounded-full ${c.bg} border-2 ${color2.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
+                                                    <button key={c.id} onClick={() => setColor2(c)} className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${c.bg} border-2 ${color2.id === c.id ? 'border-slate-800 scale-110' : 'border-transparent'}`} />
                                                 ))}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">賽制 Mode</label>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button onClick={() => toggleMode(MODES.NATIONAL)} className={`p-3 rounded-xl border-2 transition-all ${mode === MODES.NATIONAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
-                                                <div className="font-bold">全國賽</div>
-                                                <div className="text-xs opacity-70">30s 回合制</div>
+                                        <label className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-2 block">賽制 Mode</label>
+                                        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                                            <button onClick={() => toggleMode(MODES.NATIONAL)} className={`p-2 sm:p-3 rounded-xl border-2 transition-all ${mode === MODES.NATIONAL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <div className="font-bold text-sm">全國賽</div>
+                                                <div className="text-[10px] sm:text-xs opacity-70">30s 回合制</div>
                                             </button>
-                                            <button onClick={() => toggleMode(MODES.SCHOOL)} className={`p-3 rounded-xl border-2 transition-all ${mode === MODES.SCHOOL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
-                                                <div className="font-bold">學界賽</div>
-                                                <div className="text-xs opacity-70">3min 半場制</div>
+                                            <button onClick={() => toggleMode(MODES.SCHOOL)} className={`p-2 sm:p-3 rounded-xl border-2 transition-all ${mode === MODES.SCHOOL ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>
+                                                <div className="font-bold text-sm">學界賽</div>
+                                                <div className="text-[10px] sm:text-xs opacity-70">半場制</div>
                                             </button>
                                         </div>
+                                        
+                                        {/* 學界賽自訂秒數區塊 */}
+                                        {mode === MODES.SCHOOL && (
+                                            <div className="mt-3 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <label className="text-[10px] sm:text-xs font-bold text-blue-600 uppercase block">學界賽半場時間 (秒數)</label>
+                                                    <div className="flex gap-2">
+                                                        <button 
+                                                            onClick={() => { setSchoolHalfTime(180); if (!isPlaying) setPeriodTime(180); }}
+                                                            className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors ${schoolHalfTime === 180 ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+                                                        >180秒</button>
+                                                        <button 
+                                                            onClick={() => { setSchoolHalfTime(150); if (!isPlaying) setPeriodTime(150); }}
+                                                            className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors ${schoolHalfTime === 150 ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+                                                        >150秒</button>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="number" 
+                                                        value={schoolHalfTime}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === '') {
+                                                                setSchoolHalfTime('');
+                                                            } else {
+                                                                const num = Math.max(1, parseInt(val) || 1);
+                                                                setSchoolHalfTime(num);
+                                                                if (!isPlaying) setPeriodTime(num);
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            // 如果使用者清空輸入框後點擊其他地方，自動恢復為預設的 180 秒
+                                                            if (e.target.value === '' || parseInt(e.target.value) < 1) {
+                                                                setSchoolHalfTime(180);
+                                                                if (!isPlaying) setPeriodTime(180);
+                                                            }
+                                                        }}
+                                                        placeholder="自訂秒數"
+                                                        className="w-full p-2 border border-blue-200 rounded-lg text-center font-bold text-blue-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                    />
+                                                    <span className="text-sm font-bold text-blue-600 whitespace-nowrap">秒</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <button onClick={() => { resetGame(); setShowSettings(false); }} className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                                    <button onClick={() => { resetGame(); setShowSettings(false); }} className="w-full py-2 sm:py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
                                         <Icons.RotateCcw /> 重置比賽
                                     </button>
                                 </div>
                                 
-                                <button onClick={() => setShowSettings(false)} className="w-full mt-4 py-2 text-slate-400 text-sm hover:text-slate-600">
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-3 sm:mt-4 py-2 text-slate-400 text-xs sm:text-sm hover:text-slate-600">
                                     關閉選單
                                 </button>
                             </div>
