@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二進制與十進制互換教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0fdfa; /* Tailwind teal-50 */
+            color: #0f172a; /* Tailwind slate-900 */
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 淡入動畫 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 步驟高亮過渡 */
+        .highlight-step {
+            transition: all 0.3s ease;
+        }
+        .highlight-step.active {
+            background-color: #fef08a; /* Tailwind yellow-200 */
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        /* 位元塊樣式 */
+        .bit-block {
+            transition: all 0.3s ease;
+        }
+        .bit-block.active {
+            border-color: #3b82f6; /* Tailwind blue-500 */
+            background-color: #eff6ff; /* Tailwind blue-50 */
+            transform: translateY(-5px);
+        }
+
+        /* 短除法 SVG 樣式 */
+        .division-line {
+            stroke: #334155;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+        .math-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            fill: #1e293b;
+        }
+        .math-text-small {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            fill: #64748b;
+        }
+        .remainder-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            fill: #ef4444; /* red-500 for remainder */
+            font-weight: bold;
+        }
+        .highlight-text {
+            fill: #2563eb; /* blue-600 */
+            font-weight: bold;
+        }
+
+        /* 繪製線條動畫 */
+        .draw-line {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawLine 0.5s ease-out forwards;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* 自定義按鈕樣式 */
+        .btn {
+            transition: all 0.2s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8 fade-in">
+            <h1 class="text-3xl md:text-4xl font-bold text-teal-800 mb-2">二進制與十進制互動教學</h1>
+            <p class="text-slate-600">逐步了解數字系統之間的轉換原理</p>
+        </header>
+
+        <!-- 模式切換標籤 -->
+        <div class="flex justify-center mb-6 space-x-2 fade-in" style="animation-delay: 0.1s;">
+            <button id="tab-bin2dec" class="btn px-6 py-3 rounded-t-lg font-bold bg-teal-600 text-white shadow-md" onclick="switchTab('bin2dec')">
+                二進制轉十進制 (乘法)
+            </button>
+            <button id="tab-dec2bin" class="btn px-6 py-3 rounded-t-lg font-bold bg-teal-100 text-teal-800 hover:bg-teal-200" onclick="switchTab('dec2bin')">
+                十進制轉二進制 (短除法)
+            </button>
+        </div>
+
+        <div class="bg-white rounded-b-xl rounded-tr-xl shadow-xl p-6 md:p-8 border-t-4 border-teal-600 fade-in" style="animation-delay: 0.2s;">
+            
+            <div id="section-bin2dec">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 p-2 rounded-lg mr-3">10₂ ➔ 2₁₀</span>
+                    二進制轉十進制
+                </h2>
+                <p class="mb-6 text-slate-700 leading-relaxed">
+                    二進制系統只使用 0 和 1。每個位置代表 2 的不同倍數。從最右邊（第 0 個位）開始，值分別是 1、2、4、8、16 等等（即每次乘 2）。
+                </p>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-8 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="bin-input" class="block text-sm font-medium text-slate-700 mb-1">輸入二進制數 (0 和 1):</label>
+                        <input type="text" id="bin-input" value="1011" maxlength="8" class="code-font w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-xl tracking-widest" oninput="this.value = this.value.replace(/[^01]/g, '')">
+                    </div>
+                    <button onclick="startBin2Dec()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow w-full md:w-auto flex-shrink-0">
+                        開始演示
+                    </button>
+                </div>
+
+                <!-- 動畫展示區 -->
+                <div id="b2d-workspace" class="hidden">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
+                        <!-- 位元展示 -->
+                        <div id="b2d-bits-container" class="flex justify-center gap-2 md:gap-4 mb-8 flex-wrap">
+                            <!-- JS 動態生成 -->
+                        </div>
+                        
+                        <!-- 計算過程 -->
+                        <div id="b2d-calculation" class="text-center min-h-[100px]">
+                            <!-- JS 動態生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 總結與控制 -->
+                    <div class="flex justify-between items-center bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <div class="text-lg font-bold text-blue-900">
+                            總和：<span id="b2d-total" class="text-2xl text-blue-600">0</span>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="b2dPrevStep()" id="b2d-btn-prev" class="btn bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded disabled:opacity-50" disabled>上一步</button>
+                            <button onclick="b2dNextStep()" id="b2d-btn-next" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">下一步</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-dec2bin" class="hidden">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="bg-purple-100 text-purple-800 p-2 rounded-lg mr-3">2₁₀ ➔ 10₂</span>
+                    十進制轉二進制 (短除法)
+                </h2>
+                <p class="mb-6 text-slate-700 leading-relaxed">
+                    使用「短除法」，我們將十進制數字不斷除以 2。記錄每次的「餘數」（0 或 1）。當商為 0 時停止，然後<strong>從下往上</strong>讀取餘數，就是二進制結果。
+                </p>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-8 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="dec-input" class="block text-sm font-medium text-slate-700 mb-1">輸入十進制數 (0 - 255):</label>
+                        <input type="number" id="dec-input" value="13" min="0" max="255" class="code-font w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-xl" oninput="limitDecInput(this)">
+                    </div>
+                    <button onclick="startDec2Bin()" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow w-full md:w-auto flex-shrink-0">
+                        開始短除法
+                    </button>
+                </div>
+
+                <!-- 短除法動畫展示區 -->
+                <div id="d2b-workspace" class="hidden">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- SVG 畫布區域 -->
+                        <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto flex justify-center items-start min-h-[400px]">
+                            <svg id="division-canvas" width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+                                <!-- JS 動態生成短除法過程 -->
+                            </svg>
+                        </div>
+                        
+                        <!-- 文字解說與控制區域 -->
+                        <div class="w-full md:w-1/3 flex flex-col gap-4">
+                            <div id="d2b-explanation" class="bg-purple-50 border border-purple-100 rounded-xl p-5 flex-1 shadow-inner">
+                                <h3 class="font-bold text-purple-800 mb-3 border-b border-purple-200 pb-2">當前步驟</h3>
+                                <div id="d2b-step-text" class="text-slate-700 leading-relaxed min-h-[100px]">
+                                    點擊「下一步」開始計算。
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 text-center">
+                                <p class="text-sm text-slate-500 mb-1">收集到的餘數 (從下往上讀):</p>
+                                <div id="d2b-result-display" class="code-font text-2xl font-bold tracking-widest text-slate-800 h-8">
+                                    <!-- JS 動態填寫 -->
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between space-x-2">
+                                <button onclick="d2bPrevStep()" id="d2b-btn-prev" class="btn flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 px-4 rounded disabled:opacity-50" disabled>上一步</button>
+                                <button onclick="d2bNextStep()" id="d2b-btn-next" class="btn flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded disabled:opacity-50">下一步</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 標籤切換邏輯 ---
+        function switchTab(tabId) {
+            // 隱藏所有區塊
+            document.getElementById('section-bin2dec').classList.add('hidden');
+            document.getElementById('section-dec2bin').classList.add('hidden');
+            
+            // 重置按鈕樣式
+            const tabB2D = document.getElementById('tab-bin2dec');
+            const tabD2B = document.getElementById('tab-dec2bin');
+            
+            tabB2D.className = "btn px-6 py-3 rounded-t-lg font-bold bg-teal-100 text-teal-800 hover:bg-teal-200";
+            tabD2B.className = "btn px-6 py-3 rounded-t-lg font-bold bg-teal-100 text-teal-800 hover:bg-teal-200";
+
+            // 顯示選擇的區塊並更新按鈕樣式
+            if (tabId === 'bin2dec') {
+                document.getElementById('section-bin2dec').classList.remove('hidden');
+                tabB2D.className = "btn px-6 py-3 rounded-t-lg font-bold bg-teal-600 text-white shadow-md";
+            } else {
+                document.getElementById('section-dec2bin').classList.remove('hidden');
+                tabD2B.className = "btn px-6 py-3 rounded-t-lg font-bold bg-teal-600 text-white shadow-md";
+            }
+        }
+
+        // --- 輔助函數：格式化乘法文字說明 ---
+        // 根據要求：第0個位乘1，第1個位乘2，第2個位乘2次2...
+        function getMultiplierText(position) {
+            if (position === 0) return "1";
+            if (position === 1) return "2";
+            
+            let parts = [];
+            for(let i=0; i<position; i++) {
+                parts.push("2");
+            }
+            return parts.join(" × ");
+        }
+
+        function getMultiplierValue(position) {
+            return Math.pow(2, position);
+        }
+
+        let b2dState = {
+            binaryStr: "",
+            currentStep: -1, // -1 means initial state, 0 to length-1 are bit calculations, length is summary
+            totalValue: 0
+        };
+
+        function startBin2Dec() {
+            const input = document.getElementById('bin-input').value;
+            if (!input || !/^[01]+$/.test(input)) {
+                showMessage("請輸入有效的二進制數字（只包含 0 和 1）");
+                return;
+            }
+
+            b2dState.binaryStr = input;
+            b2dState.currentStep = -1;
+            b2dState.totalValue = 0;
+            
+            document.getElementById('b2d-workspace').classList.remove('hidden');
+            document.getElementById('b2d-total').innerText = "0";
+            
+            renderB2DBits();
+            updateB2DUI();
+        }
+
+        function renderB2DBits() {
+            const container = document.getElementById('b2d-bits-container');
+            container.innerHTML = '';
+            const len = b2dState.binaryStr.length;
+
+            for (let i = 0; i < len; i++) {
+                const bit = b2dState.binaryStr[i];
+                const position = len - 1 - i; // 最右邊是 0
+                
+                const block = document.createElement('div');
+                block.className = `bit-block flex flex-col items-center border-2 border-slate-300 rounded-lg p-2 w-16 bg-white shadow-sm`;
+                block.id = `b2d-bit-${position}`;
+                
+                block.innerHTML = `
+                    <div class="text-xs text-slate-500 mb-1">第 ${position} 位</div>
+                    <div class="code-font text-3xl font-bold text-slate-800">${bit}</div>
+                `;
+                container.appendChild(block);
+            }
+        }
+
+        function updateB2DUI() {
+            const len = b2dState.binaryStr.length;
+            const calcDiv = document.getElementById('b2d-calculation');
+            
+            // 重置所有方塊樣式
+            document.querySelectorAll('.bit-block').forEach(el => el.classList.remove('active'));
+
+            if (b2dState.currentStep === -1) {
+                calcDiv.innerHTML = `<p class="text-slate-500 text-lg mt-8 fade-in">點擊「下一步」開始從右到左（第0位開始）計算每個位的值。</p>`;
+                document.getElementById('b2d-btn-prev').disabled = true;
+                document.getElementById('b2d-btn-next').disabled = false;
+                document.getElementById('b2d-btn-next').innerText = "下一步";
+            } 
+            else if (b2dState.currentStep < len) {
+                // 計算當前處理的位元（從右到左，所以 index 對應的是 position）
+                const position = b2dState.currentStep;
+                const bitChar = b2dState.binaryStr[len - 1 - position];
+                const bitValue = parseInt(bitChar);
+                
+                // 高亮當前方塊
+                document.getElementById(`b2d-bit-${position}`).classList.add('active');
+                
+                const multiplierText = getMultiplierText(position);
+                const multiplierValue = getMultiplierValue(position);
+                const stepValue = bitValue * multiplierValue;
+
+                let explainHTML = `
+                    <div class="fade-in highlight-step active p-4 rounded-lg bg-blue-50 border border-blue-200 inline-block text-left">
+                        <div class="text-lg mb-2">處理 <strong>第 ${position} 個位</strong>：數值為 <span class="code-font font-bold text-blue-700 text-xl">${bitValue}</span></div>
+                        <div class="text-md text-slate-700 mb-3">
+                            規則：第 ${position} 個位要乘以 ${position === 0 ? "1" : (position === 1 ? "2" : position + " 次 2")}
+                        </div>
+                        <div class="text-xl code-font bg-white p-3 rounded border border-slate-200 shadow-inner">
+                            ${bitValue} × (${multiplierText}) <br>
+                            = <span class="text-blue-600 font-bold">${stepValue}</span>
+                        </div>
+                    </div>
+                `;
+                calcDiv.innerHTML = explainHTML;
+
+                // 更新總和 (重新計算到當前步驟)
+                let currentTotal = 0;
+                for(let p = 0; p <= position; p++) {
+                    currentTotal += parseInt(b2dState.binaryStr[len - 1 - p]) * getMultiplierValue(p);
+                }
+                document.getElementById('b2d-total').innerText = currentTotal;
+
+                document.getElementById('b2d-btn-prev').disabled = false;
+                document.getElementById('b2d-btn-next').disabled = false;
+                if(b2dState.currentStep === len - 1) {
+                    document.getElementById('b2d-btn-next').innerText = "完成";
+                } else {
+                    document.getElementById('b2d-btn-next').innerText = "下一步";
+                }
+            } 
+            else {
+                // 完成狀態
+                b2dState.totalValue = 0;
+                let sumFormula = [];
+                for(let p = 0; p < len; p++) {
+                     let bitV = parseInt(b2dState.binaryStr[len - 1 - p]);
+                     let val = bitV * getMultiplierValue(p);
+                     b2dState.totalValue += val;
+                     if(bitV === 1) {
+                         sumFormula.unshift(val); // 放前面以配合習慣(高位到低位)
+                     }
+                }
+                
+                if(sumFormula.length === 0) sumFormula = [0];
+
+                calcDiv.innerHTML = `
+                    <div class="fade-in p-4 rounded-lg bg-green-50 border border-green-200 inline-block">
+                        <div class="text-xl font-bold text-green-800 mb-2">轉換完成！🎉</div>
+                        <div class="text-lg text-slate-700">
+                            將所有產生數值的位相加：<br>
+                            <div class="code-font mt-2 text-2xl font-bold text-green-700">
+                                ${sumFormula.join(" + ")} = ${b2dState.totalValue}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('b2d-btn-prev').disabled = false;
+                document.getElementById('b2d-btn-next').disabled = true;
+            }
+        }
+
+        function b2dNextStep() {
+            if (b2dState.currentStep < b2dState.binaryStr.length) {
+                b2dState.currentStep++;
+                updateB2DUI();
+            }
+        }
+
+        function b2dPrevStep() {
+            if (b2dState.currentStep > -1) {
+                b2dState.currentStep--;
+                updateB2DUI();
+            }
+        }
+
+        let d2bState = {
+            initialNum: 0,
+            steps: [], // 儲存每一步的狀態: { dividend, divisor:2, quotient, remainder }
+            currentStep: -1 // -1: 初始, 0 to steps.length-1: 每步除法, steps.length: 畫箭頭總結
+        };
+
+        function limitDecInput(el) {
+            let val = parseInt(el.value);
+            if (val > 255) el.value = 255;
+            if (val < 0) el.value = 0;
+        }
+
+        function startDec2Bin() {
+            const input = document.getElementById('dec-input').value;
+            if (input === "" || isNaN(input)) {
+                showMessage("請輸入有效的十進制數字");
+                return;
+            }
+            
+            d2bState.initialNum = parseInt(input);
+            calculateD2BSteps(d2bState.initialNum);
+            
+            d2bState.currentStep = -1;
+            document.getElementById('d2b-workspace').classList.remove('hidden');
+            document.getElementById('d2b-result-display').innerText = "";
+            document.getElementById('d2b-btn-next').innerText = "開始除以 2";
+            
+            // 調整 SVG 畫布高度以適應步數
+            const svgHeight = Math.max(400, (d2bState.steps.length + 2) * 50 + 50);
+            document.getElementById('division-canvas').setAttribute('height', svgHeight);
+            
+            updateD2BUI();
+        }
+
+        // 預先計算所有短除法步驟
+        function calculateD2BSteps(num) {
+            d2bState.steps = [];
+            if (num === 0) {
+                d2bState.steps.push({ dividend: 0, divisor: 2, quotient: 0, remainder: 0 });
+                return;
+            }
+            
+            let current = num;
+            while (current > 0) {
+                let quotient = Math.floor(current / 2);
+                let remainder = current % 2;
+                d2bState.steps.push({
+                    dividend: current,
+                    divisor: 2,
+                    quotient: quotient,
+                    remainder: remainder
+                });
+                current = quotient;
+            }
+        }
+
+        function updateD2BUI() {
+            const svg = document.getElementById('division-canvas');
+            svg.innerHTML = ''; // 清空畫布
+            
+            const expDiv = document.getElementById('d2b-step-text');
+            const resultDisplay = document.getElementById('d2b-result-display');
+            
+            const startX = 100;
+            const startY = 40;
+            const rowHeight = 50;
+
+            // 繪製到當前步驟的 SVG
+            const stepsToDraw = d2bState.currentStep === -1 ? 0 : 
+                               (d2bState.currentStep >= d2bState.steps.length ? d2bState.steps.length : d2bState.currentStep + 1);
+
+            // 處理初始狀態
+            if (d2bState.currentStep === -1) {
+                // 只畫最初的數字
+                drawText(svg, startX + 20, startY, d2bState.initialNum, 'math-text highlight-text');
+                expDiv.innerHTML = `<p class="fade-in">我們從十進制數字 <strong class="text-xl">${d2bState.initialNum}</strong> 開始。</p><p class="mt-2 text-sm text-slate-500">點擊「開始除以 2」進行短除法。</p>`;
+                document.getElementById('d2b-btn-prev').disabled = true;
+                document.getElementById('d2b-btn-next').disabled = false;
+                resultDisplay.innerText = "";
+                return;
+            }
+
+            document.getElementById('d2b-btn-prev').disabled = false;
+
+            // 迴圈繪製歷史步驟
+            for (let i = 0; i < stepsToDraw; i++) {
+                const step = d2bState.steps[i];
+                const y = startY + i * rowHeight;
+                const isCurrentStep = (i === d2bState.currentStep);
+
+                // 畫除數 '2'
+                drawText(svg, startX - 20, y + 20, '2', isCurrentStep ? 'math-text highlight-text fade-in' : 'math-text');
+                
+                // 畫短除法符號 └
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${startX} ${y} L ${startX} ${y+25} L ${startX+70} ${y+25}`);
+                path.setAttribute('class', `division-line ${isCurrentStep ? 'draw-line' : ''}`);
+                path.setAttribute('fill', 'none');
+                svg.appendChild(path);
+
+                // 被除數 (上一行的商，或者是初始值)
+                drawText(svg, startX + 20, y, step.dividend, 'math-text');
+
+                // 商數 (寫在橫線下方)
+                if (isCurrentStep) {
+                    // 動畫延遲顯示商和餘數
+                    setTimeout(() => {
+                        drawText(svg, startX + 20, y + rowHeight, step.quotient, 'math-text fade-in');
+                        drawText(svg, startX + 80, y + rowHeight, '···', 'math-text-small fade-in');
+                        drawText(svg, startX + 110, y + rowHeight, step.remainder, 'remainder-text fade-in');
+                    }, 500);
+                } else {
+                    drawText(svg, startX + 20, y + rowHeight, step.quotient, 'math-text');
+                    drawText(svg, startX + 80, y + rowHeight, '···', 'math-text-small');
+                    drawText(svg, startX + 110, y + rowHeight, step.remainder, 'remainder-text');
+                }
+            }
+
+            // 更新文字解說和底部結果
+            if (d2bState.currentStep < d2bState.steps.length) {
+                const step = d2bState.steps[d2bState.currentStep];
+                expDiv.innerHTML = `
+                    <div class="fade-in">
+                        <p class="mb-2">將 <strong class="text-lg">${step.dividend}</strong> 除以 2：</p>
+                        <ul class="list-disc pl-5 space-y-1 mb-3">
+                            <li>商數 (放下面) = <strong>${step.quotient}</strong></li>
+                            <li><span class="text-red-500 font-bold">餘數</span> (放右邊) = <strong class="text-red-500 text-xl">${step.remainder}</strong></li>
+                        </ul>
+                        <p class="text-sm bg-white p-2 rounded border border-purple-100">
+                            計算：${step.dividend} = 2 × ${step.quotient} + <span class="text-red-500 font-bold">${step.remainder}</span>
+                        </p>
+                    </div>
+                `;
+                
+                // 動態更新底部收集的餘數 (從下到上的視覺效果尚未完成，只顯示已計算的)
+                let currentResult = "";
+                for(let i = 0; i <= d2bState.currentStep; i++) {
+                    currentResult = d2bState.steps[i].remainder + currentResult; // 把新的加在前面
+                }
+                // 等待 SVG 動畫播完再顯示字
+                setTimeout(() => {
+                     resultDisplay.innerHTML = `<span class="fade-in">${currentResult}</span><span class="text-sm text-slate-400 font-normal ml-1">(部分)</span>`;
+                }, 600);
+               
+
+                document.getElementById('d2b-btn-next').innerText = step.quotient === 0 ? "查看結果" : "繼續除以 2";
+            } else {
+                // 總結步驟：畫箭頭從下往上
+                drawReadArrow(svg, startX + 130, startY + rowHeight, startY + d2bState.steps.length * rowHeight);
+                
+                let finalBinary = d2bState.steps.map(s => s.remainder).reverse().join('');
+                
+                expDiv.innerHTML = `
+                    <div class="fade-in bg-green-50 p-3 rounded border border-green-200">
+                        <p class="text-lg font-bold text-green-800 mb-2">計算完成！</p>
+                        <p>因為最後的商數為 0，計算停止。</p>
+                        <p class="mt-2">將右側的<span class="text-red-500 font-bold">餘數</span><strong>從下往上</strong>讀取，就是結果：</p>
+                        <p class="text-2xl code-font font-bold text-center mt-3 text-green-700 bg-white py-2 rounded">${finalBinary}</p>
+                    </div>
+                `;
+                
+                resultDisplay.innerHTML = `<span class="text-green-600">${finalBinary}</span>`;
+                
+                document.getElementById('d2b-btn-next').disabled = true;
+                document.getElementById('d2b-btn-next').innerText = "完成";
+            }
+        }
+
+        // 輔助函數：在 SVG 中繪製文字
+        function drawText(svg, x, y, text, className) {
+            const textNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textNode.setAttribute('x', x);
+            textNode.setAttribute('y', y);
+            textNode.setAttribute('class', className);
+            textNode.textContent = text;
+            svg.appendChild(textNode);
+        }
+
+        // 輔助函數：繪製從下往上讀取的箭頭
+        function drawReadArrow(svg, x, startY, endY) {
+            // 畫一條從底端到頂端的虛線箭頭
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            // M 底端 L 頂端
+            path.setAttribute('d', `M ${x} ${endY - 10} L ${x} ${startY + 10}`);
+            path.setAttribute('stroke', '#10b981'); // green-500
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('marker-end', 'url(#arrowhead)');
+            path.setAttribute('class', 'draw-line'); // 重用畫線動畫
+            
+            // 創建箭頭標記如果不存在
+            if (!document.getElementById('arrowhead')) {
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', 'arrowhead');
+                marker.setAttribute('markerWidth', '10');
+                marker.setAttribute('markerHeight', '7');
+                marker.setAttribute('refX', '9');
+                marker.setAttribute('refY', '3.5');
+                marker.setAttribute('orient', 'auto');
+                
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+                polygon.setAttribute('fill', '#10b981');
+                
+                marker.appendChild(polygon);
+                defs.appendChild(marker);
+                svg.appendChild(defs);
+            }
+            
+            svg.appendChild(path);
+            
+            // 加上「由下往上讀」文字
+            const textNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textNode.setAttribute('x', x + 10);
+            textNode.setAttribute('y', (startY + endY) / 2);
+            textNode.setAttribute('fill', '#10b981');
+            textNode.setAttribute('font-size', '14');
+            textNode.setAttribute('font-weight', 'bold');
+            textNode.setAttribute('class', 'fade-in');
+            textNode.setAttribute('style', 'animation-delay: 0.5s');
+            // 垂直文字
+            textNode.setAttribute('writing-mode', 'vertical-rl');
+            textNode.textContent = "從下往上讀取";
+            svg.appendChild(textNode);
+        }
+
+        function d2bNextStep() {
+            if (d2bState.currentStep < d2bState.steps.length) {
+                d2bState.currentStep++;
+                updateD2BUI();
+            }
+        }
+
+        function d2bPrevStep() {
+            if (d2bState.currentStep > -1) {
+                d2bState.currentStep--;
+                updateD2BUI();
+            }
+        }
+
+        // 自定義訊息框代替 alert
+        function showMessage(msg) {
+            const div = document.createElement('div');
+            div.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 fade-in';
+            div.innerHTML = `<strong class="font-bold">提示：</strong><span class="block sm:inline">${msg}</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // 初始化
+        window.onload = () => {
+            startBin2Dec(); // 預設加載二進制轉十進制
+        };
+    </script>
+</body>
+</html>
