@@ -1,3 +1,8 @@
+根據 GitHub 儲存庫結構，已在 `index.html` 網格中新增指向 `binary to decimal.html` 的卡片。
+
+更新後的完整 `index.html` 程式碼如下：
+
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -72,7 +77,7 @@
                         <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">綜合練習 Exam Drill</span>
                         <svg class="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">⚛️ HKDSE 物理公式競技場</h3>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">⚛️️ HKDSE 物理公式競技場</h3>
                     <p class="text-slate-500 text-sm mb-6 line-clamp-2">
                         按課題分類的公式練習工具。包含力學、波動、電磁學等核心課題，支援單位檢測與視覺化模擬。
                     </p>
@@ -118,7 +123,7 @@
                 </div>
             </a>
 
-            <!-- 5. 實驗通用計時器 (新增) -->
+            <!-- 5. 實驗通用計時器 -->
             <a href="timer.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
                 <div class="h-3 bg-gradient-to-r from-amber-400 to-orange-500"></div>
                 <div class="p-6">
@@ -134,6 +139,24 @@
                     </p>
                     <div class="flex items-center text-sm font-bold text-orange-600">
                         開啟計時器 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 6. 二進制與十進制互換教學 (新增卡片) -->
+            <a href="binary to decimal.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                <div class="h-3 bg-gradient-to-r from-teal-400 to-blue-500"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full">數字系統 Number System</span>
+                        <svg class="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-teal-600 transition-colors">🔢 二進制與十進制互換教學</h3>
+                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
+                        互動式動態示範數制轉換。包含二進制轉十進制位值展開（第n個位乘2）及十進制轉二進制短除法步驟示範。
+                    </p>
+                    <div class="flex items-center text-sm font-bold text-teal-600">
+                        開始學習 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                     </div>
                 </div>
             </a>
@@ -156,3 +179,10 @@
 
 </body>
 </html>
+
+```
+
+### 修改說明：
+
+1. **新增連結卡片**：在卡片網格區域新增了第 6 個項目「🔢 二進制與十進制互換教學」，`href` 屬性直接設為 `binary to decimal.html`。
+2. **視覺風格統一**：使用了青藍色系（`from-teal-400 to-blue-500`）頂部漸層與標籤，保持與其他卡片 consistent 的樣式與 Hover 動畫效果。
