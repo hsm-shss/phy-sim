@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港身份證檢查碼計算示範</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .step-container {
+            transition: all 0.3s ease-in-out;
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .step-container.active {
+            opacity: 1;
+            transform: scale(1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: #3b82f6;
+        }
+
+        .svg-text {
+            font-family: monospace;
+            font-weight: bold;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .highlight-text {
+            fill: #ef4444;
+            font-weight: 900;
+        }
+
+        /* SVG Animations */
+        @keyframes fadeInMoveUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .animate-element {
+            animation: fadeInMoveUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .anim-delay-1 { animation-delay: 0.2s; }
+        .anim-delay-2 { animation-delay: 0.4s; }
+        .anim-delay-3 { animation-delay: 0.6s; }
+        .anim-delay-4 { animation-delay: 0.8s; }
+
+        .path-line {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawLine 1s ease-out forwards;
+        }
+
+        /* Input styling */
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+        
+        #error-message {
+            transition: opacity 0.3s;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        #error-message.show {
+            opacity: 1;
+            height: auto;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-6 md:p-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">香港身份證檢查碼計算</h1>
+            <p class="text-blue-100 text-lg">了解括號內數字是如何產生</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="p-6 md:p-8 grid md:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Controls & Info -->
+            <div class="md:col-span-1 flex flex-col gap-6">
+                
+                <!-- Input Section -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">輸入身份證號碼</h2>
+                    
+                    <div class="flex gap-2 items-center mb-2">
+                        <input type="text" id="hkid-prefix" class="w-16 md:w-20 p-3 border border-gray-300 rounded-lg text-lg uppercase font-mono text-center tracking-widest bg-white" placeholder="A" maxlength="1">
+                        <span class="text-xl font-bold text-gray-500">-</span>
+                        <input type="text" id="hkid-numbers" class="flex-1 p-3 border border-gray-300 rounded-lg text-lg font-mono tracking-[0.2em] bg-white" placeholder="123456" maxlength="6">
+                        <span class="text-xl font-bold text-gray-500">(</span>
+                        <div class="w-12 h-12 bg-blue-100 text-blue-800 font-bold text-xl rounded-lg flex items-center justify-center font-mono border-2 border-blue-300" id="check-digit-display">?</div>
+                        <span class="text-xl font-bold text-gray-500">)</span>
+                    </div>
+                    
+                    <div id="error-message" class="text-red-500 text-sm font-medium">請輸入有效的格式 (例如: A123456)</div>
+                    
+                    <div class="mt-4 flex gap-2">
+                        <button id="btn-calculate" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-sm">
+                            開始計算
+                        </button>
+                        <button id="btn-example" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">
+                            例子
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Instructions Panel -->
+                <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex-1">
+                    <h2 class="text-lg font-semibold mb-3 text-blue-900">計算原理</h2>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-blue-800 leading-relaxed">
+                        <li>將英文字母轉換為數字 (A=1, B=2 ... Z=26)。</li>
+                        <li>英文字母乘8，6個數字分別乘以 7, 6, 5, 4, 3, 2。</li>
+                        <li>將所有乘積相加得總和。</li>
+                        <li>總和除以 11 求餘數。</li>
+                        <li>用 11 減去餘數。若結果為10，檢查碼為'A'；若為11，檢查碼為'0'。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Right Column: Visualization -->
+            <div class="md:col-span-2 bg-gray-50 rounded-xl border border-gray-200 p-2 overflow-hidden flex flex-col relative min-h-[500px]" id="visualization-area">
+                
+                <!-- Initial placeholder -->
+                <div id="placeholder-text" class="absolute inset-0 flex items-center justify-center text-gray-400 font-medium text-lg pointer-events-none">
+                    請輸入號碼並點擊計算
+                </div>
+
+                <!-- Steps Navigation -->
+                <div id="steps-nav" class="hidden flex border-b border-gray-200 mb-4 px-2 pb-2 overflow-x-auto">
+                    <!-- Buttons generated dynamically -->
+                </div>
+
+                <!-- SVG Canvas Container -->
+                <div id="svg-container" class="flex-1 w-full flex items-center justify-center hidden">
+                    <!-- SVG will be injected here -->
+                </div>
+                
+                <!-- Navigation Controls -->
+                <div id="nav-controls" class="hidden flex justify-between items-center mt-4 pt-4 border-t border-gray-200 px-4">
+                    <button id="btn-prev" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">&larr; 上一步</button>
+                    <span id="step-indicator" class="text-sm font-semibold text-gray-500"></span>
+                    <button id="btn-next" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一步 &rarr;</button>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-gray-400 text-center p-4 text-sm">
+            本工具僅供示範身份證號碼校驗邏輯之用。
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const prefixInput = document.getElementById('hkid-prefix');
+        const numbersInput = document.getElementById('hkid-numbers');
+        const calculateBtn = document.getElementById('btn-calculate');
+        const exampleBtn = document.getElementById('btn-example');
+        const errorMsg = document.getElementById('error-message');
+        const checkDigitDisplay = document.getElementById('check-digit-display');
+        
+        const placeholderText = document.getElementById('placeholder-text');
+        const stepsNav = document.getElementById('steps-nav');
+        const svgContainer = document.getElementById('svg-container');
+        const navControls = document.getElementById('nav-controls');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const stepIndicator = document.getElementById('step-indicator');
+
+        // State
+        let currentStepIndex = 0;
+        let stepsData = [];
+        let hkidData = null;
+
+        // Constants
+        const WEIGHTS_SINGLE = [8, 7, 6, 5, 4, 3, 2];
+        
+        // Event Listeners
+        prefixInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '');
+        });
+        
+        numbersInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        exampleBtn.addEventListener('click', () => {
+            prefixInput.value = 'A';
+            numbersInput.value = '123456';
+            calculateBtn.click();
+        });
+
+        calculateBtn.addEventListener('click', processInput);
+        
+        btnNext.addEventListener('click', () => {
+            if (currentStepIndex < stepsData.length - 1) {
+                currentStepIndex++;
+                renderStep(currentStepIndex);
+            }
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                renderStep(currentStepIndex);
+            }
+        });
+
+        function processInput() {
+            const prefix = prefixInput.value.trim();
+            const numbers = numbersInput.value.trim();
+
+            if (!validateInput(prefix, numbers)) {
+                showError("請輸入1個英文字母及6個數字。");
+                return;
+            }
+            
+            hideError();
+            
+            // Generate Data
+            hkidData = calculateHKIDData(prefix, numbers);
+            checkDigitDisplay.textContent = hkidData.finalCheckDigit;
+            
+            // Generate Steps
+            stepsData = generateSteps(hkidData);
+            currentStepIndex = 0;
+            
+            // UI Setup
+            placeholderText.classList.add('hidden');
+            stepsNav.classList.remove('hidden');
+            svgContainer.classList.remove('hidden');
+            navControls.classList.remove('hidden');
+            
+            renderStepNavigation();
+            renderStep(0);
+        }
+
+        function validateInput(prefix, numbers) {
+            const prefixRegex = /^[A-Z]{1}$/;
+            const numbersRegex = /^[0-9]{6}$/;
+            return prefixRegex.test(prefix) && numbersRegex.test(numbers);
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            checkDigitDisplay.textContent = "?";
+        }
+        
+        function hideError() {
+            errorMsg.classList.remove('show');
+        }
+
+        function getLetterValue(letter) {
+            if (letter === ' ') return 36;
+            return letter.charCodeAt(0) - 64; // A=1, B=2...
+        }
+
+        function calculateHKIDData(prefix, numbers) {
+            const chars = [];
+            const values = [];
+            const weights = [];
+            const products = [];
+            
+            // 1. Setup characters, values, weights, and products
+            // Single prefix ONLY
+            chars.push(prefix[0]);
+            values.push(getLetterValue(prefix[0]));
+            weights.push(8);
+            products.push(getLetterValue(prefix[0]) * 8);
+
+            // Process numbers
+            for (let i = 0; i < 6; i++) {
+                const num = parseInt(numbers[i], 10);
+                const weight = 7 - i;
+                chars.push(numbers[i]);
+                values.push(num);
+                weights.push(weight);
+                products.push(num * weight);
+            }
+
+            // 2. Sum
+            const sum = products.reduce((a, b) => a + b, 0);
+
+            // 3. Modulo
+            const remainder = sum % 11;
+
+            // 4. Check Digit
+            let checkDigitVal = 11 - remainder;
+            let checkDigitStr = '';
+            
+            if (checkDigitVal === 11) {
+                checkDigitStr = '0';
+            } else if (checkDigitVal === 10) {
+                checkDigitStr = 'A';
+            } else {
+                checkDigitStr = checkDigitVal.toString();
+            }
+
+            return {
+                prefix,
+                numbers,
+                chars,
+                values,
+                weights,
+                products,
+                sum,
+                remainder,
+                checkDigitVal,
+                finalCheckDigit: checkDigitStr
+            };
+        }
+
+        function generateSteps(data) {
+            return [
+                {
+                    title: "1. 拆解與轉換",
+                    desc: "將前綴字母轉換為數字 (A=1, B=2...)。",
+                    type: "extract_convert"
+                },
+                {
+                    title: "2. 套用權重",
+                    desc: "從左至右，每個位置乘上特定的權重數字 (8, 7, 6, 5, 4, 3, 2)。",
+                    type: "apply_weights"
+                },
+                {
+                    title: "3. 計算乘積",
+                    desc: "將轉換後的數值與對應的權重相乘。",
+                    type: "multiply"
+                },
+                {
+                    title: "4. 求和與取餘",
+                    desc: `將所有乘積相加得總和 ${data.sum}，然後除以 11 求餘數。`,
+                    type: "sum_mod"
+                },
+                {
+                    title: "5. 計算檢查碼",
+                    desc: "用 11 減去餘數。若結果為 10 則為 'A'，若為 11 則為 '0'。",
+                    type: "final"
+                }
+            ];
+        }
+
+        function renderStepNavigation() {
+            stepsNav.innerHTML = '';
+            stepsData.forEach((step, index) => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none
+                    ${index === currentStepIndex ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`;
+                btn.textContent = step.title;
+                btn.onclick = () => {
+                    currentStepIndex = index;
+                    renderStep(index);
+                };
+                stepsNav.appendChild(btn);
+            });
+        }
+
+        function updateStepNavigation() {
+            const buttons = stepsNav.querySelectorAll('button');
+            buttons.forEach((btn, index) => {
+                if (index === currentStepIndex) {
+                    btn.className = 'whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600 transition-colors focus:outline-none';
+                    // Scroll into view if needed
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    btn.className = 'whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors focus:outline-none';
+                }
+            });
+            
+            btnPrev.disabled = currentStepIndex === 0;
+            btnNext.disabled = currentStepIndex === stepsData.length - 1;
+            stepIndicator.textContent = `${currentStepIndex + 1} / ${stepsData.length}`;
+        }
+
+        function renderStep(index) {
+            updateStepNavigation();
+            const step = stepsData[index];
+            
+            let svgContent = '';
+            
+            switch(step.type) {
+                case 'extract_convert':
+                    svgContent = renderExtractConvertSVG(hkidData);
+                    break;
+                case 'apply_weights':
+                    svgContent = renderApplyWeightsSVG(hkidData);
+                    break;
+                case 'multiply':
+                    svgContent = renderMultiplySVG(hkidData);
+                    break;
+                case 'sum_mod':
+                    svgContent = renderSumModSVG(hkidData);
+                    break;
+                case 'final':
+                    svgContent = renderFinalSVG(hkidData);
+                    break;
+            }
+
+            svgContainer.innerHTML = `
+                <div class="w-full flex flex-col items-center">
+                    <div class="mb-4 text-center bg-blue-50 text-blue-800 p-3 rounded-lg max-w-xl mx-auto shadow-sm border border-blue-100 animate-element">
+                        <p class="font-medium">${step.desc}</p>
+                    </div>
+                    <div class="w-full max-w-2xl overflow-x-auto overflow-y-hidden pt-4 pb-8 flex justify-center">
+                        ${svgContent}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SVG Generators ---
+        
+        // Configuration for grid layout in SVGs
+        const gridConfig = {
+            startX: 50,
+            startY: 50,
+            cellW: 65, // Spacing between columns
+            boxW: 40,  // Width of actual boxes
+            boxH: 40,
+            rowSpacing: 70
+        };
+
+        function renderExtractConvertSVG(data) {
+            const width = Math.max(600, data.chars.length * gridConfig.cellW + 100);
+            const height = 250;
+            let svg = `<svg viewBox="0 0 ${width} ${height}" class="w-full h-auto" style="min-width: 500px;">`;
+            
+            const startX = (width - (data.chars.length * gridConfig.cellW)) / 2 + (gridConfig.cellW/2);
+            
+            data.chars.forEach((char, i) => {
+                const x = startX + i * gridConfig.cellW;
+                
+                // Top Row: Original Characters
+                svg += `
+                    <g class="animate-element" style="animation-delay: ${i * 0.1}s">
+                        <rect x="${x - gridConfig.boxW/2}" y="${gridConfig.startY - gridConfig.boxH/2}" 
+                              width="${gridConfig.boxW}" height="${gridConfig.boxH}" 
+                              rx="8" fill="#eff6ff" 
+                              stroke="#3b82f6" stroke-width="2" />
+                        <text x="${x}" y="${gridConfig.startY + 2}" class="svg-text text-xl text-blue-700">
+                            ${char}
+                        </text>
+                    </g>
+                `;
+                
+                // Connecting Arrows
+                svg += `
+                    <path d="M${x},${gridConfig.startY + gridConfig.boxH/2 + 5} v${gridConfig.rowSpacing - gridConfig.boxH - 10}" 
+                          stroke="#cbd5e1" stroke-width="2" fill="none" 
+                          marker-end="url(#arrowhead)" class="path-line anim-delay-2" />
+                `;
+                
+                // Bottom Row: Converted Values
+                svg += `
+                    <g class="animate-element anim-delay-3" style="animation-delay: ${0.4 + i * 0.1}s">
+                        <circle cx="${x}" cy="${gridConfig.startY + gridConfig.rowSpacing}" r="22" 
+                                fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
+                        <text x="${x}" y="${gridConfig.startY + gridConfig.rowSpacing + 2}" class="svg-text text-lg text-green-700 font-bold">
+                            ${data.values[i]}
+                        </text>
+                    </g>
+                `;
+                
+                // Legend line for conversion
+                if(i === 0) {
+                     svg += `<text x="${x}" y="${gridConfig.startY + gridConfig.rowSpacing + 35}" class="svg-text text-xs text-gray-500 animate-element anim-delay-4">${char}=${data.values[i]}</text>`;
+                }
+            });
+            
+            svg += `
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e1" />
+                    </marker>
+                </defs>
+            </svg>`;
+            return svg;
+        }
+
+        function renderApplyWeightsSVG(data) {
+             const width = Math.max(600, data.chars.length * gridConfig.cellW + 100);
+            const height = 280;
+            let svg = `<svg viewBox="0 0 ${width} ${height}" class="w-full h-auto" style="min-width: 500px;">`;
+            
+            const startX = (width - (data.chars.length * gridConfig.cellW)) / 2 + (gridConfig.cellW/2);
+            
+            data.chars.forEach((char, i) => {
+                const x = startX + i * gridConfig.cellW;
+                
+                // Values (from prev step)
+                svg += `
+                    <g class="animate-element">
+                        <circle cx="${x}" cy="${gridConfig.startY}" r="22" 
+                                fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
+                        <text x="${x}" y="${gridConfig.startY + 2}" class="svg-text text-lg text-green-700 font-bold">
+                            ${data.values[i]}
+                        </text>
+                    </g>
+                `;
+                
+                // Multiplier symbol
+                svg += `
+                    <text x="${x}" y="${gridConfig.startY + gridConfig.rowSpacing/2 + 5}" class="svg-text text-xl text-gray-400 animate-element anim-delay-1">×</text>
+                `;
+                
+                // Weights Row
+                svg += `
+                    <g class="animate-element anim-delay-2" style="animation-delay: ${0.2 + i * 0.1}s">
+                        <polygon points="${x},${gridConfig.startY + gridConfig.rowSpacing - 20} ${x+20},${gridConfig.startY + gridConfig.rowSpacing} ${x},${gridConfig.startY + gridConfig.rowSpacing + 20} ${x-20},${gridConfig.startY + gridConfig.rowSpacing}" 
+                                 fill="#fffbeb" stroke="#f59e0b" stroke-width="2" />
+                        <text x="${x}" y="${gridConfig.startY + gridConfig.rowSpacing + 2}" class="svg-text text-lg text-amber-600 font-bold">
+                            ${data.weights[i]}
+                        </text>
+                    </g>
+                `;
+                
+                 // Weight label
+                 svg += `<text x="${x}" y="${gridConfig.startY + gridConfig.rowSpacing + 35}" class="svg-text text-xs text-amber-600/70 animate-element anim-delay-3">W${8-i}</text>`;
+            });
+            
+            svg += `</svg>`;
+            return svg;
+        }
+
+        function renderMultiplySVG(data) {
+             const width = Math.max(600, data.chars.length * gridConfig.cellW + 100);
+            const height = 300;
+            let svg = `<svg viewBox="0 0 ${width} ${height}" class="w-full h-auto" style="min-width: 500px;">`;
+            
+            const startX = (width - (data.chars.length * gridConfig.cellW)) / 2 + (gridConfig.cellW/2);
+            
+            data.chars.forEach((char, i) => {
+                const x = startX + i * gridConfig.cellW;
+                
+                // Small Val x Weight
+                svg += `
+                    <g class="animate-element">
+                        <text x="${x}" y="${gridConfig.startY}" class="svg-text text-sm text-green-700">${data.values[i]}</text>
+                        <text x="${x}" y="${gridConfig.startY + 15}" class="svg-text text-xs text-gray-400">×</text>
+                        <text x="${x}" y="${gridConfig.startY + 30}" class="svg-text text-sm text-amber-600">${data.weights[i]}</text>
+                    </g>
+                    
+                    <path d="M${x},${gridConfig.startY + 40} v20" 
+                          stroke="#cbd5e1" stroke-width="2" fill="none" 
+                          marker-end="url(#arrowhead)" class="path-line anim-delay-1" />
+                `;
+                
+                // Product Row
+                svg += `
+                    <g class="animate-element anim-delay-2" style="animation-delay: ${0.4 + i * 0.1}s">
+                        <rect x="${x - 22}" y="${gridConfig.startY + 70}" width="44" height="30" rx="4"
+                                fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2" />
+                        <text x="${x}" y="${gridConfig.startY + 86}" class="svg-text text-lg text-purple-700 font-bold">
+                            ${data.products[i]}
+                        </text>
+                    </g>
+                `;
+                
+                // Plus signs between products
+                if (i < data.chars.length - 1) {
+                     svg += `
+                        <text x="${x + gridConfig.cellW/2}" y="${gridConfig.startY + 86}" class="svg-text text-xl text-purple-300 animate-element anim-delay-3" style="animation-delay: ${0.8 + i*0.1}s">+</text>
+                     `;
+                }
+            });
+            
+            svg += `
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e1" />
+                    </marker>
+                </defs>
+            </svg>`;
+            return svg;
+        }
+
+        function renderSumModSVG(data) {
+             const width = 600;
+             const height = 300;
+             let svg = `<svg viewBox="0 0 ${width} ${height}" class="w-full h-auto">`;
+             
+             const centerX = width / 2;
+             
+             // Expression
+             const expression = data.products.join(' + ');
+             
+             svg += `
+                <g class="animate-element">
+                    <rect x="${centerX - 250}" y="20" width="500" height="60" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4" />
+                    <text x="${centerX}" y="52" class="svg-text text-sm text-gray-500 font-mono tracking-tighter" style="max-width: 480px;">
+                        ${expression}
+                    </text>
+                </g>
+             `;
+             
+             // Arrow down
+             svg += `
+                <path d="M${centerX},85 v30" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)" class="path-line anim-delay-1" />
+             `;
+             
+             // Sum Box
+             svg += `
+                <g class="animate-element anim-delay-2">
+                    <rect x="${centerX - 60}" y="120" width="120" height="50" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="3" />
+                    <text x="${centerX}" y="145" class="svg-text text-xs text-purple-600 mb-1" transform="translate(0, -12)">總和 (Sum)</text>
+                    <text x="${centerX}" y="152" class="svg-text text-2xl text-purple-800 font-black tracking-wider" transform="translate(0, 5)">${data.sum}</text>
+                </g>
+             `;
+             
+             // Math operation text
+             svg += `
+                 <g class="animate-element anim-delay-3">
+                     <path d="M${centerX},175 v25" stroke="#94a3b8" stroke-width="2" fill="none" class="path-line"/>
+                     <rect x="${centerX - 40}" y="185" width="80" height="24" rx="12" fill="#white" stroke="#cbd5e1" stroke-width="1"/>
+                     <text x="${centerX}" y="198" class="svg-text text-sm text-gray-600 font-mono">÷ 11</text>
+                     <path d="M${centerX},205 v25" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)" class="path-line"/>
+                 </g>
+             `;
+             
+             // Quotient and Remainder
+             const quotient = Math.floor(data.sum / 11);
+             
+             svg += `
+                <g class="animate-element anim-delay-4">
+                    <rect x="${centerX - 100}" y="235" width="200" height="50" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2" />
+                    <text x="${centerX}" y="262" class="svg-text text-lg text-emerald-800">
+                        商 = <tspan class="font-normal text-gray-600">${quotient}</tspan>, 餘數 = <tspan class="font-black text-emerald-600 text-2xl">${data.remainder}</tspan>
+                    </text>
+                </g>
+             `;
+             
+             svg += `
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                    </marker>
+                </defs>
+            </svg>`;
+            return svg;
+        }
+
+        function renderFinalSVG(data) {
+             const width = 600;
+             const height = 300;
+             let svg = `<svg viewBox="0 0 ${width} ${height}" class="w-full h-auto">`;
+             const centerX = width / 2;
+             
+             // Formula
+             svg += `
+                 <g class="animate-element">
+                     <text x="${centerX}" y="40" class="svg-text text-xl text-gray-700">11 - 餘數 = 檢查碼基數</text>
+                     <rect x="${centerX - 120}" y="60" width="240" height="60" rx="12" fill="#fdf2f8" stroke="#db2777" stroke-width="2" />
+                     <text x="${centerX}" y="92" class="svg-text text-3xl text-pink-700 font-mono tracking-widest">
+                         11 - ${data.remainder} = ${data.checkDigitVal}
+                     </text>
+                 </g>
+             `;
+             
+             // Arrow
+             svg += `
+                <path d="M${centerX},125 v30" stroke="#db2777" stroke-width="2" marker-end="url(#arrowhead-pink)" class="path-line anim-delay-1" />
+             `;
+             
+             // Rule explanation
+             let ruleText = "一般情況，直接使用該數字。";
+             if(data.checkDigitVal === 10) ruleText = "當結果為 10，檢查碼轉換為 'A'。";
+             if(data.checkDigitVal === 11) ruleText = "當結果為 11，檢查碼轉換為 '0'。";
+             
+             svg += `
+                <g class="animate-element anim-delay-2">
+                     <rect x="${centerX - 180}" y="160" width="360" height="30" rx="4" fill="#f8fafc" />
+                     <text x="${centerX}" y="180" class="svg-text text-sm text-gray-500">${ruleText}</text>
+                </g>
+             `;
+             
+             // Final Result ID Card format
+             svg += `
+                <g class="animate-element anim-delay-3">
+                     <rect x="${centerX - 140}" y="200" width="280" height="70" rx="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="4" class="shadow-lg"/>
+                     
+                     <text x="${centerX}" y="240" class="svg-text text-4xl font-mono tracking-widest text-blue-900 font-bold">
+                         ${data.prefix}${data.numbers}(<tspan fill="#ef4444" class="highlight-text animate-pulse">${data.finalCheckDigit}</tspan>)
+                     </text>
+                </g>
+             `;
+             
+             svg += `
+                <defs>
+                    <marker id="arrowhead-pink" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#db2777" />
+                    </marker>
+                </defs>
+            </svg>`;
+            return svg;
+        }
+
+    </script>
+</body>
+</html>
