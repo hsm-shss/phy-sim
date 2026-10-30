@@ -119,13 +119,14 @@
         ];
 
         // --- 子組件: 隊伍面板 ---
-        const TeamPanel = React.memo(({ teamId, colorConfig, score, isFirstPanel, layout, mode, attacker, turnTime, goalMessage, onScore, onAdjust }) => {
+        const TeamPanel = React.memo(({ teamId, colorConfig, score, isFirstPanel, layout, mode, attacker, turnTime, maxTurnTime, goalMessage, onScore, onAdjust }) => {
             let isAttacker = false;
             let isSafety = false;
             
             if (mode === MODES.NATIONAL) {
                 isAttacker = attacker === teamId;
-                isSafety = isAttacker && turnTime > (NATIONAL_CONFIG.TURN_TIME - NATIONAL_CONFIG.SAFETY_TIME);
+                // 15 秒的首回合直接進入進攻狀態，30 秒回合才有安全保護時間
+                isSafety = isAttacker && maxTurnTime > 15 && turnTime > (maxTurnTime - NATIONAL_CONFIG.SAFETY_TIME);
             }
 
             const isHorizontal = layout === LAYOUTS.HORIZONTAL;
@@ -194,9 +195,13 @@
 
             // 時間狀態
             const [gameTime, setGameTime] = useState(NATIONAL_CONFIG.TOTAL_TIME);
-            const [turnTime, setTurnTime] = useState(NATIONAL_CONFIG.TURN_TIME);
+            const [turnTime, setTurnTime] = useState(15); // 預設紅方先攻 15秒
+            const [maxTurnTime, setMaxTurnTime] = useState(15);
             const [attacker, setAttacker] = useState('team2');
             const [goalMessage, setGoalMessage] = useState(null);
+            
+            // 用來強制重置計時器，確保進球後 30 秒能完整停留 1 秒鐘
+            const [resetTimerTrigger, setResetTimerTrigger] = useState(0);
             
             // 學界賽狀態
             const [schoolHalfTime, setSchoolHalfTime] = useState(180);
@@ -206,41 +211,64 @@
             const [showSettings, setShowSettings] = useState(false);
             const timerRef = useRef(null);
 
+            // 初始化與顏色變更時，設定首回合 15 秒機制
             useEffect(() => {
-                if (mode === MODES.NATIONAL && !isPlaying) {
+                if (mode === MODES.NATIONAL && !isPlaying && gameTime === NATIONAL_CONFIG.TOTAL_TIME) {
                     if (color1.id === 'red') {
                         setAttacker('team1');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
                     } else if (color2.id === 'red') {
                         setAttacker('team2');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
+                    } else {
+                        setAttacker('team2');
+                        setTurnTime(30);
+                        setMaxTurnTime(30);
                     }
                 }
-            }, [color1, color2, mode, isPlaying]);
+            }, [color1, color2, mode, isPlaying, gameTime]);
 
+            // 時間耗盡時的攻守交換 (僅切換狀態，不設定 turnTime，交由 setInterval 處理)
             const switchTurn = useCallback(() => {
                 setAttacker(prev => (prev === 'team2' ? 'team1' : 'team2'));
-                setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                setMaxTurnTime(NATIONAL_CONFIG.TURN_TIME);
             }, []);
 
+            // 處理進球邏輯
             const handleScore = useCallback((teamId) => {
+                // 防連點：如果畫面上已經在顯示 GOAL，則忽略點擊，避免不小心連點導致攻守連續切換
+                if (goalMessage) return;
+
                 if (teamId === 'team1') setScore1(prev => prev + 1);
                 if (teamId === 'team2') setScore2(prev => prev + 1);
 
                 if (mode === MODES.NATIONAL && isPlaying) {
-                    if (teamId === attacker) {
-                        if (soundEnabled) playTone('end');
-                        setGoalMessage(teamId);
-                        setTimeout(() => setGoalMessage(null), 1500);
-                        switchTurn();
-                    }
+                    if (soundEnabled) playTone('whistle'); // 進球音效
+                    setGoalMessage(teamId);
+                    setTimeout(() => setGoalMessage(null), 1500);
+                    
+                    // 立即攻守交換：不論是誰進的球，進球後由另一方取得進攻權
+                    const nextAttacker = teamId === 'team1' ? 'team2' : 'team1';
+                    setAttacker(nextAttacker);
+                    
+                    // 重新計新回合 30 秒
+                    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                    setMaxTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                    
+                    // 觸發重置背景計時器，確保 30 秒能完整倒數 1 秒鐘才變成 29
+                    setResetTimerTrigger(prev => prev + 1);
                 }
-            }, [mode, isPlaying, attacker, soundEnabled, switchTurn]);
+            }, [mode, isPlaying, soundEnabled, goalMessage]);
 
+            // 計時器核心邏輯
             useEffect(() => {
                 if (isPlaying) {
                     timerRef.current = setInterval(() => {
                         if (mode === MODES.NATIONAL) {
                             setGameTime(gt => {
-                                if (gt <= 0) {
+                                if (gt <= 1) { // 倒數到 0 時停止
                                     setIsPlaying(false);
                                     if (soundEnabled) playTone('end');
                                     return 0;
@@ -249,39 +277,45 @@
                             });
 
                             setTurnTime(tt => {
+                                const isTurnEnding = tt <= 1;
+                                const newTt = isTurnEnding ? NATIONAL_CONFIG.TURN_TIME : tt - 1;
+                                
                                 if (soundEnabled) {
-                                    if (tt >= 27 && tt <= 30) playTone('tick');
-                                    else if (tt === 26) playTone('last-tick');
-                                    else if (tt <= 5 && tt > 1) playTone('tick');
-                                    else if (tt === 1) playTone('last-tick');
+                                    if (isTurnEnding) {
+                                        playTone('end');
+                                    } else {
+                                        if (newTt >= maxTurnTime - 3 && newTt <= maxTurnTime) playTone('tick');
+                                        else if (newTt === maxTurnTime - 4) playTone('last-tick');
+                                        else if (newTt <= 5 && newTt > 1) playTone('tick');
+                                        else if (newTt === 1) playTone('last-tick');
+                                    }
                                 }
                                 
-                                if (tt <= 0) {
-                                    if (soundEnabled) playTone('end');
+                                if (isTurnEnding) {
                                     switchTurn();
-                                    return NATIONAL_CONFIG.TURN_TIME;
                                 }
-                                return tt - 1;
+                                return newTt;
                             });
 
                         } else {
                             setPeriodTime(pt => {
-                                if (pt <= 0) {
+                                const newPt = pt - 1;
+                                if (pt <= 1) {
                                     setIsPlaying(false);
                                     if (soundEnabled) playTone('end');
                                     return 0;
                                 }
                                 if (soundEnabled) {
-                                    if (pt <= 5 && pt > 1) playTone('tick');
-                                    if (pt === 1) playTone('last-tick');
+                                    if (newPt <= 5 && newPt > 1) playTone('tick');
+                                    else if (newPt === 1) playTone('last-tick');
                                 }
-                                return pt - 1;
+                                return newPt;
                             });
                         }
                     }, 1000);
                 }
                 return () => clearInterval(timerRef.current);
-            }, [isPlaying, mode, soundEnabled, switchTurn]);
+            }, [isPlaying, mode, soundEnabled, maxTurnTime, switchTurn, resetTimerTrigger]);
 
             useEffect(() => {
                 if (mode === MODES.SCHOOL && periodTime === 0 && !isPlaying) {
@@ -298,6 +332,7 @@
                 }
             }, [periodTime, isPlaying, mode, period, schoolHalfTime]);
 
+            // 手動扣分 (不會觸發攻守交換)
             const adjustScore = (teamId, amount) => {
                 if (teamId === 'team1') setScore1(prev => Math.max(0, prev + amount));
                 if (teamId === 'team2') setScore2(prev => Math.max(0, prev + amount));
@@ -310,16 +345,19 @@
                 setGoalMessage(null);
                 if (mode === MODES.NATIONAL) {
                     setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
-                    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
-                    
                     if (color1.id === 'red') {
                         setAttacker('team1');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
                     } else if (color2.id === 'red') {
                         setAttacker('team2');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
                     } else {
                         setAttacker('team2');
+                        setTurnTime(30);
+                        setMaxTurnTime(30);
                     }
-
                 } else {
                     setPeriod(1);
                     setPeriodTime(schoolHalfTime === '' ? 180 : schoolHalfTime);
@@ -334,7 +372,19 @@
                 setGoalMessage(null);
                 if (newMode === MODES.NATIONAL) {
                     setGameTime(NATIONAL_CONFIG.TOTAL_TIME);
-                    setTurnTime(NATIONAL_CONFIG.TURN_TIME);
+                    if (color1.id === 'red') {
+                        setAttacker('team1');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
+                    } else if (color2.id === 'red') {
+                        setAttacker('team2');
+                        setTurnTime(15);
+                        setMaxTurnTime(15);
+                    } else {
+                        setAttacker('team2');
+                        setTurnTime(30);
+                        setMaxTurnTime(30);
+                    }
                 } else {
                     setPeriod(1);
                     setPeriodTime(schoolHalfTime === '' ? 180 : schoolHalfTime);
@@ -368,12 +418,13 @@
                         mode={mode}
                         attacker={attacker}
                         turnTime={turnTime}
+                        maxTurnTime={maxTurnTime}
                         goalMessage={goalMessage}
                         onScore={handleScore}
                         onAdjust={adjustScore}
                     />
 
-                    {/* 將計時面板移至畫面上方 (top-6) 避免遮擋分數 */}
+                    {/* 中央計時面板 */}
                     <div className="absolute top-6 sm:top-8 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-3 w-[90%] max-w-md pointer-events-none">
                         
                         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-2 sm:p-3 flex items-center justify-between w-full pointer-events-auto border border-white/50">
@@ -410,13 +461,13 @@
                                 </div>
                                 <div className="h-1.5 sm:h-2 bg-slate-200 rounded-full overflow-hidden">
                                     <div 
-                                        className={`h-full transition-all duration-1000 ease-linear ${turnTime > 25 ? 'bg-emerald-500' : turnTime <= 5 ? 'bg-red-500' : 'bg-blue-500'}`}
-                                        style={{ width: `${(turnTime / 30) * 100}%` }}
+                                        className={`h-full transition-all duration-1000 ease-linear ${turnTime <= 5 ? 'bg-red-500' : (maxTurnTime > 15 && turnTime > maxTurnTime - 5 ? 'bg-emerald-500' : 'bg-blue-500')}`}
+                                        style={{ width: `${(turnTime / maxTurnTime) * 100}%` }}
                                     ></div>
                                 </div>
                                 <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-400 mt-1">
                                     <span>0s</span>
-                                    <span>30s</span>
+                                    <span>{maxTurnTime}s</span>
                                 </div>
                             </div>
                         )}
@@ -431,11 +482,13 @@
                         mode={mode}
                         attacker={attacker}
                         turnTime={turnTime}
+                        maxTurnTime={maxTurnTime}
                         goalMessage={goalMessage}
                         onScore={handleScore}
                         onAdjust={adjustScore}
                     />
 
+                    {/* 設定選單 */}
                     {showSettings && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
                             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-5 sm:p-6 animate-[fadeIn_0.2s_ease-out] max-h-[90vh] overflow-y-auto no-scrollbar" onClick={e => e.stopPropagation()}>
