@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 準確度與精確度 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🎯 準確度與精確度</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">以靶心類比分辨準確度（accuracy）與精確度（precision）；並練習判讀一組量度。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">靶心演示</h2>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">偏差（準確度↓）：<b id="bv">20</b></span>
+                        <input id="bias" type="range" min="0" max="50" step="1" value="20" class="w-full accent-amber-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">散布（精確度↓）：<b id="sv">15</b></span>
+                        <input id="spread" type="range" min="2" max="40" step="1" value="15" class="w-full accent-amber-600 mt-1"></label>
+                    <button id="shoot" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold">再射一組</button>
+                    <div class="rounded-xl bg-amber-50 border border-amber-100 p-3 text-sm" id="judge">—</div>
+                    <hr class="border-slate-100">
+                    <h2 class="font-bold text-slate-700">量度練習</h2>
+                    <p class="text-sm text-slate-600">真值 = 50.0。下列哪組「準確且精確」？</p>
+                    <div class="space-y-2 text-sm" id="quiz"></div>
+                    <p id="quizMsg" class="text-sm font-bold"></p>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="420" height="420" class="w-full h-auto rounded-xl bg-slate-50"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const bias=document.getElementById('bias'),spread=document.getElementById('spread');
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  let shots=[];
+  function resample(){
+    shots=[]; const b=+bias.value,s=+spread.value;
+    for(let i=0;i<8;i++){shots.push({x:b+(Math.random()-0.5)*2*s, y:(Math.random()-0.5)*2*s});}
+    document.getElementById('bv').textContent=b; document.getElementById('sv').textContent=s;
+    let msg='';
+    if(b<12 && s<12) msg='高準確度 + 高精確度';
+    else if(b<12 && s>=12) msg='較準確但精確度低（散）';
+    else if(b>=12 && s<12) msg='精確但準確度低（系統偏差）';
+    else msg='既不準確也不精確';
+    document.getElementById('judge').textContent=msg;
+    draw();
+  }
+  function draw(){
+    ctx.clearRect(0,0,420,420);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,420,420);
+    const cx=210,cy=210;
+    [180,120,60].forEach((r,i)=>{ctx.beginPath();ctx.arc(cx,cy,r,0,6.28);ctx.strokeStyle=i===2?'#f87171':'#cbd5e1';ctx.stroke();});
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(cx,cy,4,0,6.28);ctx.fill();
+    shots.forEach(s=>{ctx.fillStyle='#0ea5e9';ctx.beginPath();ctx.arc(cx+s.x,cy+s.y,5,0,6.28);ctx.fill();});
+  }
+  document.getElementById('shoot').onclick=resample;
+  [bias,spread].forEach(e=>e.addEventListener('input',resample));
+  // quiz
+  const opts=[
+    {id:'A', data:'49.8, 50.1, 50.0, 49.9', ok:true},
+    {id:'B', data:'50.0, 47.0, 53.0, 48.5', ok:false},
+    {id:'C', data:'55.1, 55.0, 54.9, 55.2', ok:false},
+    {id:'D', data:'40, 60, 45, 70', ok:false}
+  ];
+  const quiz=document.getElementById('quiz');
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='w-full text-left px-3 py-2 rounded-xl border border-slate-200 hover:bg-amber-50';
+    b.textContent=o.id+': '+o.data;
+    b.onclick=()=>{document.getElementById('quizMsg').textContent=o.ok?'✓ 正確：接近真值且彼此接近':'✗ 再試：準確＝接近真值；精確＝重複性高'; b.classList.add(o.ok?'bg-emerald-50':'bg-rose-50');};
+    quiz.appendChild(b);
+  });
+  resample();
+})();
+
+</script>
+</body>
+</html>

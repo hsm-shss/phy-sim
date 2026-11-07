@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢 課堂科學計算器 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        .font-mono{font-variant-numeric:tabular-nums;}
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🔢 課堂科學計算器</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">練習四則運算、指數、開方與三角函數（角度／弧度）；可顯示按鍵紀錄方便課堂講解。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <div class="bg-slate-900 text-right text-white rounded-xl p-4 mb-4 font-mono">
+                        <div id="expr" class="text-slate-400 text-sm min-h-[1.25rem] break-all">&nbsp;</div>
+                        <div id="disp" class="text-3xl font-bold tracking-wide">0</div>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3 text-sm">
+                        <label class="flex items-center gap-2"><input type="radio" name="ang" value="deg" checked class="accent-amber-600"> DEG</label>
+                        <label class="flex items-center gap-2"><input type="radio" name="ang" value="rad" class="accent-amber-600"> RAD</label>
+                        <label class="flex items-center gap-2 ml-auto"><input id="keylog" type="checkbox" class="accent-amber-600" checked> 顯示按鍵紀錄</label>
+                    </div>
+                    <div id="pad" class="grid grid-cols-5 gap-2"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm h-full">
+                    <h2 class="font-bold text-slate-700 mb-2">歷史 / Ans</h2>
+                    <p class="text-sm text-slate-500 mb-2">Ans = <b id="ans">0</b></p>
+                    <ul id="hist" class="text-sm space-y-1 max-h-80 overflow-auto font-mono text-slate-600"></ul>
+                    <h2 class="font-bold text-slate-700 mt-4 mb-2">按鍵紀錄</h2>
+                    <pre id="log" class="text-xs bg-slate-50 rounded-xl p-3 min-h-[6rem] text-slate-600 whitespace-pre-wrap"></pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const disp=document.getElementById('disp'), expr=document.getElementById('expr');
+  const hist=document.getElementById('hist'), logEl=document.getElementById('log'), ansEl=document.getElementById('ans');
+  let cur='0', pending='', op=null, ans=0, keys=[];
+  const buttons=[
+    ['C','CE','(',')','÷'],
+    ['7','8','9','×','^'],
+    ['4','5','6','−','√'],
+    ['1','2','3','+','sin'],
+    ['0','.','±','=','cos'],
+    ['Ans','π','e','1/x','tan']
+  ];
+  const pad=document.getElementById('pad');
+  buttons.flat().forEach(lab=>{
+    const b=document.createElement('button');
+    b.textContent=lab; b.className='px-2 py-3 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200';
+    if(lab==='=') b.className+=' bg-amber-500 text-white hover:bg-amber-600';
+    if(['C','CE'].includes(lab)) b.className+=' bg-rose-100';
+    b.onclick=()=>press(lab); pad.appendChild(b);
+  });
+  function angMode(){return document.querySelector('input[name=ang]:checked').value;}
+  function toRad(x){return angMode()==='deg'?x*Math.PI/180:x;}
+  function logKey(k){keys.push(k); if(document.getElementById('keylog').checked) logEl.textContent=keys.join(' '); else logEl.textContent='';}
+  function update(){disp.textContent=cur; expr.textContent=pending||'\u00a0'; ansEl.textContent=ans;}
+  function applyOp(a,b,o){
+    if(o==='+')return a+b; if(o==='−')return a-b; if(o==='×')return a*b; if(o==='÷')return a/b; if(o==='^')return Math.pow(a,b); return b;
+  }
+  function press(lab){
+    logKey(lab);
+    if(lab==='C'){cur='0';pending='';op=null;keys=[];update();return;}
+    if(lab==='CE'){cur='0';update();return;}
+    if(lab==='±'){cur=String(-parseFloat(cur));update();return;}
+    if(lab==='π'){cur=String(Math.PI);update();return;}
+    if(lab==='e'){cur=String(Math.E);update();return;}
+    if(lab==='Ans'){cur=String(ans);update();return;}
+    if(lab==='√'){cur=String(Math.sqrt(parseFloat(cur)));update();return;}
+    if(lab==='1/x'){cur=String(1/parseFloat(cur));update();return;}
+    if(lab==='sin'){cur=String(Math.sin(toRad(parseFloat(cur))));update();return;}
+    if(lab==='cos'){cur=String(Math.cos(toRad(parseFloat(cur))));update();return;}
+    if(lab==='tan'){cur=String(Math.tan(toRad(parseFloat(cur))));update();return;}
+    if(['+','−','×','÷','^'].includes(lab)){
+      if(op){const r=applyOp(parseFloat(pending),parseFloat(cur),op); pending=String(r); cur='0';}
+      else {pending=cur; cur='0';}
+      op=lab; update(); return;
+    }
+    if(lab==='='){
+      let r=op?applyOp(parseFloat(pending),parseFloat(cur),op):parseFloat(cur);
+      const line=(pending||'')+(op||'')+cur+' = '+r;
+      const li=document.createElement('li'); li.textContent=line; hist.prepend(li);
+      ans=r; cur=String(r); pending=''; op=null; update(); return;
+    }
+    if(lab==='.'){ if(!cur.includes('.')) cur+='.'; update(); return; }
+    if(/^[0-9]$/.test(lab)){ cur=(cur==='0')?lab:cur+lab; update(); return; }
+    // ignore ( ) for simple mode
+  }
+  update();
+})();
+
+</script>
+</body>
+</html>

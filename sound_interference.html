@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 雙源聲波干涉 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🎵 雙源聲波干涉</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">兩相干聲源：路程差 Δ = |S₁P − S₂P|；Δ = nλ 建設性，Δ = (n+½)λ 破壞性。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">參數</h2>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">波長 λ：<b id="Lv">40</b> px</span>
+                        <input id="L" type="range" min="20" max="80" step="2" value="40" class="w-full accent-sky-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">源距 2a：<b id="av">80</b> px</span>
+                        <input id="a" type="range" min="40" max="160" step="5" value="80" class="w-full accent-sky-600 mt-1"></label>
+                    <p class="text-xs text-slate-500">點擊畫面移動探測點 P</p>
+                    <div class="rounded-xl bg-sky-50 border border-sky-100 p-3 text-sm space-y-1">
+                        <p>Δ = <b id="dlt">—</b> px</p>
+                        <p>Δ/λ = <b id="ratio">—</b></p>
+                        <p id="type" class="font-bold text-sky-800">—</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="560" height="400" class="w-full h-auto rounded-xl bg-slate-900 cursor-crosshair"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const L=document.getElementById('L'),aEl=document.getElementById('a');
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  let P={x:400,y:200};
+  function draw(){
+    const lam=+L.value, sep=+aEl.value;
+    document.getElementById('Lv').textContent=lam; document.getElementById('av').textContent=sep;
+    const S1={x:120,y:200-sep/2}, S2={x:120,y:200+sep/2};
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,560,400);
+    // interference field (coarse)
+    for(let x=0;x<560;x+=4)for(let y=0;y<400;y+=4){
+      const d1=Math.hypot(x-S1.x,y-S1.y), d2=Math.hypot(x-S2.x,y-S2.y);
+      const amp=Math.cos(Math.PI*(d1-d2)/lam);
+      const g=Math.floor(30+90*(amp+1)/2);
+      ctx.fillStyle='rgb('+g+','+(g+20)+','+(g+40)+')';ctx.fillRect(x,y,4,4);
+    }
+    ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(S1.x,S1.y,6,0,6.28);ctx.fill();
+    ctx.beginPath();ctx.arc(S2.x,S2.y,6,0,6.28);ctx.fill();
+    ctx.fillStyle='#f87171';ctx.beginPath();ctx.arc(P.x,P.y,7,0,6.28);ctx.fill();
+    const d1=Math.hypot(P.x-S1.x,P.y-S1.y), d2=Math.hypot(P.x-S2.x,P.y-S2.y);
+    const dlt=Math.abs(d1-d2), r=dlt/lam;
+    document.getElementById('dlt').textContent=dlt.toFixed(1);
+    document.getElementById('ratio').textContent=r.toFixed(2);
+    const nearInt=Math.abs(r-Math.round(r))<0.08;
+    const nearHalf=Math.abs(r-Math.floor(r)-0.5)<0.08;
+    document.getElementById('type').textContent=nearInt?'接近建設性干涉 (nλ)':nearHalf?'接近破壞性干涉 ((n+½)λ)':'介於兩者之間';
+  }
+  cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect();P.x=(e.clientX-r.left)*cv.width/r.width;P.y=(e.clientY-r.top)*cv.height/r.height;draw();});
+  [L,aEl].forEach(e=>e.addEventListener('input',draw)); draw();
+})();
+
+</script>
+</body>
+</html>

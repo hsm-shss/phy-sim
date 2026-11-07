@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✏️ 物理示意圖繪製 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">✏️ 物理示意圖繪製</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">簡易考試示意圖工具：加入光線箭頭、鏡、透鏡、電阻、電池、電流計、力箭頭與文字；格線對齊；下載 PNG。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h2 class="font-bold text-slate-700">加入物件</h2>
+                    <div class="grid grid-cols-2 gap-2" id="tools"></div>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">文字標籤</span>
+                        <input id="labelIn" type="text" value="標籤" class="w-full mt-1 border rounded-xl px-3 py-2 text-sm"></label>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="del" class="px-3 py-2 rounded-xl bg-rose-100 text-rose-800 text-sm font-bold">刪除選取</button>
+                        <button id="clr" class="px-3 py-2 rounded-xl bg-slate-100 text-sm font-bold">清空</button>
+                        <button id="png" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold">下載 PNG</button>
+                    </div>
+                    <p class="text-xs text-slate-500">點選工具後在畫布點擊放置；拖曳可移動。格線 20px 對齊。</p>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="640" height="480" class="w-full h-auto rounded-xl border border-slate-200 cursor-crosshair bg-white"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  const types=['ray','mirror','lens','resistor','battery','ammeter','force','text'];
+  const names={ray:'光線箭頭',mirror:'平面鏡',lens:'透鏡',resistor:'電阻',battery:'電池',ammeter:'電流計',force:'力箭頭',text:'文字'};
+  let tool='ray', objs=[], sel=-1, drag=null;
+  const tools=document.getElementById('tools');
+  types.forEach(t=>{
+    const b=document.createElement('button'); b.textContent=names[t];
+    b.className='px-2 py-2 rounded-xl bg-slate-100 text-xs font-bold hover:bg-violet-100';
+    b.onclick=()=>{tool=t; [...tools.children].forEach(c=>c.classList.remove('ring-2','ring-violet-500')); b.classList.add('ring-2','ring-violet-500');};
+    tools.appendChild(b);
+  });
+  tools.children[0].classList.add('ring-2','ring-violet-500');
+  function snap(v){return Math.round(v/20)*20;}
+  function draw(){
+    ctx.clearRect(0,0,640,480); ctx.fillStyle='#fff';ctx.fillRect(0,0,640,480);
+    ctx.strokeStyle='#f1f5f9';
+    for(let x=0;x<=640;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,480);ctx.stroke();}
+    for(let y=0;y<=480;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(640,y);ctx.stroke();}
+    objs.forEach((o,i)=>{
+      ctx.save();
+      if(i===sel){ctx.strokeStyle='#a78bfa';ctx.strokeRect(o.x-30,o.y-30,60,60);}
+      ctx.translate(o.x,o.y); ctx.strokeStyle='#0f172a'; ctx.fillStyle='#0f172a'; ctx.lineWidth=2;
+      if(o.type==='ray'){ctx.beginPath();ctx.moveTo(-30,0);ctx.lineTo(30,0);ctx.lineTo(20,-6);ctx.moveTo(30,0);ctx.lineTo(20,6);ctx.stroke();}
+      if(o.type==='force'){ctx.strokeStyle='#dc2626';ctx.beginPath();ctx.moveTo(-30,0);ctx.lineTo(30,0);ctx.lineTo(18,-8);ctx.moveTo(30,0);ctx.lineTo(18,8);ctx.stroke();}
+      if(o.type==='mirror'){ctx.fillStyle='#e0e7ff';ctx.fillRect(-6,-40,12,80);ctx.strokeRect(-6,-40,12,80);}
+      if(o.type==='lens'){ctx.beginPath();ctx.moveTo(0,-40);ctx.lineTo(0,40);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-40);ctx.lineTo(-8,-28);ctx.moveTo(0,-40);ctx.lineTo(8,-28);ctx.moveTo(0,40);ctx.lineTo(-8,28);ctx.moveTo(0,40);ctx.lineTo(8,28);ctx.stroke();}
+      if(o.type==='resistor'){ctx.strokeRect(-25,-10,50,20);ctx.font='12px sans-serif';ctx.fillText('R',-4,4);}
+      if(o.type==='battery'){ctx.beginPath();ctx.moveTo(-20,0);ctx.lineTo(-5,0);ctx.moveTo(-5,-15);ctx.lineTo(-5,15);ctx.moveTo(5,-8);ctx.lineTo(5,8);ctx.moveTo(5,0);ctx.lineTo(20,0);ctx.stroke();}
+      if(o.type==='ammeter'){ctx.beginPath();ctx.arc(0,0,18,0,6.28);ctx.stroke();ctx.font='12px sans-serif';ctx.fillText('A',-5,4);}
+      if(o.type==='text'){ctx.font='14px Noto Sans TC,sans-serif';ctx.fillText(o.text||'標籤',-20,4);}
+      ctx.restore();
+    });
+  }
+  function hit(x,y){for(let i=objs.length-1;i>=0;i--){if(Math.hypot(objs[i].x-x,objs[i].y-y)<28)return i;}return -1;}
+  cv.addEventListener('mousedown',e=>{
+    const r=cv.getBoundingClientRect(); const x=(e.clientX-r.left)*cv.width/r.width, y=(e.clientY-r.top)*cv.height/r.height;
+    const i=hit(x,y);
+    if(i>=0){sel=i; drag={dx:x-objs[i].x,dy:y-objs[i].y}; draw(); return;}
+    const o={type:tool,x:snap(x),y:snap(y)};
+    if(tool==='text') o.text=document.getElementById('labelIn').value||'標籤';
+    objs.push(o); sel=objs.length-1; draw();
+  });
+  cv.addEventListener('mousemove',e=>{
+    if(!drag||sel<0)return;
+    const r=cv.getBoundingClientRect(); const x=(e.clientX-r.left)*cv.width/r.width, y=(e.clientY-r.top)*cv.height/r.height;
+    objs[sel].x=snap(x-drag.dx); objs[sel].y=snap(y-drag.dy); draw();
+  });
+  window.addEventListener('mouseup',()=>drag=null);
+  document.getElementById('del').onclick=()=>{if(sel>=0){objs.splice(sel,1);sel=-1;draw();}};
+  document.getElementById('clr').onclick=()=>{objs=[];sel=-1;draw();};
+  document.getElementById('png').onclick=()=>{const a=document.createElement('a');a.download='physics-diagram.png';a.href=cv.toDataURL('image/png');a.click();};
+  draw();
+})();
+
+</script>
+</body>
+</html>
