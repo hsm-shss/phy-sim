@@ -215,6 +215,9 @@ a.home:hover{background:#fff}
 
 .lcd-flags span#indHyp,.lcd-flags span#indM{opacity:.15}
 .lcd-flags span#indHyp.on,.lcd-flags span#indM.on{opacity:1}
+.lcd-flags span#indMode{opacity:1;font-size:8px;letter-spacing:0;margin-left:2px}
+.side-panel .meta{font-size:11px;color:#64748b;margin-bottom:8px;line-height:1.45}
+.side-panel .pbtn.cur{outline:2px solid #2563eb;background:#dbeafe}
 .lcd-expr .curs{display:inline;color:#1a2a20;animation:blink 1.05s step-end infinite;font-weight:900}
 .side-panel{
   width:min(100%,352px);background:rgba(255,255,255,.95);border:1px solid #d1d5db;
@@ -268,6 +271,7 @@ a.home:hover{background:#fff}
                 <span id="indAlpha">A</span>
                 <span id="indHyp">HYP</span>
                 <span id="indM">M</span>
+                <span id="indMode" class="on">COMP</span>
               </div>
               <span class="lcd-d on" id="indD">D</span>
             </div>
@@ -384,8 +388,8 @@ a.home:hover{background:#fff}
     </div>
   </div>
 
-  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝DEG/RAD/GRA　hyp＝雙曲　Enter＝EXE　REPLAY＝履歴／游標</p>
-  <p class="disc">⚠ fx-3650P 課堂模擬器（非官方）。Super-VPAM 風格校本引擎（分數／STO·RCL／Prog·FMLA／統計基礎），非原廠韌體；Base-N（HEX/BIN/OCT）標示僅外觀，運算為十進位。</p>
+  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝模式選單　SHIFT+MODE＝SETUP（角度）　hyp＝雙曲　Enter＝EXE　REPLAY＝履歴／游標</p>
+  <p class="disc">⚠ fx-3650P 課堂模擬器（非官方）。Super-VPAM 風格校本引擎（分數／STO·RCL／Prog·FMLA／統計基礎），非原廠韌體；含 MODE（COMP／CMPLX／BASE／SD／REG／PRGM）同 SETUP 角度；BASE／統計／複數為課堂簡版。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -410,7 +414,7 @@ a.home:hover{background:#fff}
 
   const ALPHA_MAP={
     '(-)':'A', dms:'B', hyp:'C', sin:'D', cos:'E', tan:'F',
-    ')':'X', ',':'Y', 'M+':'M', EXP:'π', ln:'e'
+    ')':'X', ',':'Y', 'M+':'M', EXP:'π', ln:'e', ENG:'i'
   };
 
   const CONSTS=[
@@ -454,6 +458,12 @@ a.home:hover{background:#fff}
   let progIdx=0, progEdit=false;
   let fmlaIdx=0;
   let statX=[]; // basic 1-var stats
+  let calcMode='comp'; // comp|cmplx|base|sd|reg|prgm
+  let baseRadix=10; // 10|16|2|8
+  let modePage=1; // MODE menu page 1|2
+  let lastCmplx={re:0, im:0};
+  let showIm=false; // Re⇔Im display toggle in CMPLX
+  let statXY=[]; // REG pairs {x,y}
 
   function loadJSON(k, def){
     try{ const s=localStorage.getItem(k); if(!s) return def; const v=JSON.parse(s); return Array.isArray(v)?v:def; }catch(e){ return def; }
@@ -770,6 +780,15 @@ a.home:hover{background:#fff}
     return sign*v;
   }
 
+  function modeLabel(){
+    if(calcMode==='comp') return 'COMP';
+    if(calcMode==='cmplx') return 'CMPLX';
+    if(calcMode==='base') return ({10:'DEC',16:'HEX',2:'BIN',8:'OCT'})[baseRadix]||'BASE';
+    if(calcMode==='sd') return 'SD';
+    if(calcMode==='reg') return 'REG';
+    if(calcMode==='prgm') return 'PRGM';
+    return 'COMP';
+  }
   function setInd(){
     document.getElementById('indShift').classList.toggle('on', shift);
     document.getElementById('indAlpha').classList.toggle('on', alpha);
@@ -780,6 +799,8 @@ a.home:hover{background:#fff}
     const d=document.getElementById('indD');
     d.classList.add('on');
     d.textContent=angLetter();
+    const md=document.getElementById('indMode');
+    if(md){ md.classList.add('on'); md.textContent=modeLabel(); }
   }
 
   function showCursorLine(){
@@ -803,6 +824,7 @@ a.home:hover{background:#fff}
     line=''; cursor=0; result='0.'; pendingView='';
     shift=false; alpha=false; hyp=false; fresh=true;
     stoWait=rclWait=false; engSteps=0; histIdx=-1;
+    showIm=false;
     uiMode='calc'; hidePanel();
     update();
   }
@@ -968,6 +990,250 @@ a.home:hover{background:#fff}
     );
   }
 
+
+  function openModeMenu(){
+    uiMode='mode';
+    const angL=angLetter();
+    const cur=modeLabel();
+    const meta=`<div class="meta">目前：<b>${cur}</b>　角度：<b>${angL}</b>（Deg/Rad/Gra）　MODE／◀▶ 翻頁</div>`;
+    let html;
+    if(modePage===1){
+      html = meta + [
+        ['1','comp','1:COMP 計算'],
+        ['2','cmplx','2:CMPLX 複數'],
+        ['3','base','3:BASE-N']
+      ].map(([d,m,lab])=>`<button type="button" class="pbtn${calcMode===m?' cur':''}" data-mode="${m}">${lab}</button>`).join('');
+    } else {
+      html = meta + [
+        ['4','sd','4:SD 單變數統計'],
+        ['5','reg','5:REG 迴歸'],
+        ['6','prgm','6:PRGM 程式']
+      ].map(([d,m,lab])=>`<button type="button" class="pbtn${calcMode===m?' cur':''}" data-mode="${m}">${lab}</button>`).join('');
+    }
+    html += `<button type="button" class="pbtn" data-modepage="1">翻頁（MODE／◀▶）</button>`;
+    html += `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
+    showPanel('MODE 模式', html);
+    toast('MODE：選 1–6');
+  }
+  function openSetup(){
+    uiMode='setup';
+    const cur=angLetter();
+    showPanel('SETUP 設定', [
+      `<div class="meta">目前角度：<b>${cur}</b>　模式：<b>${modeLabel()}</b></div>`,
+      `<button type="button" class="pbtn${ang==='deg'?' cur':''}" data-setup="deg">1:Deg 度</button>`,
+      `<button type="button" class="pbtn${ang==='rad'?' cur':''}" data-setup="rad">2:Rad 弧度</button>`,
+      `<button type="button" class="pbtn${ang==='gra'?' cur':''}" data-setup="gra">3:Gra 百分度</button>`,
+      `<button type="button" class="pbtn" data-setup="fix">4:Fix（課堂 stub）</button>`,
+      `<button type="button" class="pbtn" data-setup="sci">5:Sci（課堂 stub）</button>`,
+      `<button type="button" class="pbtn" data-setup="norm">6:Norm（課堂 stub）</button>`,
+      `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`
+    ].join(''));
+    toast('SETUP：選角度');
+  }
+  function selectCalcMode(m){
+    calcMode=m;
+    showIm=false;
+    if(m==='prgm'){
+      hidePanel();
+      openProg();
+      toast('PRGM');
+      update();
+      return;
+    }
+    if(m==='base'){
+      baseRadix=10;
+      toast('BASE-N DEC');
+    } else if(m==='cmplx'){
+      toast('CMPLX：ALPHA+ENG＝i');
+    } else if(m==='sd'){
+      toast('SD：M+＝DT 輸入資料');
+    } else if(m==='reg'){
+      toast('REG：輸入 x,y 後 M+');
+    } else {
+      toast('COMP');
+    }
+    hidePanel();
+    update();
+  }
+  function applySetup(key){
+    if(key==='deg'||key==='rad'||key==='gra'){
+      ang=key;
+      toast(ang.toUpperCase());
+      hidePanel();
+      update();
+      return;
+    }
+    if(key==='fix'||key==='sci'||key==='norm'){
+      toast(key.toUpperCase()+'（課堂暫未實作顯示位）');
+      return;
+    }
+  }
+  function setBaseRadix(r){
+    if(calcMode!=='base'){ toast('請先 MODE→BASE'); return false; }
+    const v=currentValue();
+    baseRadix=r;
+    const name={10:'DEC',16:'HEX',2:'BIN',8:'OCT'}[r];
+    // convert current value (as decimal) into base display
+    if(Number.isFinite(v)){
+      const n=Math.trunc(v);
+      if(r===10) result=fmtNum(n);
+      else {
+        let s=(n>>>0).toString(r).toUpperCase();
+        if(n<0 && r!==10) s='-'+((-n)>>>0).toString(r).toUpperCase();
+        // for classroom: show signed magnitude for negatives when small
+        if(n<0) s='-'+Math.abs(n).toString(r).toUpperCase();
+        result=s;
+      }
+      ans=n; line=''; cursor=0; fresh=true;
+    }
+    toast('BASE '+name);
+    update();
+    return true;
+  }
+  function parseBaseInput(s){
+    s=String(s).trim().replace(/\.$/,'');
+    if(!s) return 0;
+    const neg=s[0]==='-'; if(neg) s=s.slice(1);
+    let n;
+    if(baseRadix===10) n=Number(s);
+    else n=parseInt(s, baseRadix);
+    if(!Number.isFinite(n)) return NaN;
+    return neg?-n:n;
+  }
+  function fmtBase(n){
+    if(!Number.isFinite(n)) return 'Math ERROR';
+    const i=Math.trunc(n);
+    if(baseRadix===10) return fmtNum(i);
+    const sign=i<0?'-':'';
+    return sign+Math.abs(i).toString(baseRadix).toUpperCase();
+  }
+  function evalBaseLine(){
+    const src=line.trim();
+    if(!src){ result=fmtBase(ans); fresh=true; update(); return; }
+    // very small classroom parser: a±b / a*b / a/b with optional hex letters
+    const norm=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+    const m=norm.match(/^([0-9A-Fa-f]+)\s*([+\-*/])\s*([0-9A-Fa-f]+)$/);
+    if(!m){ result='Math ERROR'; fresh=true; update(); return; }
+    const a=parseInt(m[1], baseRadix), b=parseInt(m[3], baseRadix), op=m[2];
+    if(!Number.isFinite(a)||!Number.isFinite(b)){ result='Math ERROR'; fresh=true; update(); return; }
+    let v;
+    if(op==='+') v=a+b; else if(op==='-') v=a-b; else if(op==='*') v=a*b; else {
+      if(b===0){ result='Math ERROR'; fresh=true; update(); return; }
+      v=Math.trunc(a/b);
+    }
+    ans=v; result=fmtBase(v); history.push({line:src,result:v}); line=''; cursor=0; fresh=true; update();
+  }
+  function parseComplex(src){
+    // forms: a+bi | a-bi | bi | a | i
+    src=String(src).replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*');
+    if(!src) return {re:ans, im:0};
+    if(/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(src) || src==='Ans'){
+      const v=src==='Ans'?ans:Number(src); return {re:v, im:0};
+    }
+    let m=src.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)?([+-])(?:(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)?i$/);
+    if(m){
+      const re=m[1]?Number(m[1]):0;
+      const imag=(m[3]?Number(m[3]):1)*(m[2]==='-'?-1:1);
+      return {re, im:imag};
+    }
+    m=src.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)i$/);
+    if(m) return {re:0, im:Number(m[1])};
+    if(src==='i'||src==='+i') return {re:0,im:1};
+    if(src==='-i') return {re:0,im:-1};
+    // a op b i  via two parts with ops between complexes is limited; try JS-like a+bi already covered
+    // binary: (a+bi)+(c+di) — split on + / - / * / / outside ... keep simple: evaluate via tokens of two complexes
+    const bin=src.match(/^(.+?)([+\-*/])(.+)$/);
+    if(bin){
+      const L=parseComplex(bin[1]), R=parseComplex(bin[3]), op=bin[2];
+      if(!L||!R) return null;
+      if(op==='+') return {re:L.re+R.re, im:L.im+R.im};
+      if(op==='-') return {re:L.re-R.re, im:L.im-R.im};
+      if(op==='*') return {re:L.re*R.re-L.im*R.im, im:L.re*R.im+L.im*R.re};
+      if(op==='/'){
+        const d=R.re*R.re+R.im*R.im; if(!d) return null;
+        return {re:(L.re*R.re+L.im*R.im)/d, im:(L.im*R.re-L.re*R.im)/d};
+      }
+    }
+    try{
+      const v=parseEval(src);
+      if(Number.isFinite(v)) return {re:v, im:0};
+    }catch(e){}
+    return null;
+  }
+  function fmtComplex(z){
+    if(!z || !Number.isFinite(z.re) || !Number.isFinite(z.im)) return 'Math ERROR';
+    lastCmplx={re:z.re, im:z.im};
+    if(showIm) return fmtNum(z.im)+'i';
+    if(Math.abs(z.im)<1e-12) return fmtNum(z.re);
+    const imAbs=Math.abs(z.im);
+    const imStr = (imAbs===1?'':fmtNum(imAbs).replace(/\.$/,'')) + 'i';
+    if(Math.abs(z.re)<1e-12) return (z.im<0?'-':'')+imStr.replace(/^-/,'');
+    return fmtNum(z.re).replace(/\.$/,'') + (z.im<0?'-':'+') + imStr;
+  }
+  function evalCmplxLine(){
+    const src=line.trim();
+    if(!src){ result=fmtComplex(lastCmplx); fresh=true; update(); return; }
+    const z=parseComplex(src.replace(/\*/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-'));
+    // restore * for mul if user typed *
+    const z2=parseComplex(src);
+    const zz=z2||z;
+    if(!zz){ result='Math ERROR'; fresh=true; update(); return; }
+    ans=zz.re; lastCmplx=zz; result=fmtComplex(zz); history.push({line:src,result:zz.re}); line=''; cursor=0; fresh=true; update();
+  }
+  function sdStats(){
+    const n=statX.length;
+    if(!n) return null;
+    const sum=statX.reduce((a,b)=>a+b,0);
+    const mean=sum/n;
+    const sumsq=statX.reduce((a,b)=>a+b*b,0);
+    const sn=Math.sqrt(Math.max(0, sumsq/n - mean*mean));
+    const sn1=n>1?Math.sqrt(Math.max(0, (sumsq-n*mean*mean)/(n-1))):NaN;
+    return {n,sum,mean,sumsq,sn,sn1};
+  }
+  function openStatPanel(kind){
+    if(calcMode!=='sd' && calcMode!=='reg'){ toast('請先 MODE→SD／REG'); return; }
+    if(kind==='sum'){
+      if(calcMode==='sd'){
+        const s=sdStats();
+        if(!s){ toast('無資料'); return; }
+        showPanel('S-SUM', `<div class="meta">n=${s.n}<br>Σx=${fmtNum(s.sum)}<br>Σx²=${fmtNum(s.sumsq)}</div><button type="button" class="pbtn" data-pexit="1">EXIT</button>`);
+        uiMode='stat';
+        result=fmtNum(s.sum); update();
+      } else {
+        const n=statXY.length;
+        const sx=statXY.reduce((a,p)=>a+p.x,0), sy=statXY.reduce((a,p)=>a+p.y,0);
+        showPanel('S-SUM', `<div class="meta">n=${n}<br>Σx=${fmtNum(sx)}<br>Σy=${fmtNum(sy)}</div><button type="button" class="pbtn" data-pexit="1">EXIT</button>`);
+        uiMode='stat';
+      }
+      return;
+    }
+    // S-VAR
+    if(calcMode==='sd'){
+      const s=sdStats();
+      if(!s){ toast('無資料'); return; }
+      showPanel('S-VAR', `<div class="meta">n=${s.n}<br>x̄=${fmtNum(s.mean)}<br>σn=${fmtNum(s.sn)}<br>σn₋₁=${fmtNum(s.sn1)}</div>
+        <button type="button" class="pbtn" data-statv="mean">帶入 x̄</button>
+        <button type="button" class="pbtn" data-statv="sn">帶入 σn</button>
+        <button type="button" class="pbtn" data-pexit="1">EXIT</button>`);
+      uiMode='stat';
+      result=fmtNum(s.mean); update();
+    } else {
+      // linear regression
+      const n=statXY.length;
+      if(n<2){ toast('REG 需要至少 2 組 x,y'); return; }
+      const sx=statXY.reduce((a,p)=>a+p.x,0), sy=statXY.reduce((a,p)=>a+p.y,0);
+      const sxx=statXY.reduce((a,p)=>a+p.x*p.x,0), sxy=statXY.reduce((a,p)=>a+p.x*p.y,0);
+      const b=(n*sxy-sx*sy)/(n*sxx-sx*sx);
+      const a=(sy-b*sx)/n;
+      showPanel('REG S-VAR 課堂簡版', `<div class="meta">n=${n}<br>a=${fmtNum(a)}<br>b=${fmtNum(b)}<br>y=a+bx</div>
+        <button type="button" class="pbtn" data-statv="a">帶入 a</button>
+        <button type="button" class="pbtn" data-statv="b">帶入 b</button>
+        <button type="button" class="pbtn" data-pexit="1">EXIT</button>`);
+      uiMode='stat';
+      vars.A=a; vars.B=b; result=fmtNum(a); update();
+    }
+  }
+
   function storeVar(name){
     const v=currentValue();
     if(/^[A-FXYM]$/.test(name)){ vars[name]=v; toast('STO '+name+'='+fmtNum(v)); }
@@ -1008,6 +1274,30 @@ a.home:hover{background:#fff}
     }
     if(lab==='FMLA'){ openFmla(); return; }
 
+    // MODE / SETUP menus consume digits and REPLAY
+    if(uiMode==='mode'){
+      if(lab==='MODE'||lab==='LEFT'||lab==='RIGHT'||lab==='UP'||lab==='DOWN'){ modePage=modePage===1?2:1; openModeMenu(); return; }
+      if(lab==='1'){ selectCalcMode('comp'); return; }
+      if(lab==='2'){ selectCalcMode('cmplx'); return; }
+      if(lab==='3'){ selectCalcMode('base'); return; }
+      if(lab==='4'){ selectCalcMode('sd'); return; }
+      if(lab==='5'){ selectCalcMode('reg'); return; }
+      if(lab==='6'){ selectCalcMode('prgm'); return; }
+      if(lab==='EXE'||lab==='AC'||lab==='ON'){ hidePanel(); update(); return; }
+      // other keys ignored while menu open except SHIFT/ALPHA already handled above? SHIFT handled earlier
+      return;
+    }
+    if(uiMode==='setup'){
+      if(lab==='1'){ applySetup('deg'); return; }
+      if(lab==='2'){ applySetup('rad'); return; }
+      if(lab==='3'){ applySetup('gra'); return; }
+      if(lab==='4'){ applySetup('fix'); return; }
+      if(lab==='5'){ applySetup('sci'); return; }
+      if(lab==='6'){ applySetup('norm'); return; }
+      if(lab==='EXE'||lab==='AC'||lab==='ON'){ hidePanel(); update(); return; }
+      return;
+    }
+
     if(lab==='SHIFT'){ shift=!shift; alpha=false; update(); return; }
     if(lab==='ALPHA'){ alpha=!alpha; shift=false; update(); return; }
     if(lab==='ON'||lab==='AC'){
@@ -1036,6 +1326,10 @@ a.home:hover{background:#fff}
       const m=ALPHA_MAP[lab];
       if(m==='π'){ commitValue(Math.PI); return; }
       if(m==='e'){ commitValue(Math.E); return; }
+      if(m==='i'){
+        if(fresh){line='';cursor=0;fresh=false;}
+        insertText('i'); update(); return;
+      }
       if(m && /^[A-FXYM]$/.test(m)){
         if(fresh){line='';cursor=0;fresh=false;}
         insertText(m); update(); return;
@@ -1050,10 +1344,12 @@ a.home:hover{background:#fff}
       if(lab==='sin'){ applyUnaryImmediate('asin'); return; }
       if(lab==='cos'){ applyUnaryImmediate('acos'); return; }
       if(lab==='tan'){ applyUnaryImmediate('atan'); return; }
-      if(lab==='log'){ applyUnaryImmediate('10x'); return; }
-      if(lab==='ln'){ applyUnaryImmediate('ex'); return; }
-      if(lab==='x^3' || lab==='^'){ applyUnaryImmediate('cbrt'); return; }
-      if(lab==='x^2'){ applyUnaryImmediate('cu'); return; }
+      if(lab==='log'){ if(calcMode==='base'){ setBaseRadix(2); return; } applyUnaryImmediate('10x'); return; }
+      if(lab==='ln'){ if(calcMode==='base'){ setBaseRadix(8); return; } applyUnaryImmediate('ex'); return; }
+      if(lab==='x^3' || lab==='^'){ if(lab==='^' && calcMode==='base'){ setBaseRadix(16); return; } applyUnaryImmediate('cbrt'); return; }
+      if(lab==='x^2'){ if(calcMode==='base'){ setBaseRadix(10); return; } applyUnaryImmediate('cu'); return; }
+      if(lab==='1'){ openStatPanel('sum'); return; }
+      if(lab==='2'){ openStatPanel('var'); return; }
       if(lab==='x^-1'){ applyUnaryImmediate('fact'); return; }
       if(lab==='Frac'){ fracForm = fracForm==='mixed'?'improper':fracForm==='improper'?'decimal':'mixed'; toast('分數顯示：'+fracForm); commitValue(currentValue()); return; }
       if(lab==='('){ applyUnaryImmediate('pct'); return; }
@@ -1073,15 +1369,18 @@ a.home:hover{background:#fff}
         toast(ang.toUpperCase()); update(); return;
       }
       if(lab==='ENG'){ engSteps -= 1; commitValue(currentValue()); return; }
-      if(lab==='MODE'){ /* SETUP stub */ toast('SETUP：MODE 切換角度'); update(); return; }
+      if(lab==='MODE'){ openSetup(); return; }
       if(lab==='sqrt'){ applyUnaryImmediate('cbrt'); return; }
+      if(lab==='EXE'){ // Re⇔Im in CMPLX
+        if(calcMode==='cmplx'){ showIm=!showIm; result=fmtComplex(lastCmplx); toast(showIm?'Im':'Re'); update(); return; }
+      }
       update(); return;
     }
 
     // Normal keys
     if(lab==='MODE'){
-      ang = ang==='deg'?'rad':ang==='rad'?'gra':'deg';
-      update(); return;
+      if(uiMode==='mode'){ modePage = modePage===1?2:1; openModeMenu(); return; }
+      modePage=1; openModeMenu(); return;
     }
     if(lab==='hyp'){ hyp=!hyp; toast(hyp?'hyp ON':'hyp OFF'); update(); return; }
     if(lab==='RCL'){ rclWait=true; toast('RCL：再按變數鍵'); update(); return; }
@@ -1090,7 +1389,27 @@ a.home:hover{background:#fff}
       commitValue(currentValue()); return;
     }
     if(lab==='dms'){ applyUnaryImmediate('dms'); return; }
-    if(lab==='M+'){ vars.M += currentValue(); toast('M='+fmtNum(vars.M)); fresh=true; update(); return; }
+    if(lab==='M+'){
+      if(calcMode==='sd'){
+        const v=currentValue();
+        if(!Number.isFinite(v)){ toast('Math ERROR'); return; }
+        statX.push(v); vars.M=statX.length; toast('DT n='+statX.length); line=''; cursor=0; result='0.'; fresh=true; update(); return;
+      }
+      if(calcMode==='reg'){
+        // expect line like x,y or use X,Y vars
+        let x,y;
+        const src=line.trim();
+        const m=src.match(/^\s*([^,]+)\s*,\s*([^,]+)\s*$/);
+        if(m){
+          try{ x=parseEval(m[1]); y=parseEval(m[2]); }catch(e){ x=NaN; }
+        } else {
+          x=vars.X; y=currentValue();
+        }
+        if(!Number.isFinite(x)||!Number.isFinite(y)){ toast('輸入 x,y 後 M+'); return; }
+        statXY.push({x,y}); vars.M=statXY.length; toast('DT n='+statXY.length); line=''; cursor=0; result='0.'; fresh=true; update(); return;
+      }
+      vars.M += currentValue(); toast('M='+fmtNum(vars.M)); fresh=true; update(); return;
+    }
 
     if(lab==='UP'){
       if(!history.length) return;
@@ -1148,13 +1467,18 @@ a.home:hover{background:#fff}
     }
 
     if(lab==='EXE'){
-      if(uiMode==='fmla'){ hidePanel(); }
+      if(uiMode==='fmla'||uiMode==='stat'){ hidePanel(); }
+      if(calcMode==='base'){
+        evalBaseLine(); return;
+      }
+      if(calcMode==='cmplx'){
+        // auto-close not critical for a+bi
+        evalCmplxLine(); return;
+      }
       // auto-close parens
       let open=(line.match(/\(/g)||[]).length, close=(line.match(/\)/g)||[]).length;
       while(close<open){ line+=')'; close++; }
       cursor=line.length;
-      // nPr/nCr without closing already handled
-      // binary nPr via incomplete: if line has trailing op, noop
       evalLine(); return;
     }
 
@@ -1186,8 +1510,20 @@ a.home:hover{background:#fff}
   // Panel clicks
   if(panel){
     panel.addEventListener('click', e=>{
-      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-fsave],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit]');
+      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-fsave],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv]');
       if(!t) return;
+      if(t.dataset.mode){ selectCalcMode(t.dataset.mode); return; }
+      if(t.dataset.modepage){ modePage=modePage===1?2:1; openModeMenu(); return; }
+      if(t.dataset.setup){ applySetup(t.dataset.setup); return; }
+      if(t.dataset.statv){
+        const s=sdStats();
+        let v=0;
+        if(t.dataset.statv==='mean' && s) v=s.mean;
+        else if(t.dataset.statv==='sn' && s) v=s.sn;
+        else if(t.dataset.statv==='a') v=vars.A;
+        else if(t.dataset.statv==='b') v=vars.B;
+        hidePanel(); commitValue(v); return;
+      }
       if(t.dataset.ci!=null){
         const c=CONSTS[+t.dataset.ci];
         hidePanel();
@@ -1197,7 +1533,7 @@ a.home:hover{background:#fff}
       }
       if(t.dataset.clr){
         if(t.dataset.clr==='mem' || t.dataset.clr==='all'){ vars={A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0}; }
-        if(t.dataset.clr==='stat' || t.dataset.clr==='all'){ statX=[]; }
+        if(t.dataset.clr==='stat' || t.dataset.clr==='all'){ statX=[]; statXY=[]; }
         if(t.dataset.clr==='all'){ ans=0; }
         toast('已清除'); hidePanel(); update(); return;
       }
@@ -1259,7 +1595,7 @@ a.home:hover{background:#fff}
   });
 
   // expose for tests
-  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;} };
+  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;} };
   update();
 })();
 
