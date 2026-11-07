@@ -43,29 +43,29 @@ a.home:hover{background:#fff}
 .device{
   position:relative;
   border-radius:26px 26px 36px 36px;
-  padding:9px 8px 12px;
-  background:linear-gradient(165deg,#3e4349 0%,#24282e 42%,#14171b 100%);
+  padding:10px 9px 14px;
+  background:linear-gradient(165deg,#2f343a 0%,#1a1e24 45%,#0b0d10 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.28),
-    inset 0 -2px 5px rgba(0,0,0,.55),
-    0 0 0 1px #0a0c0f;
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -2px 6px rgba(0,0,0,.65),
+    0 0 0 1.5px #050607;
 }
 .face{
   border-radius:20px 20px 28px 28px;
-  padding:10px 9px 12px;
-  background:linear-gradient(155deg,#f4f5f7 0%,#e8eaee 22%,#d5d8de 58%,#c2c6cd 100%);
+  padding:12px 11px 14px;
+  background:linear-gradient(155deg,#f7f8fa 0%,#eceef2 20%,#d8dbe2 55%,#b8bcc6 100%);
   box-shadow:
     inset 0 2px 3px #ffffff,
-    inset 0 -3px 7px rgba(70,80,95,.22),
-    0 1px 0 rgba(255,255,255,.12);
+    inset 0 -3px 8px rgba(50,60,75,.28),
+    0 1px 0 rgba(255,255,255,.14);
 }
 .brand{
-  display:flex;justify-content:space-between;align-items:flex-end;
-  padding:1px 3px 5px;color:#2a3038;opacity:.88;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:4px 4px 10px;color:#11151a;opacity:1;
 }
-.brand .casio{font-weight:900;font-size:13px;letter-spacing:-.4px;line-height:1}
-.brand .casio em{display:block;font:italic 600 9px/1.2 Georgia,serif;margin-top:1px;opacity:.8}
-.brand .right{text-align:right;font-size:8px;font-weight:700;letter-spacing:.35px;opacity:.75;line-height:1.25}
+.brand .casio{font-weight:900;font-size:18px;letter-spacing:-.5px;line-height:1;color:#0d1116}
+.brand .casio em{display:block;font:italic 700 12.5px/1.25 Georgia,'Times New Roman',serif;margin-top:3px;opacity:1;color:#1a1e24}
+.brand .right{text-align:right;font-size:9px;font-weight:700;letter-spacing:.35px;opacity:1;line-height:1.25}
 .lcd-bezel{
   margin:0 1px 10px;padding:5px;border-radius:7px;
   background:linear-gradient(160deg,#6a7178,#a8aeb4 48%,#858b91);
@@ -234,24 +234,42 @@ a.home:hover{background:#fff}
 .side-panel .psteps code{background:#f1f5f9;padding:1px 4px;border-radius:4px;margin:2px}
 
 .brand .casio .hkeaa{
-  margin-top:3px;display:flex;align-items:center;gap:4px;
-  color:#e36a12;font:800 7.5px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;
+  margin-top:6px;display:flex;align-items:center;gap:5px;
+  color:#e85a00;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.3px;
+  text-shadow:0 0 0.3px #e85a00;
 }
 .brand .casio .hkeaa .bars{
-  display:inline-block;width:11px;height:8px;
-  background:repeating-linear-gradient(90deg,#e36a12 0 1.5px,transparent 1.5px 2.7px);
+  display:inline-flex;align-items:flex-end;gap:1.6px;height:12px;width:auto;background:none;
 }
-.brand .right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:1}
+.brand .casio .hkeaa .bars i{
+  display:block;width:2.6px;background:#e85a00;border-radius:.4px;
+}
+.brand .casio .hkeaa .bars i:nth-child(1){height:35%}
+.brand .casio .hkeaa .bars i:nth-child(2){height:50%}
+.brand .casio .hkeaa .bars i:nth-child(3){height:68%}
+.brand .casio .hkeaa .bars i:nth-child(4){height:85%}
+.brand .casio .hkeaa .bars i:nth-child(5){height:100%}
+.brand .right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;opacity:1}
 .brand .right .solar{
-  display:block;width:46px;height:10px;border-radius:1px;
-  background:linear-gradient(180deg,#4a3420,#2a1c10);
-  box-shadow:inset 0 0 0 1px #1a120a,
-    inset 11px 0 0 rgba(255,255,255,.06),
-    inset 22px 0 0 rgba(0,0,0,.25),
-    inset 33px 0 0 rgba(255,255,255,.05);
+  display:block;width:62px;height:15px;border-radius:1px;
+  background:linear-gradient(180deg,#5a3a22,#3a2414 40%,#1e120a);
+  box-shadow:inset 0 0 0 1px #120c08,
+    inset 15px 0 0 rgba(255,255,255,.07),
+    inset 30px 0 0 rgba(0,0,0,.28),
+    inset 45px 0 0 rgba(255,255,255,.05);
 }
 .brand .right .sfx{
-  font:italic 800 8px/1 Georgia,serif;letter-spacing:.4px;color:#2a3038;opacity:.88;
+  font:italic 800 10.5px/1 Georgia,'Times New Roman',serif;letter-spacing:.55px;color:#11151a;opacity:1;
+}
+.lcd-main.menu{font-size:13px;font-weight:700;text-align:left;letter-spacing:0;line-height:1.25;word-break:normal}
+.lcd-flags span#indMode{font-size:9px;font-weight:900}
+.lcd-flags span#indMode.base{
+  font-size:12px;font-weight:900;letter-spacing:.4px;
+  padding:0 3px;border:1.5px solid #1a2a20;border-radius:2px;line-height:1.1;
+}
+.pill .build-tag{
+  font-size:11px;font-weight:800;color:#fff;background:#1d4ed8;
+  border-radius:999px;padding:3px 10px;letter-spacing:.15px;
 }
 .side-panel .pbtn.cur{background:#dbeafe;border-color:#93c5fd;font-weight:700}
 .side-panel .meta{font-size:11px;color:#64748b;margin-bottom:6px}
@@ -266,6 +284,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
+    <span class="build-tag">外觀 v2 · BASE 螢幕選單</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -273,17 +292,12 @@ a.home:hover{background:#fff}
     <div id="log" class="teach-keys" aria-live="polite"></div>
   </div>
 
-  <div id="sidePanel" class="side-panel" hidden>
-    <h3 id="panelTitle">面板</h3>
-    <div id="panelBody"></div>
-  </div>
-
   <div class="device-wrap">
     <div class="device" id="device" aria-label="fx-50FH II 課堂模擬器">
       <div class="face" id="shell">
         <div class="brand">
           <div class="casio">CASIO<em>fx-50FH II</em>
-            <div class="hkeaa"><span class="bars" aria-hidden="true"></span>H.K.E.A.A. APPROVED</div>
+            <div class="hkeaa"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>H.K.E.A.A. APPROVED</div>
           </div>
           <div class="right"><span class="solar" title="solar"></span><span class="sfx">SUPER-FX PLUS</span></div>
         </div>
@@ -414,7 +428,12 @@ a.home:hover{background:#fff}
     </div>
   </div>
 
-  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝COMP/CMPLX/BASE/SD/REG/PRGM　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　hyp＝雙曲　Enter＝EXE</p>
+  <div id="sidePanel" class="side-panel" hidden>
+    <h3 id="panelTitle">面板</h3>
+    <div id="panelBody"></div>
+  </div>
+
+  <p class="hint">外觀 v2 · BASE 螢幕選單　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
   <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方）。依 Casio fx-50FH 說明書課堂重製：MODE／SETUP／FMLA 23 公式／CONST／Prog P1–P4；非原廠韌體。BASE／統計／複數／Casio BASIC 為課堂可用子集。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -595,11 +614,40 @@ a.home:hover{background:#fff}
   }
   function saveJSON(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 
-  function toast(msg){
+  function toast(msg, ms){
     toastEl.textContent=msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2400);
+    toastTimer=setTimeout(()=>toastEl.classList.remove('show'), ms||2800);
+  }
+  let modeFlash=null, modeFlashTimer=null;
+  function flashModeOnLcd(name){
+    modeFlash=name;
+    uiMode='calc';
+    clearTimeout(modeFlashTimer);
+    update();
+    modeFlashTimer=setTimeout(()=>{ modeFlash=null; if(uiMode==='calc') update(); }, 850);
+  }
+  function paintMenuLcd(){
+    disp.classList.add('menu');
+    if(uiMode==='mode'){
+      expr.textContent = modePage===1 ? 'MODE 1/2' : 'MODE 2/2';
+      disp.textContent = modePage===1 ? '1:COMP  2:CMPLX  3:BASE' : '4:SD  5:REG  6:PRGM';
+      return true;
+    }
+    if(uiMode==='setup'){
+      expr.textContent = 'SETUP '+setupPage+'/3';
+      if(setupPage===1) disp.textContent='1:Deg  2:Rad  3:Gra';
+      else if(setupPage===2) disp.textContent='1:Fix  2:Sci  3:Norm';
+      else disp.textContent='1:ab/c 2:d/c 3:a+bi…';
+      return true;
+    }
+    if(uiMode==='basepick'){
+      expr.textContent='BASE-N';
+      disp.textContent='1:DEC 2:HEX 3:BIN 4:OCT';
+      return true;
+    }
+    return false;
   }
   function beep(){
     if(!optSound.checked) return;
@@ -948,11 +996,22 @@ a.home:hover{background:#fff}
   function escapeHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   function update(){
-    if(uiMode==='calc'){
+    const md=document.getElementById('indMode');
+    if(paintMenuLcd()){
+      /* menu painted on LCD */
+    } else if(uiMode==='calc' && modeFlash){
+      disp.classList.add('menu');
+      expr.textContent='MODE';
+      disp.textContent=modeFlash;
+    } else if(uiMode==='calc'){
+      disp.classList.remove('menu');
       disp.textContent=result;
       showCursorLine();
+    } else {
+      disp.classList.remove('menu');
     }
     setInd();
+    if(md) md.classList.toggle('base', calcMode==='base');
   }
 
   function clearAll(){
@@ -1211,7 +1270,8 @@ a.home:hover{background:#fff}
     html += `<button type="button" class="pbtn" data-modepage="1">翻頁（MODE／◀▶）</button>`;
     html += `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
     showPanel('MODE 模式', html);
-    toast('MODE：選 1–6');
+    toast('MODE：螢幕選 1–6（3＝BASE）', 3200);
+    update();
   }
   function openSetup(){
     uiMode='setup';
@@ -1242,7 +1302,23 @@ a.home:hover{background:#fff}
     }
     html += `<button type="button" class="pbtn" data-setup="flip">翻頁</button>`;
     showPanel('SETUP', html);
-    toast('SETUP');
+    toast('SETUP：螢幕選項');
+    update();
+  }
+  function openBaseMenu(){
+    uiMode='basepick';
+    const cur=modeLabel();
+    const html = `<div class="meta">BASE-N　目前：<b>${cur}</b>　按 1–4 或下方按鈕選進制</div>` +
+      [
+        [10,'1:DEC 十進制'],
+        [16,'2:HEX 十六進制'],
+        [2,'3:BIN 二進制'],
+        [8,'4:OCT 八進制']
+      ].map(([r,lab])=>`<button type="button" class="pbtn${baseRadix===r?' cur':''}" data-radix="${r}">${lab}</button>`).join('') +
+      `<button type="button" class="pbtn" data-pexit="1">EXIT（保持 BASE-N）</button>`;
+    showPanel('BASE-N 進制', html);
+    toast('已進入 BASE-N（DEC）· 選 1–4', 3600);
+    update();
   }
   function selectCalcMode(m){
     calcMode=m;
@@ -1251,23 +1327,35 @@ a.home:hover{background:#fff}
       hidePanel();
       openProg();
       toast('PRGM');
-      update();
+      flashModeOnLcd('PRGM');
       return;
     }
     if(m==='base'){
       baseRadix=10;
-      toast('BASE-N DEC');
-    } else if(m==='cmplx'){
-      toast('CMPLX：ALPHA+ENG＝i');
-    } else if(m==='sd'){
-      toast('SD：M+＝DT 輸入資料');
-    } else if(m==='reg'){
-      toast('REG：輸入 x,y 後 M+');
-    } else {
-      toast('COMP');
+      openBaseMenu();
+      return;
     }
+    if(m==='cmplx'){
+      toast('CMPLX：ALPHA+ENG＝i', 3200);
+      hidePanel();
+      flashModeOnLcd('CMPLX');
+      return;
+    }
+    if(m==='sd'){
+      toast('SD：M+＝DT 輸入資料', 3200);
+      hidePanel();
+      flashModeOnLcd('SD');
+      return;
+    }
+    if(m==='reg'){
+      toast('REG：輸入 x,y 後 M+', 3200);
+      hidePanel();
+      flashModeOnLcd('REG');
+      return;
+    }
+    toast('COMP', 2800);
     hidePanel();
-    update();
+    flashModeOnLcd('COMP');
   }
   function applySetup(k){
     if(k==='flip' || k==='page'){ setupPage = setupPage%3+1; openSetup(); return; }
@@ -1474,6 +1562,7 @@ a.home:hover{background:#fff}
     if(optLock.checked && lab!=='ON'){ beep(); return; }
     beep();
     logKey(lab);
+    if(modeFlash){ modeFlash=null; clearTimeout(modeFlashTimer); }
 
     // Prog edit capture
     if(uiMode==='prog' && progEdit && !['Prog','EXIT','SHIFT','ALPHA','ON','AC'].includes(lab) && lab!=='Prog'){
@@ -1556,6 +1645,16 @@ a.home:hover{background:#fff}
     }
 
 
+    // BASE radix picker (after MODE→3)
+    if(uiMode==='basepick'){
+      if(lab==='1'){ hidePanel(); setBaseRadix(10); flashModeOnLcd('DEC'); return; }
+      if(lab==='2'){ hidePanel(); setBaseRadix(16); flashModeOnLcd('HEX'); return; }
+      if(lab==='3'){ hidePanel(); setBaseRadix(2); flashModeOnLcd('BIN'); return; }
+      if(lab==='4'){ hidePanel(); setBaseRadix(8); flashModeOnLcd('OCT'); return; }
+      if(lab==='EXE'||lab==='AC'||lab==='ON'){ hidePanel(); modeFlash=null; update(); return; }
+      if(lab==='MODE'){ modePage=1; openModeMenu(); return; }
+      return;
+    }
     // MODE / SETUP menus consume digits and REPLAY
     if(uiMode==='mode'){
       if(lab==='MODE'||lab==='LEFT'||lab==='RIGHT'||lab==='UP'||lab==='DOWN'){ modePage=modePage===1?2:1; openModeMenu(); return; }
@@ -1794,8 +1893,14 @@ a.home:hover{background:#fff}
   // Panel clicks
   if(panel){
     panel.addEventListener('click', e=>{
-      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-cpage],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv]');
+      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-cpage],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv],[data-radix]');
       if(!t) return;
+      if(t.dataset.radix){
+        hidePanel();
+        setBaseRadix(+t.dataset.radix);
+        flashModeOnLcd(modeLabel());
+        return;
+      }
       if(t.dataset.mode){ selectCalcMode(t.dataset.mode); return; }
       if(t.dataset.modepage){ modePage=modePage===1?2:1; openModeMenu(); return; }
       if(t.dataset.setup){ applySetup(t.dataset.setup); return; }
@@ -1874,7 +1979,7 @@ a.home:hover{background:#fff}
   });
 
   // expose for tests
-  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;}, get fmlaIdx(){return fmlaIdx;}, get fmlaPhase(){return fmlaPhase;}, get dispFmt(){return dispFmt;}, BUILTIN_FMLA, CONSTS };
+  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;}, get uiMode(){return uiMode;}, get fmlaIdx(){return fmlaIdx;}, get fmlaPhase(){return fmlaPhase;}, get dispFmt(){return dispFmt;}, BUILTIN_FMLA, CONSTS };
   update();
 })();
 
