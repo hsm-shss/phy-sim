@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<title>fx-3650P 課堂模擬器（非官方）</title>
+<title>fx-50FH II 課堂模擬器（非官方）</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Share+Tech+Mono&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -233,6 +233,30 @@ a.home:hover{background:#fff}
 .side-panel .psteps{margin-top:8px;font-size:11px;color:#475569;max-height:60px;overflow:auto}
 .side-panel .psteps code{background:#f1f5f9;padding:1px 4px;border-radius:4px;margin:2px}
 
+.brand .casio .hkeaa{
+  margin-top:3px;display:flex;align-items:center;gap:4px;
+  color:#e36a12;font:800 7.5px/1 Arial,Helvetica,sans-serif;letter-spacing:.2px;
+}
+.brand .casio .hkeaa .bars{
+  display:inline-block;width:11px;height:8px;
+  background:repeating-linear-gradient(90deg,#e36a12 0 1.5px,transparent 1.5px 2.7px);
+}
+.brand .right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:1}
+.brand .right .solar{
+  display:block;width:46px;height:10px;border-radius:1px;
+  background:linear-gradient(180deg,#4a3420,#2a1c10);
+  box-shadow:inset 0 0 0 1px #1a120a,
+    inset 11px 0 0 rgba(255,255,255,.06),
+    inset 22px 0 0 rgba(0,0,0,.25),
+    inset 33px 0 0 rgba(255,255,255,.05);
+}
+.brand .right .sfx{
+  font:italic 800 8px/1 Georgia,serif;letter-spacing:.4px;color:#2a3038;opacity:.88;
+}
+.side-panel .pbtn.cur{background:#dbeafe;border-color:#93c5fd;font-weight:700}
+.side-panel .meta{font-size:11px;color:#64748b;margin-bottom:6px}
+.lcd-main.fmla-res{font-size:22px;text-align:left}
+
 </style>
 </head>
 <body>
@@ -255,11 +279,13 @@ a.home:hover{background:#fff}
   </div>
 
   <div class="device-wrap">
-    <div class="device" id="device" aria-label="fx-3650P 課堂模擬器">
+    <div class="device" id="device" aria-label="fx-50FH II 課堂模擬器">
       <div class="face" id="shell">
         <div class="brand">
-          <div class="casio">CASIO<em>fx-3650P</em></div>
-          <div class="right">S-V.P.A.M.<br>CLASSROOM</div>
+          <div class="casio">CASIO<em>fx-50FH II</em>
+            <div class="hkeaa"><span class="bars" aria-hidden="true"></span>H.K.E.A.A. APPROVED</div>
+          </div>
+          <div class="right"><span class="solar" title="solar"></span><span class="sfx">SUPER-FX PLUS</span></div>
         </div>
 
         <div class="lcd-bezel">
@@ -388,13 +414,13 @@ a.home:hover{background:#fff}
     </div>
   </div>
 
-  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝模式選單　SHIFT+MODE＝SETUP（角度）　hyp＝雙曲　Enter＝EXE　REPLAY＝履歴／游標</p>
-  <p class="disc">⚠ fx-3650P 課堂模擬器（非官方）。Super-VPAM 風格校本引擎（分數／STO·RCL／Prog·FMLA／統計基礎），非原廠韌體；含 MODE（COMP／CMPLX／BASE／SD／REG／PRGM）同 SETUP 角度；BASE／統計／複數為課堂簡版。</p>
+  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝COMP/CMPLX/BASE/SD/REG/PRGM　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　hyp＝雙曲　Enter＝EXE</p>
+  <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方）。依 Casio fx-50FH 說明書課堂重製：MODE／SETUP／FMLA 23 公式／CONST／Prog P1–P4；非原廠韌體。BASE／統計／複數／Casio BASIC 為課堂可用子集。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-/* fx-3650P classroom Super-VPAM-style engine (original, not Casio firmware) */
+/* fx-50FH II classroom engine (original JS; not Casio firmware) */
 (function(){
   const disp=document.getElementById('disp');
   const expr=document.getElementById('expr');
@@ -409,8 +435,8 @@ a.home:hover{background:#fff}
   const panelBody=document.getElementById('panelBody');
   const panelTitle=document.getElementById('panelTitle');
 
-  const LS_PROG='fx3650p_progs_v1';
-  const LS_FMLA='fx3650p_fmlas_v1';
+  const LS_PROG='fx50fh_progs_v1';
+  const LS_FMLA='fx50fh_fmlas_v1';
 
   const ALPHA_MAP={
     '(-)':'A', dms:'B', hyp:'C', sin:'D', cos:'E', tan:'F',
@@ -418,19 +444,48 @@ a.home:hover{background:#fff}
   };
 
   const CONSTS=[
-    {id:'c', name:'c 光速', v:299792458},
-    {id:'g', name:'g 重力', v:9.80665},
-    {id:'h', name:'h 普朗克', v:6.62607015e-34},
-    {id:'e', name:'e 元電荷', v:1.602176634e-19},
-    {id:'k', name:'k 波茲曼', v:1.380649e-23},
-    {id:'NA', name:"N_A 阿伏伽德羅", v:6.02214076e23},
-    {id:'R', name:'R 氣體常數', v:8.314462618},
-    {id:'me', name:'m_e 電子質量', v:9.1093837015e-31},
-    {id:'mp', name:'m_p 質子質量', v:1.67262192369e-27},
-    {id:'eps0', name:'ε₀', v:8.8541878128e-12},
-    {id:'mu0', name:'μ₀', v:1.25663706212e-6},
-    {id:'G', name:'G 萬有引力', v:6.67430e-11}
+    {sym:'mp', name:'Proton mass mp', v:1.67262171e-27},
+    {sym:'mn', name:'Neutron mass mn', v:1.67492728e-27},
+    {sym:'me', name:'Electron mass me', v:9.1093826e-31},
+    {sym:'mμ', name:'Muon mass mμ', v:1.8835314e-28},
+    {sym:'a0', name:'Bohr radius a0', v:5.291772108e-11},
+    {sym:'h', name:'Planck h', v:6.6260693e-34},
+    {sym:'μN', name:'Nuclear magneton μN', v:5.05078343e-27},
+    {sym:'μB', name:'Bohr magneton μB', v:9.27400949e-24},
+    {sym:'ħ', name:'ħ', v:1.05457168e-34},
+    {sym:'α', name:'Fine-structure α', v:7.297352568e-3},
+    {sym:'re', name:'Classical electron radius re', v:2.817940325e-15},
+    {sym:'λc', name:'Compton λc', v:2.426310238e-12},
+    {sym:'γp', name:'Proton gyromagnetic γp', v:2.67522205e8},
+    {sym:'λcp', name:'Proton Compton λcp', v:1.3214098555e-15},
+    {sym:'λcn', name:'Neutron Compton λcn', v:1.3195909067e-15},
+    {sym:'R∞', name:'Rydberg R∞', v:10973731.568525},
+    {sym:'u', name:'Atomic mass u', v:1.66053886e-27},
+    {sym:'μp', name:'Proton μp', v:1.41060671e-26},
+    {sym:'μe', name:'Electron μe', v:-9.28476412e-24},
+    {sym:'μn', name:'Neutron μn', v:-9.6623645e-27},
+    {sym:'μμ', name:'Muon μμ', v:-4.49044799e-26},
+    {sym:'F', name:'Faraday F', v:96485.3383},
+    {sym:'e', name:'Elementary charge e', v:1.60217653e-19},
+    {sym:'NA', name:'Avogadro NA', v:6.0221415e23},
+    {sym:'k', name:'Boltzmann k', v:1.3806505e-23},
+    {sym:'Vm', name:'Molar volume Vm', v:0.022413996},
+    {sym:'R', name:'Molar gas R', v:8.314472},
+    {sym:'c0', name:'Speed of light c0', v:299792458},
+    {sym:'c1', name:'1st radiation c1', v:3.74177138e-16},
+    {sym:'c2', name:'2nd radiation c2', v:1.4387752e-2},
+    {sym:'σ', name:'Stefan–Boltzmann σ', v:5.670400e-8},
+    {sym:'ε0', name:'Electric constant ε0', v:8.854187817e-12},
+    {sym:'μ0', name:'Magnetic constant μ0', v:1.2566370614e-6},
+    {sym:'φ0', name:'Magnetic flux quantum φ0', v:2.06783372e-15},
+    {sym:'g', name:'Standard gravity g', v:9.80665},
+    {sym:'G0', name:'Conductance quantum G0', v:7.748091733e-5},
+    {sym:'Z0', name:'Vacuum impedance Z0', v:376.730313461},
+    {sym:'t', name:'Celsius t', v:273.15},
+    {sym:'G', name:'Gravitation G', v:6.6742e-11},
+    {sym:'atm', name:'Standard atmosphere atm', v:101325}
   ];
+  const CONST_PAGES = 10;
 
   let line='', cursor=0, insertMode=true;
   let result='0', pendingView='', ans=0;
@@ -447,18 +502,88 @@ a.home:hover{background:#fff}
   let teachKeys=[];
   let toastTimer=null;
   let uiMode='calc'; // calc|prog|fmla|const|clr
-  let programs=loadJSON(LS_PROG, [{name:'P1', steps:[]},{name:'P2', steps:[]},{name:'P3', steps:[]}]);
-  let formulas=loadJSON(LS_FMLA, [
-    {name:'F1', expr:'A+B'},
-    {name:'F2', expr:'A×B'},
-    {name:'F3', expr:'A÷B'},
-    {name:'F4', expr:'π×A^2'},
-    {name:'F5', expr:'A×B÷2'}
-  ]);
+  let programs=loadJSON(LS_PROG, [{name:'P1',steps:[],src:''},{name:'P2',steps:[],src:''},{name:'P3',steps:[],src:''},{name:'P4',steps:[],src:''}]);
+  while(programs.length<4) programs.push({name:'P'+(programs.length+1),steps:[],src:''});
   let progIdx=0, progEdit=false;
+  // Built-in formulas 01–23 (fx-50FH manual E-58..E-61)
+  const BUILTIN_FMLA = [
+    {no:'01', name:'Quadratic', vars:['a','b','c'], result:'x',
+      run(v){ const {a,b,c}=v; const d=b*b-4*a*c; if(a===0||d<0) throw 0; const s=Math.sqrt(d); return [(-b+s)/(2*a), (-b-s)/(2*a)]; },
+      fmt(r){ return 'x1='+fmtNum(r[0])+'  x2='+fmtNum(r[1]); }},
+    {no:'02', name:'CosineThm', vars:['b','c','θ'], result:'a',
+      run(v){ const {b,c}=v; const th=toRad(v['θ']); if(b<=0||c<=0) throw 0; return Math.sqrt(b*b+c*c-2*b*c*Math.cos(th)); }},
+    {no:'03', name:'HeronFormula', vars:['a','b','c'], result:'S',
+      run(v){ const {a,b,c}=v; if(!(a+b>c&&b+c>a&&c+a>b)||a<=0||b<=0||c<=0) throw 0; const s=(a+b+c)/2; return Math.sqrt(s*(s-a)*(s-b)*(s-c)); }},
+    {no:'04', name:'Normal P(x)', vars:['x'], result:'P',
+      run(v){ return normalP(v.x); }},
+    {no:'05', name:'Normal Q(x)', vars:['x'], result:'Q',
+      run(v){ return normalQ(v.x); }},
+    {no:'06', name:'Coulomb', vars:['Q','q','r'], result:'F',
+      run(v){ const {Q,q,r}=v; if(r<=0) throw 0; const eps0=8.854187817e-12; return (Q*q)/(4*Math.PI*eps0*r*r); }},
+    {no:'07', name:'Resistance', vars:['ρ','ℓ','S'], result:'R',
+      run(v){ const R=v['ρ'], L=v['ℓ'], S=v.S; if(S<=0||L<=0||R<=0) throw 0; return R*L/S; }},
+    {no:'08', name:'MagneticForce', vars:['B','I','ℓ','θ'], result:'F',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; return v.B*v.I*L*Math.sin(th); }},
+    {no:'09', name:'RC VR', vars:['V','C','R','t'], result:'VR',
+      run(v){ const {V,C,R,t}=v; if(C<=0||R<=0||t<=0) throw 0; return V*Math.exp(-t/(C*R)); }},
+    {no:'10', name:'VoltageGain', vars:["E'","E"], result:'G',
+      run(v){ const Ep=v["E'"], E=v.E; if(!(Ep/E>0)) throw 0; return 20*Math.log10(Ep/E); }},
+    {no:'11', name:'LRC series Z', vars:['R','f','L','C'], result:'Z',
+      run(v){ const {R,f,L,C}=v; if(R<=0||f<=0||L<=0||C<=0) throw 0; const x=2*Math.PI*f*L - 1/(2*Math.PI*f*C); return Math.sqrt(R*R+x*x); }},
+    {no:'12', name:'LRC parallel Z', vars:['R','f','L','C'], result:'Z',
+      run(v){ const {R,f,L,C}=v; if(R<=0||f<=0||L<=0||C<=0) throw 0; const x=2*Math.PI*f*C - 1/(2*Math.PI*f*L); return 1/Math.sqrt(1/(R*R)+x*x); }},
+    {no:'13', name:'Oscillation f1', vars:['L','C'], result:'f1',
+      run(v){ const {L,C}=v; if(L<=0||C<=0) throw 0; return 1/(2*Math.PI*Math.sqrt(L*C)); }},
+    {no:'14', name:'Drop distance', vars:['v1','t'], result:'S',
+      run(v){ const {v1,t}=v; if(t<=0) throw 0; return v1*t + 0.5*9.80665*t*t; }},
+    {no:'15', name:'Simple pendulum', vars:['ℓ'], result:'T',
+      run(v){ const L=v['ℓ']; if(L<=0) throw 0; return 2*Math.PI*Math.sqrt(L/9.80665); }},
+    {no:'16', name:'Spring pendulum', vars:['m','k'], result:'T',
+      run(v){ const {m,k}=v; if(m<=0||k<=0) throw 0; return 2*Math.PI*Math.sqrt(m/k); }},
+    {no:'17', name:'Doppler', vars:['f1','v','v1','u'], result:'f',
+      run(v){ const {f1,v:vv,v1,u}=v; if(f1<=0||vv===v1) throw 0; const r=(vv-u)/(vv-v1); if(r<=0) throw 0; return f1*r; }},
+    {no:'18', name:'Ideal gas', vars:['n','T','V'], result:'P',
+      run(v){ const {n,T,V}=v; if(n<=0||T<=0||V<=0) throw 0; return n*8.314472*T/V; }},
+    {no:'19', name:'Centrifugal', vars:['m','v','r'], result:'F',
+      run(v){ const {m,v:vv,r}=v; if(m<=0||vv<=0||r<=0) throw 0; return m*vv*vv/r; }},
+    {no:'20', name:'Elastic U', vars:['K','x'], result:'U',
+      run(v){ const {K,x}=v; if(K<=0||x<=0) throw 0; return 0.5*K*x*x; }},
+    {no:'21', name:'Bernoulli', vars:['v','z','ρ','P'], result:'C',
+      run(v){ const {v:vv,z}=v; const rho=v['ρ'], P=v.P; if(vv<=0||z<=0||rho<=0||P<=0) throw 0; return 0.5*vv*vv + 9.80665*z + P/rho; }},
+    {no:'22', name:'Stadia height', vars:['ℓ','θ'], result:'h',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; const K=100, C=0; return K*L*Math.sin(2*th)/2 + C*Math.sin(th); }},
+    {no:'23', name:'Stadia distance', vars:['ℓ','θ'], result:'S',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; const K=100, C=0; return K*L*Math.cos(th)*Math.cos(th) + C*Math.cos(th); }}
+  ];
+  let formulas = BUILTIN_FMLA;
   let fmlaIdx=0;
+  let fmlaPhase=null;
+  let fmlaVarI=0;
+  let fmlaVals={};
+  let fmlaNoBuf='';
+  let constPage=0;
+
+  function erfApprox(x){
+    const sign=x<0?-1:1; x=Math.abs(x);
+    const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+    const t=1/(1+p*x);
+    const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+    return sign*y;
+  }
+  function normalP(x){
+    if(x<0) return 1-normalP(-x);
+    return 0.5*(1+erfApprox(x/Math.SQRT2));
+  }
+  function normalQ(x){ return Math.abs(normalP(Math.abs(x))-0.5); }
+
   let statX=[]; // basic 1-var stats
   let calcMode='comp'; // comp|cmplx|base|sd|reg|prgm
+  let dispFmt='norm';
+  let fixDigits=3, sciDigits=5, normMode=1;
+  let cmplxFmt='rect';
+  let freqOn=true;
+  let setupPage=1;
+  let setupAwait=null;
   let baseRadix=10; // 10|16|2|8
   let modePage=1; // MODE menu page 1|2
   let lastCmplx={re:0, im:0};
@@ -538,11 +663,21 @@ a.home:hover{background:#fff}
 
   function fmtNum(v){
     if(v==null || !Number.isFinite(v)) return 'Math ERROR';
-    if(engSteps!==0 || needsEng(v)) return fmtEng(v, engSteps);
+    if(engSteps!==0) return fmtEng(v, engSteps);
+    if(typeof dispFmt!=='undefined' && dispFmt==='fix'){
+      return v.toFixed(fixDigits);
+    }
+    if(typeof dispFmt!=='undefined' && dispFmt==='sci'){
+      return v.toExponential(Math.max(0,sciDigits-1)).replace(/e/,'×10');
+    }
+    const a=Math.abs(v);
+    const lo = (typeof normMode!=='undefined' && normMode===1) ? 1e-2 : 1e-9;
+    if(a!==0 && (a>=1e10 || a<lo)) return fmtEng(v,0);
     let s=String(+parseFloat(Number(v).toPrecision(12)));
     if(!/[eE.]/.test(s)) s+='.';
     return s;
   }
+
   function needsEng(v){
     const a=Math.abs(v);
     return a!==0 && (a>=1e10 || a<1e-9);
@@ -945,9 +1080,9 @@ a.home:hover{background:#fff}
     commitValue(v);
   }
 
-  function hidePanel(){
+  function hidePanel(keepUi){
     if(panel) panel.hidden=true;
-    uiMode='calc';
+    if(!keepUi) uiMode='calc';
   }
   function showPanel(title, html){
     if(!panel){ toast(title); return; }
@@ -958,9 +1093,13 @@ a.home:hover{background:#fff}
 
   function openConst(){
     uiMode='const';
-    showPanel('CONST 物理常數', CONSTS.map((c,i)=>
-      `<button type="button" class="pbtn" data-ci="${i}">${c.name}</button>`
-    ).join(''));
+    const start=constPage*4;
+    const slice=CONSTS.slice(start, start+4);
+    const html = `<div class="meta">CONST 第 ${constPage+1}/${CONST_PAGES} 頁　◀▶ 翻頁　1–4 選取（SHIFT 7）</div>` +
+      slice.map((c,i)=>`<button type="button" class="pbtn" data-ci="${start+i}">${i+1}: ${c.sym} — ${c.name}</button>`).join('') +
+      `<button type="button" class="pbtn" data-cpage="-1">◀ 上一頁</button><button type="button" class="pbtn" data-cpage="1">下一頁 ▶</button>`;
+    showPanel('CONST 科學常數', html);
+    toast('CONST');
   }
   function openClr(){
     uiMode='clr';
@@ -973,21 +1112,80 @@ a.home:hover{background:#fff}
   }
   function openFmla(){
     uiMode='fmla';
-    showPanel('FMLA 公式', formulas.map((f,i)=>
-      `<button type="button" class="pbtn" data-fi="${i}"><b>${f.name}</b> ${escapeHtml(f.expr)}</button>`
-    ).join('')+`<button type="button" class="pbtn" data-fsave="1">將目前算式存入 F${fmlaIdx+1}</button>`);
+    fmlaPhase='pick';
+    fmlaVarI=0; fmlaVals={}; fmlaNoBuf='';
+    line=''; cursor=0; fresh=false;
+    disp.classList.remove('fmla-res');
+    expr.textContent='Formula No.?';
+    disp.textContent=(fmlaIdx+1).toString().padStart(2,'0')+':'+BUILTIN_FMLA[fmlaIdx].name.slice(0,10);
+    hidePanel(true);
+    toast('FMLA：輸入 01–23 或 ▲▼ 然後 EXE');
+    setInd();
   }
+
+  function showFmlaPick(){
+    const f=BUILTIN_FMLA[fmlaIdx];
+    expr.textContent='Formula No.?';
+    disp.textContent=f.no+':'+f.name.slice(0,12);
+  }
+
+  function startFmlaVars(){
+    fmlaPhase='vars'; fmlaVarI=0; fmlaVals={};
+    promptFmlaVar();
+  }
+
+  function promptFmlaVar(){
+    const f=BUILTIN_FMLA[fmlaIdx];
+    const vn=f.vars[fmlaVarI];
+    expr.textContent=f.no+':'+f.name;
+    line=''; cursor=0; fresh=false;
+    const prev = fmlaVals[vn];
+    disp.textContent = vn+'?'+(prev!=null?' '+fmtNum(prev):'');
+    result = disp.textContent;
+  }
+
+  function acceptFmlaVar(){
+    const f=BUILTIN_FMLA[fmlaIdx];
+    const vn=f.vars[fmlaVarI];
+    let v;
+    try{
+      if(line.trim()===''){
+        if(fmlaVals[vn]!=null) v=fmlaVals[vn];
+        else v=0;
+      } else v=parseEval(line.trim());
+    }catch(e){ result='Math ERROR'; disp.textContent=result; return; }
+    if(!Number.isFinite(v)){ result='Math ERROR'; disp.textContent=result; return; }
+    fmlaVals[vn]=v;
+    fmlaVarI++;
+    if(fmlaVarI>=f.vars.length){
+      try{
+        const out=f.run(fmlaVals);
+        fmlaPhase='result';
+        let shown;
+        if(f.fmt) shown=f.fmt(out);
+        else shown = f.result+'='+fmtNum(out);
+        ans = Array.isArray(out)?out[0]:out;
+        result=shown; disp.textContent=shown; disp.classList.add('fmla-res');
+        expr.textContent=f.no+':'+f.name;
+        line=''; cursor=0; fresh=true;
+        toast(shown);
+      }catch(e){
+        result='Math ERROR'; disp.textContent=result; fmlaPhase='result';
+      }
+    } else promptFmlaVar();
+  }
+
   function openProg(){
     uiMode='prog';
-    const p=programs[progIdx]||programs[0];
-    showPanel('Prog '+p.name+(progEdit?' [編輯]':''), 
-      programs.map((pp,i)=>`<button type="button" class="pbtn" data-pi="${i}">${pp.name} (${(pp.steps||[]).length}步)</button>`).join('')+
-      `<button type="button" class="pbtn" data-prun="1">RUN 執行 ${p.name}</button>`+
-      `<button type="button" class="pbtn" data-pedit="1">${progEdit?'完成編輯':'開始編輯（按鍵錄入）'}</button>`+
-      `<button type="button" class="pbtn" data-pcl="1">清空 ${p.name}</button>`+
-      `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`+
-      `<div class="psteps">${(p.steps||[]).map(s=>'<code>'+escapeHtml(s)+'</code>').join(' ')||'<i>無步驟</i>'}</div>`
-    );
+    const memLeft = 680 - programs.reduce((a,p)=>a+((p.src||(p.steps||[]).join(',')).length),0);
+    const html = `<div class="meta">PRGM　剩餘約 ${Math.max(0,memLeft)} bytes　P1–P4</div>` +
+      programs.map((p,i)=>`<button type="button" class="pbtn${i===progIdx?' cur':''}" data-pi="${i}">P${i+1} ${(p.src||(p.steps||[]).length)?'●':'○'} ${(p.src||'').slice(0,28)||('(keys '+((p.steps||[]).length)+')')}</button>`).join('') +
+      `<button type="button" class="pbtn" data-pedit="1">EDIT／錄製 → P${progIdx+1}</button>` +
+      `<button type="button" class="pbtn" data-prun="1">RUN P${progIdx+1}</button>` +
+      `<button type="button" class="pbtn" data-pcl="1">DEL／清空 P${progIdx+1}</button>` +
+      `<div class="psteps">指令子集：? → : ^　以及按鍵巨集（localStorage）</div>` +
+      `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
+    showPanel('Prog P1–P4', html);
   }
 
 
@@ -1017,18 +1215,34 @@ a.home:hover{background:#fff}
   }
   function openSetup(){
     uiMode='setup';
-    const cur=angLetter();
-    showPanel('SETUP 設定', [
-      `<div class="meta">目前角度：<b>${cur}</b>　模式：<b>${modeLabel()}</b></div>`,
-      `<button type="button" class="pbtn${ang==='deg'?' cur':''}" data-setup="deg">1:Deg 度</button>`,
-      `<button type="button" class="pbtn${ang==='rad'?' cur':''}" data-setup="rad">2:Rad 弧度</button>`,
-      `<button type="button" class="pbtn${ang==='gra'?' cur':''}" data-setup="gra">3:Gra 百分度</button>`,
-      `<button type="button" class="pbtn" data-setup="fix">4:Fix（課堂 stub）</button>`,
-      `<button type="button" class="pbtn" data-setup="sci">5:Sci（課堂 stub）</button>`,
-      `<button type="button" class="pbtn" data-setup="norm">6:Norm（課堂 stub）</button>`,
-      `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`
-    ].join(''));
-    toast('SETUP：選角度');
+    setupPage = setupPage||1;
+    let html=`<div class="meta">SETUP 第 ${setupPage}/3 頁　◀▶ 翻頁</div>`;
+    if(setupPage===1){
+      html += [
+        `<button type="button" class="pbtn${ang==='deg'?' cur':''}" data-setup="deg">1:Deg</button>`,
+        `<button type="button" class="pbtn${ang==='rad'?' cur':''}" data-setup="rad">2:Rad</button>`,
+        `<button type="button" class="pbtn${ang==='gra'?' cur':''}" data-setup="gra">3:Gra</button>`,
+      ].join('');
+    } else if(setupPage===2){
+      html += [
+        `<button type="button" class="pbtn${dispFmt==='fix'?' cur':''}" data-setup="fix">1:Fix</button>`,
+        `<button type="button" class="pbtn${dispFmt==='sci'?' cur':''}" data-setup="sci">2:Sci</button>`,
+        `<button type="button" class="pbtn${dispFmt==='norm'?' cur':''}" data-setup="norm">3:Norm</button>`,
+      ].join('');
+    } else {
+      html += [
+        `<button type="button" class="pbtn${fracForm==='mixed'?' cur':''}" data-setup="abc">1:ab/c</button>`,
+        `<button type="button" class="pbtn${fracForm==='improper'?' cur':''}" data-setup="dc">2:d/c</button>`,
+        `<button type="button" class="pbtn${cmplxFmt==='rect'?' cur':''}" data-setup="abi">3:a+bi</button>`,
+        `<button type="button" class="pbtn${cmplxFmt==='polar'?' cur':''}" data-setup="rth">4:r∠θ</button>`,
+        `<button type="button" class="pbtn${freqOn?' cur':''}" data-setup="freqon">5:FreqOn</button>`,
+        `<button type="button" class="pbtn${!freqOn?' cur':''}" data-setup="freqoff">6:FreqOff</button>`,
+        `<button type="button" class="pbtn" data-setup="contrast">7:Contrast</button>`,
+      ].join('');
+    }
+    html += `<button type="button" class="pbtn" data-setup="flip">翻頁</button>`;
+    showPanel('SETUP', html);
+    toast('SETUP');
   }
   function selectCalcMode(m){
     calcMode=m;
@@ -1055,18 +1269,20 @@ a.home:hover{background:#fff}
     hidePanel();
     update();
   }
-  function applySetup(key){
-    if(key==='deg'||key==='rad'||key==='gra'){
-      ang=key;
-      toast(ang.toUpperCase());
-      hidePanel();
-      update();
-      return;
-    }
-    if(key==='fix'||key==='sci'||key==='norm'){
-      toast(key.toUpperCase()+'（課堂暫未實作顯示位）');
-      return;
-    }
+  function applySetup(k){
+    if(k==='flip' || k==='page'){ setupPage = setupPage%3+1; openSetup(); return; }
+    if(k==='deg'||k==='rad'||k==='gra'){ ang=k; toast(ang.toUpperCase()); hidePanel(); update(); return; }
+    if(k==='fix'){ dispFmt='fix'; setupAwait='fix'; toast('Fix：再按 0–9'); openSetup(); return; }
+    if(k==='sci'){ dispFmt='sci'; setupAwait='sci'; toast('Sci：再按 1–0'); openSetup(); return; }
+    if(k==='norm'){ dispFmt='norm'; normMode = normMode===1?2:1; toast('Norm'+normMode); hidePanel(); update(); return; }
+    if(k==='abc'){ fracForm='mixed'; toast('ab/c'); hidePanel(); update(); return; }
+    if(k==='dc'){ fracForm='improper'; toast('d/c'); hidePanel(); update(); return; }
+    if(k==='abi'){ cmplxFmt='rect'; toast('a+bi'); hidePanel(); update(); return; }
+    if(k==='rth'){ cmplxFmt='polar'; toast('r∠θ'); hidePanel(); update(); return; }
+    if(k==='freqon'){ freqOn=true; toast('FreqOn'); hidePanel(); return; }
+    if(k==='freqoff'){ freqOn=false; toast('FreqOff'); hidePanel(); return; }
+    if(k==='contrast'){ toast('Contrast：課堂 stub'); return; }
+    hidePanel(); update();
   }
   function setBaseRadix(r){
     if(calcMode!=='base'){ toast('請先 MODE→BASE'); return false; }
@@ -1272,7 +1488,73 @@ a.home:hover{background:#fff}
       if(shift){ shift=false; /* EXIT */ hidePanel(); update(); return; }
       openProg(); return;
     }
+
     if(lab==='FMLA'){ openFmla(); return; }
+    if(uiMode==='fmla'){
+      if(lab==='AC'||lab==='ON'){ disp.classList.remove('fmla-res'); fmlaPhase=null; hidePanel(); clearAll(); return; }
+      if(lab==='UP'){ if(fmlaPhase==='pick'){ fmlaIdx=(fmlaIdx+BUILTIN_FMLA.length-1)%BUILTIN_FMLA.length; showFmlaPick(); } return; }
+      if(lab==='DOWN'){ if(fmlaPhase==='pick'){ fmlaIdx=(fmlaIdx+1)%BUILTIN_FMLA.length; showFmlaPick(); } return; }
+      if(fmlaPhase==='pick'){
+        if(/^[0-9]$/.test(lab)){
+          fmlaNoBuf=(fmlaNoBuf+lab).slice(-2);
+          expr.textContent='Formula No.?';
+          disp.textContent=fmlaNoBuf;
+          if(fmlaNoBuf.length===2){
+            const n=parseInt(fmlaNoBuf,10);
+            if(n>=1&&n<=23){ fmlaIdx=n-1; startFmlaVars(); }
+            else { result='Math ERROR'; disp.textContent=result; fmlaNoBuf=''; }
+          }
+          return;
+        }
+        if(lab==='EXE'){ startFmlaVars(); return; }
+        return;
+      }
+      if(fmlaPhase==='vars'){
+        if(lab==='EXE'){ acceptFmlaVar(); return; }
+        if(lab==='DEL'){
+          if(cursor>0){ line=line.slice(0,cursor-1)+line.slice(cursor); cursor--; }
+          disp.textContent=BUILTIN_FMLA[fmlaIdx].vars[fmlaVarI]+'? '+line; return;
+        }
+        if(/^[0-9]$/.test(lab) || lab==='.' || lab==='(-)' || lab==='EXP'){
+          const ch = lab==='(-)'?'-':lab==='EXP'?'e':lab;
+          if(fresh){line='';cursor=0;fresh=false;}
+          insertText(ch);
+          disp.textContent=BUILTIN_FMLA[fmlaIdx].vars[fmlaVarI]+'? '+line; return;
+        }
+        if(['+','−','×','÷'].includes(lab)){
+          const sym={'+':'+','−':'-','×':'*','÷':'/'}[lab];
+          insertText(sym); disp.textContent=BUILTIN_FMLA[fmlaIdx].vars[fmlaVarI]+'? '+line; return;
+        }
+        return;
+      }
+      if(fmlaPhase==='result'){
+        if(lab==='EXE'){ startFmlaVars(); return; }
+        if(lab==='AC'){ disp.classList.remove('fmla-res'); fmlaPhase=null; hidePanel(); clearAll(); return; }
+        return;
+      }
+    }
+    if(uiMode==='const'){
+      if(lab==='LEFT'||lab==='UP'){ constPage=(constPage+CONST_PAGES-1)%CONST_PAGES; openConst(); return; }
+      if(lab==='RIGHT'||lab==='DOWN'){ constPage=(constPage+1)%CONST_PAGES; openConst(); return; }
+      if(/^[1-4]$/.test(lab)){
+        const idx=constPage*4+(+lab-1);
+        if(idx<CONSTS.length){
+          const c=CONSTS[idx];
+          hidePanel();
+          if(fresh){line='';cursor=0;fresh=false;}
+          insertText(String(+parseFloat(c.v.toPrecision(12))));
+          toast(c.sym); update();
+        }
+        return;
+      }
+      if(lab==='AC'){ hidePanel(); update(); return; }
+    }
+    if(uiMode==='setup' && setupAwait && /^[0-9]$/.test(lab)){
+      if(setupAwait==='fix'){ fixDigits=+lab; dispFmt='fix'; toast('Fix '+fixDigits); }
+      if(setupAwait==='sci'){ sciDigits = lab==='0'?10:+lab; dispFmt='sci'; toast('Sci '+sciDigits); }
+      setupAwait=null; hidePanel(); update(); return;
+    }
+
 
     // MODE / SETUP menus consume digits and REPLAY
     if(uiMode==='mode'){
@@ -1288,12 +1570,14 @@ a.home:hover{background:#fff}
       return;
     }
     if(uiMode==='setup'){
-      if(lab==='1'){ applySetup('deg'); return; }
-      if(lab==='2'){ applySetup('rad'); return; }
-      if(lab==='3'){ applySetup('gra'); return; }
-      if(lab==='4'){ applySetup('fix'); return; }
-      if(lab==='5'){ applySetup('sci'); return; }
-      if(lab==='6'){ applySetup('norm'); return; }
+      if(lab==='LEFT'||lab==='RIGHT'||lab==='UP'||lab==='DOWN'||lab==='MODE'){ setupPage=setupPage%3+1; openSetup(); return; }
+      if(/^[1-7]$/.test(lab)){
+        const map1={1:'deg',2:'rad',3:'gra'};
+        const map2={1:'fix',2:'sci',3:'norm'};
+        const map3={1:'abc',2:'dc',3:'abi',4:'rth',5:'freqon',6:'freqoff',7:'contrast'};
+        const map=setupPage===1?map1:setupPage===2?map2:map3;
+        if(map[lab]){ applySetup(map[lab]); return; }
+      }
       if(lab==='EXE'||lab==='AC'||lab==='ON'){ hidePanel(); update(); return; }
       return;
     }
@@ -1510,7 +1794,7 @@ a.home:hover{background:#fff}
   // Panel clicks
   if(panel){
     panel.addEventListener('click', e=>{
-      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-fsave],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv]');
+      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-cpage],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv]');
       if(!t) return;
       if(t.dataset.mode){ selectCalcMode(t.dataset.mode); return; }
       if(t.dataset.modepage){ modePage=modePage===1?2:1; openModeMenu(); return; }
@@ -1529,7 +1813,10 @@ a.home:hover{background:#fff}
         hidePanel();
         if(fresh){line='';cursor=0;fresh=false;}
         const s=String(+parseFloat(c.v.toPrecision(12)));
-        insertText(s); result=s; update(); return;
+        insertText(s); result=s; toast(c.sym); update(); return;
+      }
+      if(t.dataset.cpage!=null){
+        const d=+t.dataset.cpage; constPage=(constPage+d+CONST_PAGES)%CONST_PAGES; openConst(); return;
       }
       if(t.dataset.clr){
         if(t.dataset.clr==='mem' || t.dataset.clr==='all'){ vars={A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0}; }
@@ -1538,15 +1825,7 @@ a.home:hover{background:#fff}
         toast('已清除'); hidePanel(); update(); return;
       }
       if(t.dataset.fi!=null){
-        fmlaIdx=+t.dataset.fi;
-        const f=formulas[fmlaIdx];
-        hidePanel();
-        line=f.expr; cursor=line.length; fresh=false;
-        toast('公式 '+f.name+'：填變數後 EXE'); update(); return;
-      }
-      if(t.dataset.fsave){
-        formulas[fmlaIdx]={name:'F'+(fmlaIdx+1), expr: line||String(ans)};
-        saveJSON(LS_FMLA, formulas); toast('已存 '+formulas[fmlaIdx].name); openFmla(); return;
+        fmlaIdx=+t.dataset.fi; hidePanel(); openFmla(); startFmlaVars(); return;
       }
       if(t.dataset.pi!=null){ progIdx=+t.dataset.pi; openProg(); return; }
       if(t.dataset.prun){
@@ -1595,7 +1874,7 @@ a.home:hover{background:#fff}
   });
 
   // expose for tests
-  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;} };
+  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;}, get fmlaIdx(){return fmlaIdx;}, get fmlaPhase(){return fmlaPhase;}, get dispFmt(){return dispFmt;}, BUILTIN_FMLA, CONSTS };
   update();
 })();
 
