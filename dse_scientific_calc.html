@@ -86,7 +86,7 @@ a.home:hover{background:#fff}
 @keyframes blink{50%{opacity:0}}
 .lcd-top{display:flex;justify-content:space-between;align-items:flex-start;min-height:14px;font-size:10px;font-weight:800;letter-spacing:.5px}
 .lcd-flags{display:flex;gap:7px;opacity:.9}
-.lcd-flags span{opacity:.15}
+.lcd-flags span{opacity:0}
 .lcd-flags span.on{opacity:1}
 .lcd-d{
   font-size:10px;font-weight:900;border:1.5px solid #1a2a20;padding:0 3px;line-height:1.1;
@@ -214,6 +214,7 @@ a.home:hover{background:#fff}
 }
 
 .lcd-flags span#indHyp,.lcd-flags span#indM{opacity:.15}
+.lcd-flags span#indHyp,.lcd-flags span#indM{opacity:0}
 .lcd-flags span#indHyp.on,.lcd-flags span#indM.on{opacity:1}
 .lcd-flags span#indMode{opacity:1;font-size:8px;letter-spacing:0;margin-left:2px}
 .side-panel .meta{font-size:11px;color:#64748b;margin-bottom:8px;line-height:1.45}
@@ -284,7 +285,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
-    <span class="build-tag">P0 v3 · π／%／nPr／分數／溢位</span>
+    <span class="build-tag">P1 v1 · VPAM／Norm／CONST2010／LCD</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -433,7 +434,7 @@ a.home:hover{background:#fff}
     <div id="panelBody"></div>
   </div>
 
-  <p class="hint">P0 v3 · π／%／nPr／分數／溢位　｜　輸入同真機：先 sin 再數字再 EXE（前綴）　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
+  <p class="hint">P1 v1 · VPAM／Norm／CONST2010／LCD　｜　EXE 後上行保留表達式　｜　MODE／SETUP／CONST／CLR＝LCD 數字選單　｜　SHIFT+FMLA＝LOOK　｜　CMPLX 下 ENG＝i</p>
   <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方・非考試批准）。依說明書課堂重製：MODE／SETUP／FMLA／CONST；Prog＝按鍵巨集（≠ Casio BASIC）。BASE LOGIC／統計／複數為課堂可用子集。無 Casio／HKEAA 商標背書。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -463,48 +464,50 @@ a.home:hover{background:#fff}
   };
 
   const CONSTS=[
-    {sym:'mp', name:'Proton mass mp', v:1.67262171e-27},
-    {sym:'mn', name:'Neutron mass mn', v:1.67492728e-27},
-    {sym:'me', name:'Electron mass me', v:9.1093826e-31},
-    {sym:'mμ', name:'Muon mass mμ', v:1.8835314e-28},
-    {sym:'a0', name:'Bohr radius a0', v:5.291772108e-11},
-    {sym:'h', name:'Planck h', v:6.6260693e-34},
-    {sym:'μN', name:'Nuclear magneton μN', v:5.05078343e-27},
-    {sym:'μB', name:'Bohr magneton μB', v:9.27400949e-24},
-    {sym:'ħ', name:'ħ', v:1.05457168e-34},
-    {sym:'α', name:'Fine-structure α', v:7.297352568e-3},
-    {sym:'re', name:'Classical electron radius re', v:2.817940325e-15},
-    {sym:'λc', name:'Compton λc', v:2.426310238e-12},
-    {sym:'γp', name:'Proton gyromagnetic γp', v:2.67522205e8},
-    {sym:'λcp', name:'Proton Compton λcp', v:1.3214098555e-15},
-    {sym:'λcn', name:'Neutron Compton λcn', v:1.3195909067e-15},
-    {sym:'R∞', name:'Rydberg R∞', v:10973731.568525},
-    {sym:'u', name:'Atomic mass u', v:1.66053886e-27},
-    {sym:'μp', name:'Proton μp', v:1.41060671e-26},
-    {sym:'μe', name:'Electron μe', v:-9.28476412e-24},
-    {sym:'μn', name:'Neutron μn', v:-9.6623645e-27},
-    {sym:'μμ', name:'Muon μμ', v:-4.49044799e-26},
-    {sym:'F', name:'Faraday F', v:96485.3383},
-    {sym:'e', name:'Elementary charge e', v:1.60217653e-19},
-    {sym:'NA', name:'Avogadro NA', v:6.0221415e23},
-    {sym:'k', name:'Boltzmann k', v:1.3806505e-23},
-    {sym:'Vm', name:'Molar volume Vm', v:0.022413996},
-    {sym:'R', name:'Molar gas R', v:8.314472},
-    {sym:'c0', name:'Speed of light c0', v:299792458},
-    {sym:'c1', name:'1st radiation c1', v:3.74177138e-16},
-    {sym:'c2', name:'2nd radiation c2', v:1.4387752e-2},
-    {sym:'σ', name:'Stefan–Boltzmann σ', v:5.670400e-8},
+    {sym:'mp', name:'Proton mass mp', v:1.672621777e-27},
+    {sym:'mn', name:'Neutron mass mn', v:1.674927351e-27},
+    {sym:'me', name:'Electron mass me', v:9.10938291e-31},
+    {sym:'mμ', name:'Muon mass mμ', v:1.883531475e-28},
+    {sym:'a0', name:'Bohr radius a0', v:5.2917721092e-11},
+    {sym:'h', name:'Planck h', v:6.62606957e-34},
+    {sym:'μN', name:'Nuclear magneton μN', v:5.05078353e-27},
+    {sym:'μB', name:'Bohr magneton μB', v:9.27400968e-24},
+    {sym:'ħ', name:'ħ', v:1.054571726e-34},
+    {sym:'α', name:'Fine-structure α', v:0.0072973525698},
+    {sym:'re', name:'Classical electron radius re', v:2.8179403267e-15},
+    {sym:'λc', name:'Compton λc', v:2.4263102389e-12},
+    {sym:'γp', name:'Proton gyromagnetic γp', v:267522200.5},
+    {sym:'λcp', name:'Proton Compton λcp', v:1.32140985623e-15},
+    {sym:'λcn', name:'Neutron Compton λcn', v:1.3195909068e-15},
+    {sym:'R∞', name:'Rydberg R∞', v:10973731.568539},
+    {sym:'u', name:'Atomic mass u', v:1.660538921e-27},
+    {sym:'μp', name:'Proton μp', v:1.410606743e-26},
+    {sym:'μe', name:'Electron μe', v:-9.2847643e-24},
+    {sym:'μn', name:'Neutron μn', v:-9.6623647e-27},
+    {sym:'μμ', name:'Muon μμ', v:-4.49044807e-26},
+    {sym:'F', name:'Faraday F', v:96485.3365},
+    {sym:'eq', name:'Elementary charge e', v:1.602176565e-19},  // token eq (LCD); avoids clash with Euler e
+    {sym:'NA', name:'Avogadro NA', v:6.02214129e23},
+    {sym:'k', name:'Boltzmann k', v:1.3806488e-23},
+    {sym:'Vm', name:'Molar volume Vm', v:0.022413968},
+    {sym:'R', name:'Molar gas R', v:8.3144621},
+    {sym:'C0', name:'Speed of light C0', v:299792458},
+    {sym:'C1', name:'1st radiation C1', v:3.74177153e-16},
+    {sym:'C2', name:'2nd radiation C2', v:0.01438777},
+    {sym:'σ', name:'Stefan–Boltzmann σ', v:5.670373e-08},
     {sym:'ε0', name:'Electric constant ε0', v:8.854187817e-12},
-    {sym:'μ0', name:'Magnetic constant μ0', v:1.2566370614e-6},
-    {sym:'φ0', name:'Magnetic flux quantum φ0', v:2.06783372e-15},
+    {sym:'μ0', name:'Magnetic constant μ0', v:1.2566370614e-06},
+    {sym:'φ0', name:'Magnetic flux quantum φ0', v:2.067833758e-15},
     {sym:'g', name:'Standard gravity g', v:9.80665},
-    {sym:'G0', name:'Conductance quantum G0', v:7.748091733e-5},
+    {sym:'G0', name:'Conductance quantum G0', v:7.7480917346e-05},
     {sym:'Z0', name:'Vacuum impedance Z0', v:376.730313461},
     {sym:'t', name:'Celsius t', v:273.15},
-    {sym:'G', name:'Gravitation G', v:6.6742e-11},
+    {sym:'G', name:'Gravitation G', v:6.67384e-11},
     {sym:'atm', name:'Standard atmosphere atm', v:101325}
   ];
   const CONST_PAGES = 10;
+  const CONST_BY_SYM = Object.fromEntries(CONSTS.map(c=>[c.sym,c]));
+  const CONST_SYM_LIST = CONSTS.map(c=>c.sym).sort((a,b)=>b.length-a.length);
 
   let line='', cursor=0, insertMode=true;
   let result='0', pendingView='', ans=0;
@@ -526,52 +529,52 @@ a.home:hover{background:#fff}
   let progIdx=0, progEdit=false;
   // Built-in formulas 01–23 (fx-50FH manual E-58..E-61)
   const BUILTIN_FMLA = [
-    {no:'01', name:'Quadratic', vars:['a','b','c'], result:'x',
+    {no:'01', name:'Quadratic', vars:['a','b','c'], result:'x', look:'ax²+bx+c=0',
       run(v){ const {a,b,c}=v; const d=b*b-4*a*c; if(a===0||d<0) throw 0; const s=Math.sqrt(d); return [(-b+s)/(2*a), (-b-s)/(2*a)]; },
       fmt(r){ return 'x1='+fmtNum(r[0])+'  x2='+fmtNum(r[1]); }},
-    {no:'02', name:'CosineThm', vars:['b','c','θ'], result:'a',
+    {no:'02', name:'CosineThm', vars:['b','c','θ'], result:'a', look:'a=√(b²+c²-2bc cosθ)',
       run(v){ const {b,c}=v; const th=toRad(v['θ']); if(b<=0||c<=0) throw 0; return Math.sqrt(b*b+c*c-2*b*c*Math.cos(th)); }},
-    {no:'03', name:'HeronFormula', vars:['a','b','c'], result:'S',
+    {no:'03', name:'HeronFormula', vars:['a','b','c'], result:'S', look:'S=√(s(s-a)(s-b)(s-c))',
       run(v){ const {a,b,c}=v; if(!(a+b>c&&b+c>a&&c+a>b)||a<=0||b<=0||c<=0) throw 0; const s=(a+b+c)/2; return Math.sqrt(s*(s-a)*(s-b)*(s-c)); }},
-    {no:'04', name:'Normal P(x)', vars:['x'], result:'P',
+    {no:'04', name:'Normal P(x)', vars:['x'], result:'P', look:'P(x)=∫e^(-t²/2)dt/√(2π)',
       run(v){ return normalP(v.x); }},
-    {no:'05', name:'Normal Q(x)', vars:['x'], result:'Q',
+    {no:'05', name:'Normal Q(x)', vars:['x'], result:'Q', look:'Q(x)=∫0..|x| e^(-t²/2)dt/√(2π)',
       run(v){ return normalQ(v.x); }},
-    {no:'06', name:'Coulomb', vars:['Q','q','r'], result:'F',
+    {no:'06', name:'Coulomb', vars:['Q','q','r'], result:'F', look:'F=Qq/(4πε0r²)',
       run(v){ const {Q,q,r}=v; if(r<=0) throw 0; const eps0=8.854187817e-12; return (Q*q)/(4*Math.PI*eps0*r*r); }},
-    {no:'07', name:'Resistance', vars:['ρ','ℓ','S'], result:'R',
+    {no:'07', name:'Resistance', vars:['ρ','ℓ','S'], result:'R', look:'R=ρℓ/S',
       run(v){ const R=v['ρ'], L=v['ℓ'], S=v.S; if(S<=0||L<=0||R<=0) throw 0; return R*L/S; }},
-    {no:'08', name:'MagneticForce', vars:['I','B','ℓ','θ'], result:'F',
+    {no:'08', name:'MagneticForce', vars:['I','B','ℓ','θ'], result:'F', look:'F=IBℓsinθ',
       run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; return v.I*v.B*L*Math.sin(th); }},
-    {no:'09', name:'RC VR', vars:['V','C','R','t'], result:'VR',
+    {no:'09', name:'RC VR', vars:['V','C','R','t'], result:'VR', look:'VR=V·e^(-t/CR)',
       run(v){ const {V,C,R,t}=v; if(C<=0||R<=0||t<=0) throw 0; return V*Math.exp(-t/(C*R)); }},
-    {no:'10', name:'VoltageGain', vars:["E'","E"], result:'G',
+    {no:'10', name:'VoltageGain', vars:['E',"E'"], result:'G', look:"G=20log10(E'/E)",
       run(v){ const Ep=v["E'"], E=v.E; if(!(Ep/E>0)) throw 0; return 20*Math.log10(Ep/E); }},
-    {no:'11', name:'LRC series Z', vars:['R','f','L','C'], result:'Z',
+    {no:'11', name:'LRC series Z', vars:['R','f','L','C'], result:'Z', look:'Z=√(R²+(2πfL-1/2πfC)²)',
       run(v){ const {R,f,L,C}=v; if(R<=0||f<=0||L<=0||C<=0) throw 0; const x=2*Math.PI*f*L - 1/(2*Math.PI*f*C); return Math.sqrt(R*R+x*x); }},
-    {no:'12', name:'LRC parallel Z', vars:['R','f','L','C'], result:'Z',
+    {no:'12', name:'LRC parallel Z', vars:['R','f','L','C'], result:'Z', look:'Z=1/√(1/R²+(2πfC-1/2πfL)²)',
       run(v){ const {R,f,L,C}=v; if(R<=0||f<=0||L<=0||C<=0) throw 0; const x=2*Math.PI*f*C - 1/(2*Math.PI*f*L); return 1/Math.sqrt(1/(R*R)+x*x); }},
-    {no:'13', name:'Oscillation f1', vars:['L','C'], result:'f1',
+    {no:'13', name:'Oscillation f1', vars:['L','C'], result:'f1', look:'f1=1/(2π√(LC))',
       run(v){ const {L,C}=v; if(L<=0||C<=0) throw 0; return 1/(2*Math.PI*Math.sqrt(L*C)); }},
-    {no:'14', name:'Drop distance', vars:['v1','t'], result:'S',
-      run(v){ const {v1,t}=v; if(t<=0) throw 0; return v1*t + 0.5*9.80665*t*t; }},
-    {no:'15', name:'Simple pendulum', vars:['ℓ'], result:'T',
+    {no:'14', name:'Drop distance', vars:['v','t'], result:'S', look:'S=v1t+gt²/2',
+      run(v){ const vv=v.v, t=v.t; if(t<=0) throw 0; return vv*t + 0.5*9.80665*t*t; }},
+    {no:'15', name:'Simple pendulum', vars:['ℓ'], result:'T', look:'T=2π√(ℓ/g)',
       run(v){ const L=v['ℓ']; if(L<=0) throw 0; return 2*Math.PI*Math.sqrt(L/9.80665); }},
-    {no:'16', name:'Spring pendulum', vars:['m','k'], result:'T',
+    {no:'16', name:'Spring pendulum', vars:['m','k'], result:'T', look:'T=2π√(m/k)',
       run(v){ const {m,k}=v; if(m<=0||k<=0) throw 0; return 2*Math.PI*Math.sqrt(m/k); }},
-    {no:'17', name:'Doppler', vars:['f1','v','v1','u'], result:'f',
-      run(v){ const {f1,v:vv,v1,u}=v; if(f1<=0||vv===v1) throw 0; const r=(vv-u)/(vv-v1); if(r<=0) throw 0; return f1*r; }},
-    {no:'18', name:'Ideal gas', vars:['n','T','V'], result:'P',
+    {no:'17', name:'Doppler', vars:['f','v','u','v1'], result:'f', look:'f=f1(v-u)/(v-v1)',
+      run(v){ const f1=v.f, vv=v.v, v1=v.v1, u=v.u; if(f1<=0||vv===v1) throw 0; const r=(vv-u)/(vv-v1); if(r<=0) throw 0; return f1*r; }},
+    {no:'18', name:'Ideal gas', vars:['n','T','V'], result:'P', look:'P=nRT/V',
       run(v){ const {n,T,V}=v; if(n<=0||T<=0||V<=0) throw 0; return n*8.314472*T/V; }},
-    {no:'19', name:'Centrifugal', vars:['m','v','r'], result:'F',
+    {no:'19', name:'Centrifugal', vars:['m','v','r'], result:'F', look:'F=mv²/r',
       run(v){ const {m,v:vv,r}=v; if(m<=0||vv<=0||r<=0) throw 0; return m*vv*vv/r; }},
-    {no:'20', name:'Elastic U', vars:['K','x'], result:'U',
+    {no:'20', name:'Elastic U', vars:['K','x'], result:'U', look:'U=Kx²/2',
       run(v){ const {K,x}=v; if(K<=0||x<=0) throw 0; return 0.5*K*x*x; }},
-    {no:'21', name:'Bernoulli', vars:['v','z','ρ','P'], result:'C',
+    {no:'21', name:'Bernoulli', vars:['v','z','ρ','P'], result:'C', look:'C=v²/2+P/ρ+gz',
       run(v){ const {v:vv,z}=v; const rho=v['ρ'], P=v.P; if(vv<=0||z<=0||rho<=0||P<=0) throw 0; return 0.5*vv*vv + 9.80665*z + P/rho; }},
-    {no:'22', name:'Stadia height', vars:['K','C','ℓ','θ'], result:'h',
+    {no:'22', name:'Stadia height', vars:['K','C','ℓ','θ'], result:'h', look:'h=Kℓsin2θ/2+Csinθ',
       run(v){ const L=v['ℓ'], th=toRad(v['θ']), K=v.K, C=v.C; if(L<=0) throw 0; return K*L*Math.sin(2*th)/2 + C*Math.sin(th); }},
-    {no:'23', name:'Stadia distance', vars:['K','C','ℓ','θ'], result:'S',
+    {no:'23', name:'Stadia distance', vars:['K','C','ℓ','θ'], result:'S', look:'S=Kℓcos²θ+Ccosθ',
       run(v){ const L=v['ℓ'], th=toRad(v['θ']), K=v.K, C=v.C; if(L<=0) throw 0; return K*L*Math.cos(th)*Math.cos(th) + C*Math.cos(th); }}
   ];
   let formulas = BUILTIN_FMLA;
@@ -589,11 +592,26 @@ a.home:hover{background:#fff}
     const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
     return sign*y;
   }
-  function normalP(x){
-    if(x<0) return 1-normalP(-x);
-    return 0.5*(1+erfApprox(x/Math.SQRT2));
+  // fx-50FH II / CalcX calibrated Hastings model (classroom), 5-digit result
+  function normalProbability(x, centered){
+    if(x===0) return centered?0:0.5;
+    const ax=Math.abs(x);
+    const b=[0.319381503,-0.356563782,1.78147937,-1.821255978,1.330274429];
+    const t=1/(1+0.2316419*ax);
+    let sum=0, power=t;
+    for(const c of b){ sum+=c*power; power*=t; }
+    const z=Math.exp(-(ax*ax)/2)/Math.sqrt(2*Math.PI);
+    const result=(centered?0.5:1)-z*sum;
+    return Number(Math.max(0, result).toPrecision(5));
   }
-  function normalQ(x){ return Math.abs(normalP(Math.abs(x))-0.5); }
+  function normalP(x){
+    if(x<0) raise('Arg');
+    return normalProbability(x, false);
+  }
+  function normalQ(x){
+    if(x<0) raise('Arg');
+    return normalProbability(x, true);
+  }
 
   let statX=[]; // basic 1-var stats
   let calcMode='comp'; // comp|cmplx|base|sd|reg|prgm
@@ -608,6 +626,8 @@ a.home:hover{background:#fff}
   let lastCmplx={re:0, im:0};
   let showIm=false; // Re⇔Im display toggle in CMPLX
   let statXY=[]; // REG pairs {x,y}
+  let errorAt=null; // P1: char index of Syntax/Arg/Math ERROR
+  let fmlaLook=false; // P1: SHIFT+FMLA LOOK expression
 
   function loadJSON(k, def){
     try{ const s=localStorage.getItem(k); if(!s) return def; const v=JSON.parse(s); return Array.isArray(v)?v:def; }catch(e){ return def; }
@@ -636,6 +656,21 @@ a.home:hover{background:#fff}
       return true;
     }
     if(uiMode==='setup'){
+      if(setupAwait==='norm'){
+        expr.textContent='Norm';
+        disp.textContent='1:Norm1  2:Norm2';
+        return true;
+      }
+      if(setupAwait==='fix'){
+        expr.textContent='Fix';
+        disp.textContent='0–9 ?';
+        return true;
+      }
+      if(setupAwait==='sci'){
+        expr.textContent='Sci';
+        disp.textContent='1–0 ?';
+        return true;
+      }
       expr.textContent = 'SETUP '+setupPage+'/3';
       if(setupPage===1) disp.textContent='1:Deg  2:Rad  3:Gra';
       else if(setupPage===2) disp.textContent='1:Fix  2:Sci  3:Norm';
@@ -645,6 +680,23 @@ a.home:hover{background:#fff}
     if(uiMode==='basepick'){
       expr.textContent='BASE-N';
       disp.textContent='1:DEC 2:HEX 3:BIN 4:OCT';
+      return true;
+    }
+    if(uiMode==='const'){
+      const slice=CONSTS.slice(constPage*4, constPage*4+4);
+      expr.textContent='CONST '+(constPage+1)+'/'+CONST_PAGES;
+      disp.textContent=slice.map((c,i)=>(i+1)+':'+c.sym).join('  ');
+      return true;
+    }
+    if(uiMode==='clr'){
+      expr.textContent='CLR';
+      disp.textContent='1:Setup 2:Memory 3:All';
+      return true;
+    }
+    if(uiMode==='fmla' && fmlaLook){
+      const f=BUILTIN_FMLA[fmlaIdx];
+      expr.textContent='LOOK '+f.no;
+      disp.textContent=(f.look||f.name).slice(0,22);
       return true;
     }
     return false;
@@ -723,7 +775,7 @@ a.home:hover{background:#fff}
     const a=Math.abs(v);
     const lo = (typeof normMode!=='undefined' && normMode===1) ? 1e-2 : 1e-9;
     if(a!==0 && (a>=1e10 || a<lo)) return fmtEng(v,0);
-    let s=String(+parseFloat(Number(v).toPrecision(12)));
+    let s=String(+parseFloat(Number(v).toPrecision(10)));
     if(!/[eE.]/.test(s)) s+='.';
     return s;
   }
@@ -814,11 +866,20 @@ a.home:hover{background:#fff}
         if(s.slice(i,i+2)==='ˣ√'){ tokens.push({t:'op', v:'xroot'}); i+=2; continue; }
       }
       const rest=s.slice(i);
-      const m=rest.match(/^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|fact|rnd|Pol|Rec|nPr|nCr|Ans|PI|ENG|dms|Ran|and|or|xor|xnor|Not|Neg)\b/);
+      const m=rest.match(/^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|Abs|arg|Conjg|fact|rnd|Pol|Rec|nPr|nCr|Ans|PI|ENG|dms|Ran|and|or|xor|xnor|Not|Neg)\b/);
       if(m){ tokens.push({t:'id', v:m[1]}); i+=m[1].length; continue; }
       if(c==='e' && !/[0-9]/.test(s[i+1]||'')){ tokens.push({t:'id', v:'e'}); i++; continue; }
       if((c==='P'||c==='C') && tokens.length && (tokens[tokens.length-1].t==='num' || tokens[tokens.length-1].t==='id' || (tokens[tokens.length-1].t==='op'&&tokens[tokens.length-1].v===')'))){
         tokens.push({t:'op', v:c}); i++; continue;
+      }
+      // P1 CONST: menu inserts ⟦sym⟧ so Faraday F ≠ var F, eq ≠ Euler e
+      if(c==='⟦'){
+        const j=s.indexOf('⟧', i+1);
+        if(j<0) raise('Syntax', i);
+        const sym=s.slice(i+1,j);
+        if(!CONST_BY_SYM[sym]) raise('Syntax', i);
+        tokens.push({t:'id', v:'K:'+sym});
+        i=j+1; continue;
       }
       if(/[A-FXYM]/.test(c) && !/[a-z]/.test(s[i+1]||'')){ tokens.push({t:'id', v:c}); i++; continue; }
       if('+-*/^(),'.includes(c)){ tokens.push({t:'op', v:c}); i++; continue; }
@@ -902,7 +963,7 @@ a.home:hover{background:#fff}
       return left;
     }
     function isFuncName(v){
-      return /^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|fact|rnd|Pol|Rec|nPr|nCr|dms|ENG|Ran|Not|Neg)$/.test(v);
+      return /^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|Abs|arg|Conjg|fact|rnd|Pol|Rec|nPr|nCr|dms|ENG|Ran|Not|Neg)$/.test(v);
     }
     function parseUnary(){
       if(peek()&&peek().t==='op'&&peek().v==='-'){ take(); return -parseUnary(); }
@@ -931,8 +992,12 @@ a.home:hover{background:#fff}
       }
       if(tk.t==='id'){
         const id=take().v;
+        if(id.startsWith('K:')){ const c=CONST_BY_SYM[id.slice(2)]; if(!c) raise('Syntax'); return c.v; }
         if(id==='PI') return Math.PI;
-        if(id==='e') return Math.E;
+        if(id==='e'){
+          // bare e = Euler; CONST sym 'e' is charge — inserted as K:e via tokenizer when from CONST menu
+          return Math.E;
+        }
         if(id==='Ans') return ans;
         if(/^[A-FXYM]$/.test(id)) return vars[id]||0;
         if(id==='Ran') return Math.floor(Math.random()*1000)/1000;
@@ -1017,13 +1082,24 @@ a.home:hover{background:#fff}
         // unary: cube root fallback not used; treat as Math.pow(a, 1/Ans) unlikely
         return Math.pow(a, 1/3);
       }
-      case 'abs': return Math.abs(a);
+      case 'abs':
+      case 'Abs': return Math.abs(a);
+      case 'arg': return fromRad(Math.atan2(0, a)); // real: 0 or π
+      case 'Conjg': return a;
       case 'fact': {
         const f=factorial(a);
         if(!Number.isFinite(f)) raise('Arg');
         return f;
       }
-      case 'rnd': return Math.round(a);
+      case 'rnd': {
+        if(dispFmt==='fix'){
+          const f=Math.pow(10, fixDigits);
+          return Math.round(a*f)/f;
+        }
+        // Norm/Sci: round to current ~10-digit display mantissa
+        if(!Number.isFinite(a)) raise('Math');
+        return Number(Number(a).toPrecision(10));
+      }
       case 'nPr': {
         const v=nPr(a,b);
         if(!Number.isFinite(v)) raise('Math');
@@ -1121,10 +1197,10 @@ a.home:hover{background:#fff}
   }
 
   function clearAll(){
-    line=''; cursor=0; result='0.'; pendingView='';
+    line=''; cursor=0; result='0.'; pendingView=''; preferFrac=false;
     shift=false; alpha=false; hyp=false; fresh=true;
     stoWait=rclWait=false; engSteps=0; histIdx=-1;
-    showIm=false;
+    showIm=false; errorAt=null; fmlaLook=false;
     uiMode='calc'; hidePanel();
     update();
   }
@@ -1212,8 +1288,10 @@ a.home:hover{background:#fff}
     } else {
       result=fmtNum(v);
     }
-    // keep preferFrac so SHIFT d/c can reformat; clear only on new entry
-    if(!keepLine){ line=''; cursor=0; }
+    // P1 VPAM: keep expression on upper line after EXE (unless keepLine===false)
+    if(keepLine===false){ line=''; cursor=0; }
+    else if(line){ cursor=line.length; }
+    errorAt=null;
     fresh=true;
     update();
   }
@@ -1238,11 +1316,14 @@ a.home:hover{background:#fff}
       history.push({line:src, result:v});
       if(history.length>30) history.shift();
       histIdx=-1;
+      if(/rnd\s*\(/i.test(src) || /Rnd\s*\(/.test(src)) preferFrac=false;
       commitValue(v);
     }catch(e){
       const kind=(e && e.kind) || (e && /Arg/.test(String(e.message))?'Arg': /Syntax|bad|token|paren|eof|prim|trailing/.test(String(e&&e.message))?'Syntax':'Math');
       result=kind+' ERROR';
-      // keep expression on LCD for error cursor (P0)
+      // P1: remember error position for ←→ jump
+      errorAt = (e && typeof e.at==='number') ? e.at : 0;
+      cursor = Math.max(0, Math.min(line.length, errorAt));
       fresh=true; update();
     }
   }
@@ -1349,25 +1430,51 @@ a.home:hover{background:#fff}
 
   function openConst(){
     uiMode='const';
-    const start=constPage*4;
-    const slice=CONSTS.slice(start, start+4);
-    const html = `<div class="meta">CONST 第 ${constPage+1}/${CONST_PAGES} 頁　◀▶ 翻頁　1–4 選取（SHIFT 7）</div>` +
-      slice.map((c,i)=>`<button type="button" class="pbtn" data-ci="${start+i}">${i+1}: ${c.sym} — ${c.name}</button>`).join('') +
-      `<button type="button" class="pbtn" data-cpage="-1">◀ 上一頁</button><button type="button" class="pbtn" data-cpage="1">下一頁 ▶</button>`;
-    showPanel('CONST 科學常數', html);
-    toast('CONST');
+    // P1: LCD number menu is primary; side panel only when 教學模式
+    if(optTeach.checked){
+      const start=constPage*4;
+      const slice=CONSTS.slice(start, start+4);
+      const html = `<div class="meta">教學輔助　CONST 第 ${constPage+1}/${CONST_PAGES} 頁　主路徑請用 LCD 1–4／◀▶</div>` +
+        slice.map((c,i)=>`<button type="button" class="pbtn" data-ci="${start+i}">${i+1}: ${c.sym} — ${c.name}</button>`).join('') +
+        `<button type="button" class="pbtn" data-cpage="-1">◀ 上一頁</button><button type="button" class="pbtn" data-cpage="1">下一頁 ▶</button>`;
+      showPanel('CONST（教學）', html);
+    } else if(panel){ panel.hidden=true; }
+    toast('CONST：LCD 1–4 選／◀▶ 翻頁');
+    update();
   }
   function openClr(){
     uiMode='clr';
-    showPanel('CLR 清除', [
-      '<button type="button" class="pbtn" data-clr="mem">清除記憶 A–F/X/Y/M</button>',
-      '<button type="button" class="pbtn" data-clr="stat">清除統計 Σ</button>',
-      '<button type="button" class="pbtn" data-clr="all">全部清除</button>',
-      '<button type="button" class="pbtn" data-clr="x">取消</button>'
-    ].join(''));
+    if(optTeach.checked){
+      showPanel('CLR（教學）', [
+        '<div class="meta">主路徑：LCD 按 1–3</div>',
+        '<button type="button" class="pbtn" data-clr="setup">1:Setup</button>',
+        '<button type="button" class="pbtn" data-clr="mem">2:Memory</button>',
+        '<button type="button" class="pbtn" data-clr="all">3:All</button>',
+        '<button type="button" class="pbtn" data-clr="x">取消</button>'
+      ].join(''));
+    } else if(panel){ panel.hidden=true; }
+    toast('CLR：1 Setup／2 Memory／3 All');
+    update();
+  }
+  function applyClr(which){
+    if(which==='setup' || which==='1'){
+      dispFmt='norm'; fixDigits=3; sciDigits=5; normMode=1; ang='deg'; fracForm='mixed'; cmplxFmt='rect'; freqOn=true;
+      toast('Setup cleared');
+    } else if(which==='mem' || which==='2'){
+      vars={A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0};
+      toast('Memory cleared');
+    } else if(which==='stat'){
+      statX=[]; statXY=[]; vars.M=0; toast('Stat cleared');
+    } else if(which==='all' || which==='3'){
+      vars={A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0}; statX=[]; statXY=[]; ans=0;
+      dispFmt='norm'; fixDigits=3; sciDigits=5; normMode=1; ang='deg';
+      toast('All cleared');
+    }
+    hidePanel(); update();
   }
   function openFmla(){
     uiMode='fmla';
+    fmlaLook=false;
     fmlaPhase='pick';
     fmlaVarI=0; fmlaVals={}; fmlaNoBuf='';
     line=''; cursor=0; fresh=false;
@@ -1466,8 +1573,9 @@ a.home:hover{background:#fff}
     }
     html += `<button type="button" class="pbtn" data-modepage="1">翻頁（MODE／◀▶）</button>`;
     html += `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
-    showPanel('MODE 模式', html);
-    toast('MODE：螢幕選 1–6（3＝BASE）', 3200);
+    if(optTeach.checked) showPanel('MODE（教學）', html);
+    else if(panel) panel.hidden=true;
+    toast('MODE：LCD 選 1–6（3＝BASE）', 3200);
     update();
   }
   function openSetup(){
@@ -1498,8 +1606,9 @@ a.home:hover{background:#fff}
       ].join('');
     }
     html += `<button type="button" class="pbtn" data-setup="flip">翻頁</button>`;
-    showPanel('SETUP', html);
-    toast('SETUP：螢幕選項');
+    if(optTeach.checked) showPanel('SETUP（教學）', html);
+    else if(panel) panel.hidden=true;
+    toast('SETUP：LCD 選項');
     update();
   }
   function openBaseMenu(){
@@ -1513,8 +1622,9 @@ a.home:hover{background:#fff}
         [8,'4:OCT 八進制']
       ].map(([r,lab])=>`<button type="button" class="pbtn${baseRadix===r?' cur':''}" data-radix="${r}">${lab}</button>`).join('') +
       `<button type="button" class="pbtn" data-pexit="1">EXIT（保持 BASE-N）</button>`;
-    showPanel('BASE-N 進制', html);
-    toast('已進入 BASE-N（DEC）· 選 1–4', 3600);
+    if(optTeach.checked) showPanel('BASE-N（教學）', html);
+    else if(panel) panel.hidden=true;
+    toast('BASE-N：LCD 選 1–4', 3600);
     update();
   }
   function selectCalcMode(m){
@@ -1533,7 +1643,7 @@ a.home:hover{background:#fff}
       return;
     }
     if(m==='cmplx'){
-      toast('CMPLX：ALPHA+ENG＝i', 3200);
+      toast('CMPLX：ENG＝i　SHIFT+)＝Abs　SHIFT+hyp＝arg　SHIFT+°′″＝Conjg', 4200);
       hidePanel();
       flashModeOnLcd('CMPLX');
       return;
@@ -1545,7 +1655,7 @@ a.home:hover{background:#fff}
       return;
     }
     if(m==='reg'){
-      toast('REG：輸入 x,y 後 M+', 3200);
+      toast('REG Linear only：輸入 x,y 後 M+', 3600);
       hidePanel();
       flashModeOnLcd('REG');
       return;
@@ -1559,7 +1669,7 @@ a.home:hover{background:#fff}
     if(k==='deg'||k==='rad'||k==='gra'){ ang=k; toast(ang.toUpperCase()); hidePanel(); update(); return; }
     if(k==='fix'){ dispFmt='fix'; setupAwait='fix'; toast('Fix：再按 0–9'); openSetup(); return; }
     if(k==='sci'){ dispFmt='sci'; setupAwait='sci'; toast('Sci：再按 1–0'); openSetup(); return; }
-    if(k==='norm'){ dispFmt='norm'; normMode = normMode===1?2:1; toast('Norm'+normMode); hidePanel(); update(); return; }
+    if(k==='norm'){ setupAwait='norm'; toast('Norm：再按 1／2'); update(); return; }
     if(k==='abc'){ fracForm='mixed'; preferFrac=true; toast('ab/c'); hidePanel(); commitValue(currentValue(), true, true); return; }
     if(k==='dc'){ fracForm='improper'; preferFrac=true; toast('d/c'); hidePanel(); commitValue(currentValue(), true, true); return; }
     if(k==='abi'){ cmplxFmt='rect'; toast('a+bi'); hidePanel(); if(calcMode==='cmplx'){ result=fmtComplex(lastCmplx); } update(); return; }
@@ -1576,16 +1686,8 @@ a.home:hover{background:#fff}
     const name={10:'DEC',16:'HEX',2:'BIN',8:'OCT'}[r];
     // convert current value (as decimal) into base display
     if(Number.isFinite(v)){
-      const n=Math.trunc(v);
-      if(r===10) result=fmtNum(n);
-      else {
-        let s=(n>>>0).toString(r).toUpperCase();
-        if(n<0 && r!==10) s='-'+((-n)>>>0).toString(r).toUpperCase();
-        // for classroom: show signed magnitude for negatives when small
-        if(n<0) s='-'+Math.abs(n).toString(r).toUpperCase();
-        result=s;
-      }
-      ans=n; line=''; cursor=0; fresh=true;
+      const n=Math.trunc(v)|0;
+      ans=n; result=fmtBase(n); cursor=line?line.length:0; fresh=true;
     }
     toast('BASE '+name);
     update();
@@ -1603,25 +1705,41 @@ a.home:hover{background:#fff}
   }
   function fmtBase(n){
     if(!Number.isFinite(n)) return 'Math ERROR';
-    const i=Math.trunc(n);
-    if(baseRadix===10) return fmtNum(i);
-    const sign=i<0?'-':'';
-    return sign+Math.abs(i).toString(baseRadix).toUpperCase();
+    const i=Math.trunc(n)|0; // 32-bit two's complement classroom model
+    const suf={10:'d',16:'H',2:'b',8:'o'}[baseRadix]||'';
+    if(baseRadix===10){
+      const s=fmtNum(i);
+      return (/[dHbbo]$/.test(s)?s:s.replace(/\.$/,''))+suf;
+    }
+    // unsigned two's-complement bit pattern (no leading minus)
+    const u=i>>>0;
+    let s=u.toString(baseRadix).toUpperCase();
+    if(baseRadix===2){
+      // trim leading zeros but keep at least 1; for negatives show full 32 when high bit set
+      if(i<0) s=s.padStart(32,'0');
+      else s=s.replace(/^0+(?=.)/,'');
+    } else if(baseRadix===16){
+      if(i<0) s=s.padStart(8,'0');
+    } else if(baseRadix===8){
+      if(i<0) s=s.padStart(11,'0');
+    }
+    return s+suf;
   }
   function evalBaseLine(){
     const src=line.trim();
     if(!src){ result=fmtBase(ans); fresh=true; update(); return; }
-    // classroom BASE-N: bare number OR a±b / a*b / a/b (hex letters A–F allowed)
+    // classroom BASE-N: optional leading -, bare number OR a±b / a*b / a/b (hex A–F)
     const norm=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
-    const bare=norm.match(/^([0-9A-Fa-f]+)$/);
+    const bare=norm.match(/^(-?)([0-9A-Fa-f]+)$/);
     if(bare){
-      const v=parseBaseInput(bare[1]);
-      if(!Number.isFinite(v)){ result='Math ERROR'; fresh=true; update(); return; }
-      ans=v; result=fmtBase(v); history.push({line:src,result:v}); line=''; cursor=0; fresh=true; update();
+      let v=parseInt(bare[2], baseRadix);
+      if(!Number.isFinite(v)){ result='Math ERROR'; errorAt=0; fresh=true; update(); return; }
+      if(bare[1]==='-') v=-v;
+      ans=v; result=fmtBase(v); history.push({line:src,result:v}); cursor=line.length; fresh=true; update();
       return;
     }
-    const m=norm.match(/^([0-9A-Fa-f]+)\s*([+\-*/])\s*([0-9A-Fa-f]+)$/);
-    if(!m){ result='Math ERROR'; fresh=true; update(); return; }
+    const m=norm.match(/^(-?[0-9A-Fa-f]+)\s*([+\-*/])\s*(-?[0-9A-Fa-f]+)$/);
+    if(!m){ result='Math ERROR'; errorAt=0; fresh=true; update(); return; }
     const a=parseInt(m[1], baseRadix), b=parseInt(m[3], baseRadix), op=m[2];
     if(!Number.isFinite(a)||!Number.isFinite(b)){ result='Math ERROR'; fresh=true; update(); return; }
     let v;
@@ -1629,7 +1747,7 @@ a.home:hover{background:#fff}
       if(b===0){ result='Math ERROR'; fresh=true; update(); return; }
       v=Math.trunc(a/b);
     }
-    ans=v; result=fmtBase(v); history.push({line:src,result:v}); line=''; cursor=0; fresh=true; update();
+    ans=v|0; result=fmtBase(ans); history.push({line:src,result:ans}); cursor=line.length; fresh=true; update();
   }
   function parseComplex(src){
     // forms: a+bi | a-bi | bi | a | i | r∠θ
@@ -1689,14 +1807,32 @@ a.home:hover{background:#fff}
     return fmtNum(z.re).replace(/\.$/,'') + (z.im<0?'-':'+') + imStr;
   }
   function evalCmplxLine(){
-    const src=line.trim();
+    let src=line.trim();
     if(!src){ result=fmtComplex(lastCmplx); fresh=true; update(); return; }
+    // P1: Abs / arg / Conjg of a complex literal or last result
+    let unary=src.match(/^(abs|Abs|arg|Conjg)\((.+)\)$/i);
+    if(unary){
+      const inner=parseComplex(unary[2]) || (unary[2]==='Ans'?lastCmplx:null);
+      if(!inner){ result='Math ERROR'; errorAt=0; fresh=true; update(); return; }
+      const op=unary[1].toLowerCase();
+      if(op==='abs'){
+        const r=Math.hypot(inner.re, inner.im);
+        ans=r; lastCmplx={re:r,im:0}; result=fmtNum(r); cursor=line.length; fresh=true; update(); return;
+      }
+      if(op==='arg'){
+        const th=fromRad(Math.atan2(inner.im, inner.re));
+        ans=th; lastCmplx={re:th,im:0}; result=fmtNum(th); cursor=line.length; fresh=true; update(); return;
+      }
+      if(op==='conjg'){
+        const zz={re:inner.re, im:-inner.im};
+        ans=zz.re; lastCmplx=zz; result=fmtComplex(zz); cursor=line.length; fresh=true; update(); return;
+      }
+    }
     const z=parseComplex(src.replace(/\*/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-'));
-    // restore * for mul if user typed *
     const z2=parseComplex(src);
     const zz=z2||z;
-    if(!zz){ result='Math ERROR'; fresh=true; update(); return; }
-    ans=zz.re; lastCmplx=zz; result=fmtComplex(zz); history.push({line:src,result:zz.re}); line=''; cursor=0; fresh=true; update();
+    if(!zz){ result='Math ERROR'; errorAt=0; fresh=true; update(); return; }
+    ans=zz.re; lastCmplx=zz; result=fmtComplex(zz); history.push({line:src,result:zz.re}); cursor=line.length; fresh=true; update();
   }
   function sdStats(){
     const n=statX.length;
@@ -1751,7 +1887,7 @@ a.home:hover{background:#fff}
       const sxx=statXY.reduce((a,p)=>a+p.x*p.x,0), sxy=statXY.reduce((a,p)=>a+p.x*p.y,0);
       const b=(n*sxy-sx*sy)/(n*sxx-sx*sx);
       const a=(sy-b*sx)/n;
-      showPanel('REG S-VAR 課堂簡版', `<div class="meta">n=${n}<br>a=${fmtNum(a)}<br>b=${fmtNum(b)}<br>y=a+bx</div>
+      showPanel('REG Linear only', `<div class="meta">n=${n}<br>a=${fmtNum(a)}<br>b=${fmtNum(b)}<br>y=a+bx</div>
         <button type="button" class="pbtn" data-statv="a">帶入 a</button>
         <button type="button" class="pbtn" data-statv="b">帶入 b</button>
         <button type="button" class="pbtn" data-pexit="1">EXIT</button>`);
@@ -1800,9 +1936,28 @@ a.home:hover{background:#fff}
       openProg(); return;
     }
 
-    if(lab==='FMLA'){ openFmla(); return; }
+    if(lab==='FMLA'){
+      if(shift){ // P1 LOOK: show formula expression on LCD
+        shift=false;
+        uiMode='fmla';
+        fmlaLook=true;
+        fmlaPhase='look';
+        if(panel) panel.hidden=true;
+        update();
+        toast('LOOK '+BUILTIN_FMLA[fmlaIdx].no);
+        return;
+      }
+      fmlaLook=false; openFmla(); return;
+    }
     if(uiMode==='fmla'){
-      if(lab==='AC'||lab==='ON'){ disp.classList.remove('fmla-res'); fmlaPhase=null; hidePanel(); clearAll(); return; }
+      if(lab==='AC'||lab==='ON'){ disp.classList.remove('fmla-res'); fmlaPhase=null; fmlaLook=false; hidePanel(); clearAll(); return; }
+      if(fmlaLook || fmlaPhase==='look'){
+        if(lab==='UP'){ fmlaIdx=(fmlaIdx+BUILTIN_FMLA.length-1)%BUILTIN_FMLA.length; update(); return; }
+        if(lab==='DOWN'){ fmlaIdx=(fmlaIdx+1)%BUILTIN_FMLA.length; update(); return; }
+        if(lab==='EXE'){ fmlaLook=false; fmlaPhase='pick'; startFmlaVars(); return; }
+        if(lab==='FMLA'){ fmlaLook=false; openFmla(); return; }
+        return;
+      }
       if(lab==='UP'){ if(fmlaPhase==='pick'){ fmlaIdx=(fmlaIdx+BUILTIN_FMLA.length-1)%BUILTIN_FMLA.length; showFmlaPick(); } return; }
       if(lab==='DOWN'){ if(fmlaPhase==='pick'){ fmlaIdx=(fmlaIdx+1)%BUILTIN_FMLA.length; showFmlaPick(); } return; }
       if(fmlaPhase==='pick'){
@@ -1853,16 +2008,28 @@ a.home:hover{background:#fff}
           const c=CONSTS[idx];
           hidePanel();
           if(fresh){line='';cursor=0;fresh=false;}
-          insertText(String(+parseFloat(c.v.toPrecision(12))));
+          insertText('⟦'+c.sym+'⟧'); // P1: symbol token (wrapped)
           toast(c.sym); update();
         }
         return;
       }
-      if(lab==='AC'){ hidePanel(); update(); return; }
+      if(lab==='AC'||lab==='EXE'||lab==='ON'){ hidePanel(); update(); return; }
+      return;
+    }
+    if(uiMode==='clr'){
+      if(lab==='1'){ applyClr('setup'); return; }
+      if(lab==='2'){ applyClr('mem'); return; }
+      if(lab==='3'){ applyClr('all'); return; }
+      if(lab==='AC'||lab==='EXE'||lab==='ON'||lab==='0'){ hidePanel(); update(); return; }
+      return;
     }
     if(uiMode==='setup' && setupAwait && /^[0-9]$/.test(lab)){
       if(setupAwait==='fix'){ fixDigits=+lab; dispFmt='fix'; toast('Fix '+fixDigits); }
       if(setupAwait==='sci'){ sciDigits = lab==='0'?10:+lab; dispFmt='sci'; toast('Sci '+sciDigits); }
+      if(setupAwait==='norm'){
+        if(lab!=='1' && lab!=='2'){ toast('Norm：按 1 或 2'); update(); return; }
+        normMode=+lab; dispFmt='norm'; toast('Norm'+normMode);
+      }
       setupAwait=null; hidePanel(); update(); return;
     }
 
@@ -1982,8 +2149,14 @@ a.home:hover{background:#fff}
         return;
       }
       if(lab==='('){ if(fresh){ line=String(ans).replace(/\.0$/,''); cursor=line.length; fresh=false; } insertText('%'); update(); return; }
-      if(lab===')'){ insertPrefixFn('abs('); return; }
-      if(lab==='M+'){ vars.M -= currentValue(); toast('M='+fmtNum(vars.M)); fresh=true; update(); return; }
+      if(lab===')'){ insertPrefixFn(calcMode==='cmplx'?'Abs(':'abs('); return; }
+      if(lab==='M+'){
+        if(calcMode==='sd' || calcMode==='reg'){
+          // P1: SHIFT+M+ = CL clear stats
+          statX=[]; statXY=[]; vars.M=0; toast('CL'); line=''; cursor=0; result='0.'; fresh=true; update(); return;
+        }
+        vars.M -= currentValue(); toast('M='+fmtNum(vars.M)); fresh=true; update(); return;
+      }
       if(lab==='7'){ openConst(); return; }
       if(lab==='9'){ openClr(); return; }
       if(lab==='DEL'){ insertMode=!insertMode; toast(insertMode?'INS 插入':'OVER 覆寫'); update(); return; }
@@ -2022,7 +2195,13 @@ a.home:hover{background:#fff}
       }
       // SHIFT+(-) → ∠ for CMPLX polar entry
       if(lab==='(-)'){ if(fresh){line='';cursor=0;fresh=false;} insertText('∠'); update(); return; }
-      // SHIFT+3 P-CMD: honest toast — not Casio BASIC
+      // SHIFT+, → : (program / statement separator for classroom macros)
+      if(lab===','){ if(fresh){line='';cursor=0;fresh=false;} insertText(':'); update(); return; }
+      // CMPLX: SHIFT+hyp → arg( ; SHIFT+dms → Conjg(
+      if(lab==='hyp' && calcMode==='cmplx'){ insertPrefixFn('arg('); return; }
+      if(lab==='dms' && calcMode==='cmplx'){ insertPrefixFn('Conjg('); return; }
+      // SHIFT+) Abs — already inserts abs(; in CMPLX Abs = modulus via evalCmplx
+      // SHIFT+3 P-CMD: legend struck; honest toast
       if(lab==='3'){ toast('P-CMD 未實作（Prog＝按鍵巨集≠BASIC）'); update(); return; }
       update(); return;
     }
@@ -2035,15 +2214,28 @@ a.home:hover{background:#fff}
     if(lab==='hyp'){ hyp=!hyp; toast(hyp?'hyp ON':'hyp OFF'); update(); return; }
     if(lab==='RCL'){ rclWait=true; toast('RCL：再按變數鍵'); update(); return; }
     if(lab==='ENG'){
+      if(calcMode==='cmplx'){
+        if(fresh){ line=''; cursor=0; fresh=false; }
+        insertText('i'); update(); return;
+      }
       engSteps += 1;
       commitValue(currentValue()); return;
     }
     if(lab==='dms'){ applyUnaryImmediate('dms'); return; }
     if(lab==='M+'){
       if(calcMode==='sd'){
-        const v=currentValue();
-        if(!Number.isFinite(v)){ toast('Math ERROR'); return; }
-        statX.push(v); vars.M=statX.length; toast('DT n='+statX.length); line=''; cursor=0; result='0.'; fresh=true; update(); return;
+        let v, freq=1;
+        const src=line.trim();
+        if(freqOn && src.includes(',')){
+          const m=src.match(/^\s*([^,]+)\s*,\s*([^,]+)\s*$/);
+          if(!m){ toast('FreqOn：x,freq 後 DT'); return; }
+          try{ v=parseEval(m[1]); freq=Math.round(parseEval(m[2])); }catch(e){ toast('Math ERROR'); return; }
+        } else {
+          v=currentValue();
+        }
+        if(!Number.isFinite(v) || !Number.isFinite(freq) || freq<1){ toast('Math ERROR'); return; }
+        for(let i=0;i<freq;i++) statX.push(v);
+        vars.M=statX.length; toast('DT n='+statX.length+(freqOn&&freq>1?' ×'+freq:'')); line=''; cursor=0; result='0.'; fresh=true; update(); return;
       }
       if(calcMode==='reg'){
         // expect line like x,y or use X,Y vars
@@ -2076,8 +2268,17 @@ a.home:hover{background:#fff}
       const h=history[histIdx];
       line=h.line; cursor=line.length; result=fmtNum(h.result); fresh=false; update(); return;
     }
-    if(lab==='LEFT'){ if(fresh){ fresh=false; } cursor=Math.max(0,cursor-1); update(); return; }
-    if(lab==='RIGHT'){ if(fresh){ fresh=false; } cursor=Math.min(line.length,cursor+1); update(); return; }
+    if(lab==='LEFT' || lab==='RIGHT'){
+      if(/ERROR$/.test(String(result)) && line){
+        // P1: first ←/→ after error jumps to error position
+        if(errorAt!=null){ cursor=Math.max(0, Math.min(line.length, errorAt)); }
+        else cursor = lab==='LEFT' ? 0 : line.length;
+        errorAt=null; result=line; fresh=false; update(); return;
+      }
+      if(fresh){ fresh=false; }
+      cursor = lab==='LEFT' ? Math.max(0,cursor-1) : Math.min(line.length,cursor+1);
+      update(); return;
+    }
 
     if(lab==='DEL'){
       if(fresh || /ERROR$/.test(result)){ clearAll(); return; }
@@ -2197,17 +2398,14 @@ a.home:hover{background:#fff}
         const c=CONSTS[+t.dataset.ci];
         hidePanel();
         if(fresh){line='';cursor=0;fresh=false;}
-        const s=String(+parseFloat(c.v.toPrecision(12)));
-        insertText(s); result=s; toast(c.sym); update(); return;
+        insertText('⟦'+c.sym+'⟧'); toast(c.sym); update(); return;
       }
       if(t.dataset.cpage!=null){
         const d=+t.dataset.cpage; constPage=(constPage+d+CONST_PAGES)%CONST_PAGES; openConst(); return;
       }
       if(t.dataset.clr){
-        if(t.dataset.clr==='mem' || t.dataset.clr==='all'){ vars={A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0}; }
-        if(t.dataset.clr==='stat' || t.dataset.clr==='all'){ statX=[]; statXY=[]; }
-        if(t.dataset.clr==='all'){ ans=0; }
-        toast('已清除'); hidePanel(); update(); return;
+        if(t.dataset.clr==='x'){ hidePanel(); update(); return; }
+        applyClr(t.dataset.clr); return;
       }
       if(t.dataset.fi!=null){
         fmlaIdx=+t.dataset.fi; hidePanel(); openFmla(); startFmlaVars(); return;
@@ -2259,7 +2457,7 @@ a.home:hover{background:#fff}
   });
 
   // expose for tests
-  window.__calc={ press, get result(){return result;}, get line(){return line;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;}, get uiMode(){return uiMode;}, get fmlaIdx(){return fmlaIdx;}, get fmlaPhase(){return fmlaPhase;}, get dispFmt(){return dispFmt;}, BUILTIN_FMLA, CONSTS };
+  window.__calc={ press, get result(){return result;}, get line(){return line;}, get cursor(){return cursor;}, get vars(){return vars;}, get ang(){return ang;}, get hyp(){return hyp;}, get calcMode(){return calcMode;}, get baseRadix(){return baseRadix;}, get modePage(){return modePage;}, get uiMode(){return uiMode;}, get fmlaIdx(){return fmlaIdx;}, get fmlaPhase(){return fmlaPhase;}, get fmlaLook(){return fmlaLook;}, get dispFmt(){return dispFmt;}, get normMode(){return normMode;}, get fixDigits(){return fixDigits;}, get freqOn(){return freqOn;}, get errorAt(){return errorAt;}, get setupAwait(){return setupAwait;}, get cmplxFmt(){return cmplxFmt;}, get lastCmplx(){return lastCmplx;}, get expr(){return document.getElementById('expr').textContent;}, get disp(){return document.getElementById('disp').textContent;}, BUILTIN_FMLA, CONSTS, CONST_BY_SYM };
   update();
 })();
 
