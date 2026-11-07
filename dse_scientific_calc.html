@@ -22,7 +22,7 @@ body{
 a.home{
   position:fixed;top:10px;left:12px;z-index:40;
   font-size:13px;font-weight:700;color:#1e3a5f;
-  text-decoration:none;background:rgba(255,255,255,.9);
+  text-decoration:none;background:rgba(255,255,255,.92);
   border:1px solid #cbd5e1;border-radius:999px;padding:6px 12px;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
@@ -39,131 +39,146 @@ a.home:hover{background:#fff}
 }
 .pill label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
 .pill input{width:15px;height:15px;accent-color:#2563eb}
-.device-wrap{width:min(100%,360px);filter:drop-shadow(0 22px 28px rgba(15,23,42,.35))}
+.device-wrap{width:min(100%,352px);filter:drop-shadow(0 20px 26px rgba(15,23,42,.38))}
 .device{
-  position:relative;border-radius:28px;padding:10px 9px 14px;
-  background:linear-gradient(160deg,#3a3f45 0%,#1c1f24 40%,#0f1114 100%);
+  position:relative;
+  border-radius:26px 26px 36px 36px;
+  padding:9px 8px 12px;
+  background:linear-gradient(165deg,#3e4349 0%,#24282e 42%,#14171b 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.25),
-    inset 0 -2px 4px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 -2px 5px rgba(0,0,0,.55),
     0 0 0 1px #0a0c0f;
 }
 .face{
-  border-radius:22px;padding:12px 10px 14px;
-  background:linear-gradient(145deg,#f7f8fa 0%,#e4e6ea 18%,#cfd3d8 55%,#b8bdc4 100%);
+  border-radius:20px 20px 28px 28px;
+  padding:10px 9px 12px;
+  background:linear-gradient(155deg,#f4f5f7 0%,#e8eaee 22%,#d5d8de 58%,#c2c6cd 100%);
   box-shadow:
-    inset 0 2px 3px #fff,
-    inset 0 -3px 6px rgba(80,90,100,.25),
-    0 1px 0 rgba(255,255,255,.15);
+    inset 0 2px 3px #ffffff,
+    inset 0 -3px 7px rgba(70,80,95,.22),
+    0 1px 0 rgba(255,255,255,.12);
 }
 .brand{
   display:flex;justify-content:space-between;align-items:flex-end;
-  padding:0 4px 6px;color:#2a3038;
+  padding:1px 3px 5px;color:#2a3038;opacity:.88;
 }
-.brand .casio{font-weight:900;font-size:15px;letter-spacing:-.5px;line-height:1}
-.brand .casio em{display:block;font:italic 600 10px/1.2 Georgia,serif;margin-top:2px;opacity:.85}
-.brand .right{text-align:right;font-size:9px;font-weight:700;letter-spacing:.4px;opacity:.8}
+.brand .casio{font-weight:900;font-size:13px;letter-spacing:-.4px;line-height:1}
+.brand .casio em{display:block;font:italic 600 9px/1.2 Georgia,serif;margin-top:1px;opacity:.8}
+.brand .right{text-align:right;font-size:8px;font-weight:700;letter-spacing:.35px;opacity:.75;line-height:1.25}
 .lcd-bezel{
-  margin:2px 2px 12px;padding:6px;border-radius:8px;
-  background:linear-gradient(160deg,#6d747a,#aeb4b8 45%,#8a9096);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.5);
+  margin:0 1px 10px;padding:5px;border-radius:7px;
+  background:linear-gradient(160deg,#6a7178,#a8aeb4 48%,#858b91);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.48),0 1px 0 rgba(255,255,255,.55);
 }
 .lcd{
-  position:relative;min-height:78px;border-radius:4px;
-  background:linear-gradient(180deg,#d5dcd4,#c4cec6);
-  box-shadow:inset 0 3px 8px rgba(40,55,45,.35);
-  padding:8px 10px 6px;color:#1a2a20;
+  position:relative;min-height:72px;border-radius:3px;
+  background:linear-gradient(180deg,#d6ddd5,#c3cdc5);
+  box-shadow:inset 0 3px 8px rgba(40,55,45,.38);
+  padding:7px 10px 5px 14px;color:#1a2a20;
   font-family:'Share Tech Mono','Courier New',monospace;
 }
-.lcd-top{display:flex;justify-content:space-between;align-items:flex-start;min-height:16px;font-size:11px;font-weight:800;letter-spacing:.5px}
-.lcd-flags{display:flex;gap:8px;opacity:.9}
-.lcd-flags span{opacity:.18}
+.lcd-cursor{
+  position:absolute;left:6px;top:28px;bottom:10px;width:2px;
+  background:#1a2a20;opacity:.85;
+  animation:blink 1.05s step-end infinite;
+}
+@keyframes blink{50%{opacity:0}}
+.lcd-top{display:flex;justify-content:space-between;align-items:flex-start;min-height:14px;font-size:10px;font-weight:800;letter-spacing:.5px}
+.lcd-flags{display:flex;gap:7px;opacity:.9}
+.lcd-flags span{opacity:.15}
 .lcd-flags span.on{opacity:1}
 .lcd-d{
-  font-size:11px;font-weight:900;border:1.5px solid #1a2a20;padding:0 4px;line-height:1.15;
-  opacity:0;border-radius:2px;
+  font-size:10px;font-weight:900;border:1.5px solid #1a2a20;padding:0 3px;line-height:1.1;
+  opacity:0;border-radius:1px;
 }
 .lcd-d.on{opacity:1}
-.lcd-expr{font-size:12px;min-height:14px;opacity:.7;word-break:break-all;margin-top:2px}
+.lcd-expr{font-size:11px;min-height:13px;opacity:.65;word-break:break-all;margin-top:1px;padding-left:2px}
 .lcd-main{
-  text-align:right;font-size:34px;font-weight:700;letter-spacing:1px;
-  line-height:1.05;margin-top:4px;word-break:break-all;
-  text-shadow:0 0 0 #1a2a20;
-}
-.topctrl{
-  display:grid;grid-template-columns:1fr 1fr 1.7fr 1fr 1fr;gap:5px;align-items:end;margin-bottom:8px;
+  text-align:right;font-size:32px;font-weight:700;letter-spacing:1px;
+  line-height:1.05;margin-top:2px;word-break:break-all;
 }
 .slot{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
 .leg{
-  height:13px;display:flex;align-items:flex-end;justify-content:space-between;
-  font:700 7.5px/1 Arial,Helvetica,sans-serif;padding:0 1px 1px;pointer-events:none;color:#b8860b;
+  height:12px;display:flex;align-items:flex-end;justify-content:space-between;gap:2px;
+  font:700 7px/1 Arial,Helvetica,sans-serif;padding:0 1px 1px;pointer-events:none;color:#c9a014;
 }
 .leg .r{color:#c0392b}
 .leg .g{color:#2e7d5b}
-.leg .b{color:#4a6fa5}
+.leg .b{color:#3b6ea5}
 .key{
   display:flex;align-items:center;justify-content:center;width:100%;
   border:0;cursor:pointer;touch-action:manipulation;
   font-family:Arial,Helvetica,sans-serif;font-weight:700;
   transition:transform .04s,filter .04s;
 }
-.key:active,.key.is-down{transform:translateY(1px);filter:brightness(1.15)}
+.key:active,.key.is-down{transform:translateY(1px);filter:brightness(1.12)}
 .key.oval{
-  height:28px;border-radius:999px;font-size:8.5px;letter-spacing:.2px;
+  height:26px;border-radius:999px;font-size:8px;letter-spacing:.15px;
   color:#1c2228;border:1px solid #6a727a;
-  background:linear-gradient(180deg,#c5cad0 0%,#9aa1a8 55%,#7e868e 100%);
-  box-shadow:inset 0 1px 0 #eef0f2,0 2px 0 #3a4148,0 3px 3px rgba(0,0,0,.25);
+  background:linear-gradient(180deg,#c8ced4 0%,#9ba2a9 52%,#7a828a 100%);
+  box-shadow:inset 0 1px 0 #eef1f3,0 2px 0 #3a4148,0 3px 3px rgba(0,0,0,.28);
 }
-.key.oval .yl{color:#d4a017}
-.key.oval .rd{color:#c0392b}
+.key.oval .yl{color:#d4a017;font-weight:800}
+.key.oval .rd{color:#c0392b;font-weight:800}
+.topctrl{
+  display:grid;grid-template-columns:1fr 1fr 1.85fr 1fr 1fr;gap:4px;align-items:end;margin-bottom:6px;
+}
 .replay{
-  position:relative;height:72px;border-radius:50%;
+  position:relative;height:68px;border-radius:50%;
   border:1px solid #6f787f;
-  background:radial-gradient(circle at 35% 25%,#c5c9cd,#8d959c 70%,#6f777e);
-  box-shadow:inset 0 2px 3px #fff,0 2px 2px rgba(0,0,0,.3);
+  background:radial-gradient(circle at 35% 28%,#c8ccd0,#8e959c 68%,#6c747b);
+  box-shadow:inset 0 2px 3px #fff,0 2px 3px rgba(0,0,0,.32);
+  margin-bottom:1px;
 }
 .replay>i{
   position:absolute;inset:0;display:grid;place-items:center;
-  font:800 7px/1 Arial,sans-serif;font-style:normal;color:#4f5860;pointer-events:none;letter-spacing:.5px;
+  font:800 6.5px/1 Arial,sans-serif;font-style:normal;color:#4f5860;pointer-events:none;letter-spacing:.4px;
 }
 .replay .rk{
-  position:absolute;width:26px;height:26px;border:0;background:transparent;
-  color:#e8ebed;font-size:10px;cursor:pointer;text-shadow:0 1px 1px #333;
+  position:absolute;width:24px;height:24px;border:0;background:transparent;
+  color:#e8ebed;font-size:9px;cursor:pointer;text-shadow:0 1px 1px #333;
 }
-.replay .rk.u{top:2px;left:calc(50% - 13px)}
-.replay .rk.d{bottom:2px;left:calc(50% - 13px)}
-.replay .rk.l{top:23px;left:3px}
-.replay .rk.r{top:23px;right:3px}
-.row2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:5px;margin-bottom:5px}
+.replay .rk.u{top:2px;left:calc(50% - 12px)}
+.replay .rk.d{bottom:2px;left:calc(50% - 12px)}
+.replay .rk.l{top:22px;left:2px}
+.replay .rk.r{top:22px;right:2px}
+.prog-row{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:4px;margin-bottom:6px;align-items:end;
+}
 .key.orange{
-  height:30px;border-radius:999px;font-size:12px;color:#fff;
-  background:linear-gradient(180deg,#f2a34c,#c45e18);
-  border:1px solid #9a4a18;
-  box-shadow:inset 0 1px 0 rgba(255,220,160,.5),0 2px 0 #6e3410,0 3px 3px rgba(0,0,0,.25);
+  height:28px;border-radius:999px;font-size:11px;color:#fff;font-weight:800;
+  background:linear-gradient(180deg,#f0a04a,#c45c16);
+  border:1px solid #9a4816;
+  box-shadow:inset 0 1px 0 rgba(255,220,160,.55),0 2px 0 #6e3410,0 3px 3px rgba(0,0,0,.28);
 }
+.fn6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:4px}
 .key.blk{
-  height:30px;border-radius:8px;font-size:11px;color:#f4f5f7;
-  background:linear-gradient(180deg,#4a5058 0%,#2a2f36 55%,#1b1f25 100%);
-  border:1px solid #12151a;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 0 #0a0c0f,0 3px 3px rgba(0,0,0,.28);
+  height:28px;border-radius:11px;font-size:10px;color:#f4f5f7;
+  background:linear-gradient(180deg,#4c525a 0%,#2c3138 55%,#1a1e24 100%);
+  border:1px solid #101318;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 2px 0 #080a0d,0 3px 3px rgba(0,0,0,.3);
 }
-.key.blk.sm{font-size:10px}
-.numpad{
-  margin-top:8px;padding:8px 4px 4px;border-radius:14px;
-  background:linear-gradient(180deg,#3d434a 0%,#23272d 100%);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.12);
-}
-.row5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:5px}
+.key.blk.sm{font-size:9.5px}
+.key.blk.tiny{font-size:9px}
+.num-area{margin-top:6px}
+.row5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:4px}
 .key.num{
-  height:40px;border-radius:10px;font-size:18px;font-weight:600;color:#f5f6f8;
-  background:linear-gradient(180deg,#4a515a 0%,#2c333c 60%,#1a2028 100%);
+  height:38px;border-radius:9px;font-size:17px;font-weight:600;color:#f5f6f8;
+  background:linear-gradient(180deg,#4a515a 0%,#2c333c 58%,#1a2028 100%);
   border:1px solid #0d1014;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 0 #05070a,0 3px 4px rgba(0,0,0,.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 2px 0 #05070a,0 3px 4px rgba(0,0,0,.32);
 }
-.key.num.warn{color:#f0a0a0;font-size:13px;font-weight:800}
-.key.num.op{font-size:17px}
-.key.num.exe{font-size:13px;font-weight:800;letter-spacing:.5px}
-.key.num.sm{font-size:12px;font-weight:700}
+.key.num.warn{color:#e88848;font-size:12px;font-weight:800}
+.key.num.op{font-size:16px}
+.key.num.exe{
+  font-size:12px;font-weight:800;letter-spacing:.4px;
+  height:40px;border-radius:10px;
+  background:linear-gradient(180deg,#525960 0%,#30363e 55%,#1c222a 100%);
+}
+.key.num.sm{font-size:11px;font-weight:700}
 .device.locked .face{filter:grayscale(.35) brightness(.92)}
 .device.locked::after{
   content:'鎖定畫面';position:absolute;inset:40% 12% auto;z-index:5;
@@ -172,7 +187,7 @@ a.home:hover{background:#fff}
   pointer-events:none;
 }
 .teach{
-  width:min(100%,360px);background:rgba(255,255,255,.92);border:1px solid #d1d5db;
+  width:min(100%,352px);background:rgba(255,255,255,.92);border:1px solid #d1d5db;
   border-radius:14px;padding:10px 12px;box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
 .teach h3{font-size:13px;margin-bottom:6px;color:#1e3a5f}
@@ -182,7 +197,7 @@ a.home:hover{background:#fff}
   border:1px solid #c5d6e8;border-radius:6px;background:#fff;color:#23466b;font:12px/1.2 Arial,sans-serif;
 }
 .tk.latest{background:#1d62b4;border-color:#1d62b4;color:#fff;font-weight:700}
-.hint{width:min(100%,360px);text-align:center;font-size:11px;color:#475569;line-height:1.6}
+.hint{width:min(100%,352px);text-align:center;font-size:11px;color:#475569;line-height:1.6}
 .toast{
   position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
   background:#0f172a;color:#fff;font-size:13px;font-weight:600;
@@ -190,11 +205,12 @@ a.home:hover{background:#fff}
   transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.disc{width:min(100%,360px);font-size:11px;color:#64748b;line-height:1.6;text-align:center}
+.disc{width:min(100%,352px);font-size:11px;color:#64748b;line-height:1.6;text-align:center}
 @media(max-width:380px){
   .lcd-main{font-size:28px}
-  .key.num{height:36px;font-size:16px}
-  .device-wrap{width:min(100%,340px)}
+  .key.num{height:34px;font-size:15px}
+  .key.num.exe{height:36px}
+  .device-wrap{width:min(100%,330px)}
 }
 </style>
 </head>
@@ -222,6 +238,7 @@ a.home:hover{background:#fff}
 
         <div class="lcd-bezel">
           <div class="lcd">
+            <div class="lcd-cursor" aria-hidden="true"></div>
             <div class="lcd-top">
               <div class="lcd-flags">
                 <span id="indShift">S</span>
@@ -234,7 +251,6 @@ a.home:hover{background:#fff}
           </div>
         </div>
 
-        <!-- SHIFT ALPHA REPLAY MODE ON -->
         <div class="topctrl">
           <div class="slot">
             <div class="leg"><span style="color:#d4a017">SHIFT</span></div>
@@ -261,64 +277,78 @@ a.home:hover{background:#fff}
           </div>
         </div>
 
-        <!-- Prog FMLA -->
-        <div class="row2" style="grid-template-columns:1.2fr 1.2fr 1fr 1fr 1fr 1fr;margin-bottom:7px">
-          <div class="slot"><div class="leg"><span class="b">EXIT</span></div><button type="button" class="key orange" data-k="Prog">Prog</button></div>
-          <div class="slot"><div class="leg"><span></span></div><button type="button" class="key orange" data-k="FMLA">FMLA</button></div>
-          <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+        <div class="prog-row">
+          <div class="slot">
+            <div class="leg"><span>EXIT</span></div>
+            <button type="button" class="key orange" data-k="Prog">Prog</button>
+          </div>
+          <div class="slot">
+            <div class="leg"><span></span></div>
+            <button type="button" class="key orange" data-k="FMLA">FMLA</button>
+          </div>
+          <div class="slot" aria-hidden="true"></div>
+          <div class="slot" aria-hidden="true"></div>
+          <div class="slot">
+            <div class="leg"><span>x!</span><span class="g">LOGIC</span></div>
+            <button type="button" class="key blk tiny" data-k="x^-1">x⁻¹</button>
+          </div>
+          <div class="slot">
+            <div class="leg"><span>∛</span></div>
+            <button type="button" class="key blk" data-k="x^3">x³</button>
+          </div>
         </div>
 
-        <!-- Function rows: CalcX / fx-3650P classroom look -->
-        <div class="row2">
-          <div class="slot"><div class="leg"><span>x⁻¹</span><span>d/c</span></div><button type="button" class="key blk sm" data-k="Frac">a b/c</button></div>
-          <div class="slot"><div class="leg"><span>∛</span><span>x³</span></div><button type="button" class="key blk sm" data-k="sqrt">√</button></div>
+        <div class="fn6">
+          <div class="slot"><div class="leg"><span>d/c</span></div><button type="button" class="key blk sm" data-k="Frac">a b/c</button></div>
+          <div class="slot"><div class="leg"><span></span></div><button type="button" class="key blk" data-k="sqrt">√</button></div>
           <div class="slot"><div class="leg"><span class="g">DEC</span></div><button type="button" class="key blk sm" data-k="x^2">x²</button></div>
-          <div class="slot"><div class="leg"><span class="g">HEX</span></div><button type="button" class="key blk sm" data-k="^">^</button></div>
+          <div class="slot"><div class="leg"><span>∛x</span><span class="g">HEX</span></div><button type="button" class="key blk" data-k="^">^</button></div>
           <div class="slot"><div class="leg"><span>10ˣ</span><span class="g">BIN</span></div><button type="button" class="key blk sm" data-k="log">log</button></div>
-          <div class="slot"><div class="leg"><span>eˣ</span><span class="r">e</span></div><button type="button" class="key blk sm" data-k="ln">ln</button></div>
+          <div class="slot"><div class="leg"><span>eˣ</span><span class="g">OCT</span><span class="r">e</span></div><button type="button" class="key blk sm" data-k="ln">ln</button></div>
         </div>
-        <div class="row2">
+
+        <div class="fn6">
           <div class="slot"><div class="leg"><span>∠</span><span class="r">A</span></div><button type="button" class="key blk sm" data-k="(-)">(−)</button></div>
-          <div class="slot"><div class="leg"><span>←</span><span class="r">B</span></div><button type="button" class="key blk sm" data-k="dms">°′″</button></div>
+          <div class="slot"><div class="leg"><span>←</span><span class="r">B</span></div><button type="button" class="key blk tiny" data-k="dms">°′″</button></div>
           <div class="slot"><div class="leg"><span></span><span class="r">C</span></div><button type="button" class="key blk sm" data-k="hyp">hyp</button></div>
           <div class="slot"><div class="leg"><span>sin⁻¹</span><span class="r">D</span></div><button type="button" class="key blk sm" data-k="sin">sin</button></div>
           <div class="slot"><div class="leg"><span>cos⁻¹</span><span class="r">E</span></div><button type="button" class="key blk sm" data-k="cos">cos</button></div>
           <div class="slot"><div class="leg"><span>tan⁻¹</span><span class="r">F</span></div><button type="button" class="key blk sm" data-k="tan">tan</button></div>
         </div>
-        <div class="row2" style="margin-bottom:2px">
+
+        <div class="fn6" style="margin-bottom:2px">
           <div class="slot"><div class="leg"><span>STO</span></div><button type="button" class="key blk sm" data-k="RCL">RCL</button></div>
           <div class="slot"><div class="leg"><span>←</span><span class="r">i</span></div><button type="button" class="key blk sm" data-k="ENG">ENG</button></div>
-          <div class="slot"><div class="leg"><span>%</span></div><button type="button" class="key blk sm" data-k="(">(</button></div>
-          <div class="slot"><div class="leg"><span>Abs</span><span class="r">X</span></div><button type="button" class="key blk sm" data-k=")">)</button></div>
-          <div class="slot"><div class="leg"><span>:</span><span class="r">Y</span></div><button type="button" class="key blk sm" data-k=",">,</button></div>
+          <div class="slot"><div class="leg"><span>%</span></div><button type="button" class="key blk" data-k="(">(</button></div>
+          <div class="slot"><div class="leg"><span>Abs</span><span class="r">X</span></div><button type="button" class="key blk" data-k=")">)</button></div>
+          <div class="slot"><div class="leg"><span>:</span><span class="r">Y</span></div><button type="button" class="key blk" data-k=",">,</button></div>
           <div class="slot"><div class="leg"><span>M−</span><span class="r">M</span></div><button type="button" class="key blk sm" data-k="M+">M+</button></div>
         </div>
 
-        <!-- Number pad on darker lower section -->
-        <div class="numpad">
+        <div class="num-area">
           <div class="row5">
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="7">7</button></div>
+            <div class="slot"><div class="leg"><span>CONST</span></div><button type="button" class="key num" data-k="7">7</button></div>
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="8">8</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="9">9</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num warn" data-k="DEL">DEL</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num warn" data-k="AC">AC</button></div>
+            <div class="slot"><div class="leg"><span>CLR</span></div><button type="button" class="key num" data-k="9">9</button></div>
+            <div class="slot"><div class="leg"><span>INS</span></div><button type="button" class="key num warn" data-k="DEL">DEL</button></div>
+            <div class="slot"><div class="leg"><span>OFF</span></div><button type="button" class="key num warn" data-k="AC">AC</button></div>
           </div>
           <div class="row5">
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="4">4</button></div>
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="5">5</button></div>
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="6">6</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="×">×</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="÷">÷</button></div>
+            <div class="slot"><div class="leg"><span>nPr</span></div><button type="button" class="key num op" data-k="×">×</button></div>
+            <div class="slot"><div class="leg"><span>nCr</span></div><button type="button" class="key num op" data-k="÷">÷</button></div>
           </div>
           <div class="row5">
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="1">1</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="2">2</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="3">3</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="+">+</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="−">−</button></div>
+            <div class="slot"><div class="leg"><span class="b">S-SUM</span></div><button type="button" class="key num" data-k="1">1</button></div>
+            <div class="slot"><div class="leg"><span class="b">S-VAR</span></div><button type="button" class="key num" data-k="2">2</button></div>
+            <div class="slot"><div class="leg"><span>P-CMD</span></div><button type="button" class="key num" data-k="3">3</button></div>
+            <div class="slot"><div class="leg"><span>Pol</span></div><button type="button" class="key num op" data-k="+">+</button></div>
+            <div class="slot"><div class="leg"><span>Rec</span></div><button type="button" class="key num op" data-k="−">−</button></div>
           </div>
           <div class="row5" style="margin-bottom:0">
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="0">0</button></div>
+            <div class="slot"><div class="leg"><span>Rnd</span></div><button type="button" class="key num" data-k="0">0</button></div>
             <div class="slot"><div class="leg"><span>Ran#</span></div><button type="button" class="key num" data-k=".">.</button></div>
             <div class="slot"><div class="leg"><span>π</span></div><button type="button" class="key num sm" data-k="EXP">EXP</button></div>
             <div class="slot"><div class="leg"><span>DRG▸</span></div><button type="button" class="key num sm" data-k="Ans">Ans</button></div>
@@ -360,7 +390,7 @@ a.home:hover{background:#fff}
   function setInd(){
     document.getElementById('indShift').classList.toggle('on', shift);
     document.getElementById('indAlpha').classList.toggle('on', alpha);
-    document.getElementById('indD').classList.toggle('on', ang==='deg');
+    document.getElementById('indD').classList.toggle('on', true);
     document.getElementById('indD').textContent = ang==='deg' ? 'D' : 'R';
   }
   function update(){
@@ -432,10 +462,6 @@ a.home:hover{background:#fff}
       toast('課堂版：程式編輯稍後開放');
       update(); return;
     }
-    if(lab==='Frac'){
-      if(shift){ shift=false; setCur(1/num(cur)); update(); return; } // x⁻¹
-      alpha=false; update(); return;
-    }
     if(['UP','DOWN','LEFT','RIGHT','hyp','RCL','ENG','dms'].includes(lab)){
       if(lab==='RCL' && shift){ shift=false; toast('STO：課堂版稍後開放'); update(); return; }
       shift=false; alpha=false; update(); return;
@@ -447,33 +473,31 @@ a.home:hover{background:#fff}
     }
     if(lab===','){ shift=false; alpha=false; update(); return; }
 
-    // ALPHA constants / vars
     if(alpha){
       alpha=false;
-      if(lab==='EXP' || lab==='π'){ cur=String(Math.PI); fresh=true; update(); return; }
+      if(lab==='EXP'){ cur=String(Math.PI); fresh=true; update(); return; }
       if(lab==='ln'){ cur=String(Math.E); fresh=true; update(); return; }
-      if(lab==='Ans'){ /* DRG stub via Ans+ALPHA */ ang = ang==='deg'?'rad':(ang==='rad'?'grad':'deg'); if(ang==='grad') ang='deg'; update(); return; }
+      if(lab==='Ans'){ ang = ang==='deg'?'rad':'deg'; update(); return; }
       update(); return;
     }
 
-    // SHIFT secondary
     if(shift){
       shift=false;
       if(lab==='sin'){setCur(fromRad(Math.asin(num(cur))));update();return;}
       if(lab==='cos'){setCur(fromRad(Math.acos(num(cur))));update();return;}
       if(lab==='tan'){setCur(fromRad(Math.atan(num(cur))));update();return;}
-      if(lab==='sqrt'){setCur(Math.cbrt?Math.cbrt(num(cur)):Math.pow(num(cur),1/3));update();return;} // ∛ / x³
-      if(lab==='x^2'){setCur(Math.pow(num(cur),3));update();return;} // classroom: SHIFT x² → x³
-      if(lab==='Frac'){setCur(1/num(cur));update();return;}
+      if(lab==='x^3' || lab==='sqrt'){setCur(Math.cbrt?Math.cbrt(num(cur)):Math.pow(num(cur),1/3));update();return;}
       if(lab==='log'){setCur(Math.pow(10,num(cur)));update();return;}
       if(lab==='ln'){setCur(Math.exp(num(cur)));update();return;}
       if(lab==='EXP'){setCur(Math.PI);update();return;}
       if(lab===')'){setCur(Math.abs(num(cur)));update();return;}
       if(lab==='.'){ setCur(Math.random()); update(); return; }
-      if(lab==='x^-1'){setCur(1/num(cur));update();return;}
+      if(lab==='x^-1' || lab==='Frac'){setCur(1/num(cur));update();return;}
+      if(lab==='x^2'){setCur(Math.pow(num(cur),3));update();return;}
     }
 
     if(lab==='x^-1'){setCur(1/num(cur));update();return;}
+    if(lab==='Frac'){ update(); return; }
     if(lab==='Ans'){cur=String(ans);fresh=true;update();return;}
     if(lab==='sqrt'){setCur(Math.sqrt(num(cur)));update();return;}
     if(lab==='x^2'){setCur(Math.pow(num(cur),2));update();return;}
@@ -507,8 +531,7 @@ a.home:hover{background:#fff}
     }
     if(lab==='.'){ if(fresh){cur='0.';fresh=false;} else if(!cur.includes('.')) cur+='.'; update(); return; }
     if(/^[0-9]$/.test(lab)){ cur=(fresh||cur==='0')?lab:cur+lab; fresh=false; update(); return; }
-    if(lab===')'){ update(); return; }
-    if(lab==='('){update();return;}
+    if(lab===')'||lab==='('){ update(); return; }
   }
 
   document.getElementById('shell').addEventListener('click',e=>{
