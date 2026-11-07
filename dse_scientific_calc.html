@@ -284,7 +284,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
-    <span class="build-tag">外觀 v2 · 前綴 sin／BASE 單數</span>
+    <span class="build-tag">P0 v3 · π／%／nPr／分數／溢位</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -296,10 +296,10 @@ a.home:hover{background:#fff}
     <div class="device" id="device" aria-label="fx-50FH II 課堂模擬器">
       <div class="face" id="shell">
         <div class="brand">
-          <div class="casio">CASIO<em>fx-50FH II</em>
-            <div class="hkeaa"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>H.K.E.A.A. APPROVED</div>
+          <div class="casio">Classroom<em>fx-50FH II layout</em>
+            <div class="hkeaa"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>UNOFFICIAL · NOT EXAM-APPROVED</div>
           </div>
-          <div class="right"><span class="solar" title="solar"></span><span class="sfx">SUPER-FX PLUS</span></div>
+          <div class="right"><span class="solar" title="solar cell (decorative)"></span><span class="sfx">CLASSROOM SIM</span></div>
         </div>
 
         <div class="lcd-bezel">
@@ -371,7 +371,7 @@ a.home:hover{background:#fff}
           <div class="slot"><div class="leg"><span>d/c</span></div><button type="button" class="key blk sm" data-k="Frac">a b/c</button></div>
           <div class="slot"><div class="leg"><span></span></div><button type="button" class="key blk" data-k="sqrt">√</button></div>
           <div class="slot"><div class="leg"><span class="g">DEC</span></div><button type="button" class="key blk sm" data-k="x^2">x²</button></div>
-          <div class="slot"><div class="leg"><span>∛x</span><span class="g">HEX</span></div><button type="button" class="key blk" data-k="^">^</button></div>
+          <div class="slot"><div class="leg"><span>ˣ√</span><span class="g">HEX</span></div><button type="button" class="key blk" data-k="^">^</button></div>
           <div class="slot"><div class="leg"><span>10ˣ</span><span class="g">BIN</span></div><button type="button" class="key blk sm" data-k="log">log</button></div>
           <div class="slot"><div class="leg"><span>eˣ</span><span class="g">OCT</span><span class="r">e</span></div><button type="button" class="key blk sm" data-k="ln">ln</button></div>
         </div>
@@ -412,7 +412,7 @@ a.home:hover{background:#fff}
           <div class="row5">
             <div class="slot"><div class="leg"><span class="b">S-SUM</span></div><button type="button" class="key num" data-k="1">1</button></div>
             <div class="slot"><div class="leg"><span class="b">S-VAR</span></div><button type="button" class="key num" data-k="2">2</button></div>
-            <div class="slot"><div class="leg"><span>P-CMD</span></div><button type="button" class="key num" data-k="3">3</button></div>
+            <div class="slot"><div class="leg"><span style="opacity:.35;text-decoration:line-through">P-CMD</span></div><button type="button" class="key num" data-k="3">3</button></div>
             <div class="slot"><div class="leg"><span>Pol</span></div><button type="button" class="key num op" data-k="+">+</button></div>
             <div class="slot"><div class="leg"><span>Rec</span></div><button type="button" class="key num op" data-k="−">−</button></div>
           </div>
@@ -433,8 +433,8 @@ a.home:hover{background:#fff}
     <div id="panelBody"></div>
   </div>
 
-  <p class="hint">外觀 v2 · 前綴 sin／BASE 單數　｜　輸入同真機：先 sin 再數字再 EXE（前綴）　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
-  <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方）。依 Casio fx-50FH 說明書課堂重製：MODE／SETUP／FMLA 23 公式／CONST／Prog P1–P4；非原廠韌體。BASE／統計／複數／Casio BASIC 為課堂可用子集。</p>
+  <p class="hint">P0 v3 · π／%／nPr／分數／溢位　｜　輸入同真機：先 sin 再數字再 EXE（前綴）　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
+  <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方・非考試批准）。依說明書課堂重製：MODE／SETUP／FMLA／CONST；Prog＝按鍵巨集（≠ Casio BASIC）。BASE LOGIC／統計／複數為課堂可用子集。無 Casio／HKEAA 商標背書。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -541,8 +541,8 @@ a.home:hover{background:#fff}
       run(v){ const {Q,q,r}=v; if(r<=0) throw 0; const eps0=8.854187817e-12; return (Q*q)/(4*Math.PI*eps0*r*r); }},
     {no:'07', name:'Resistance', vars:['ρ','ℓ','S'], result:'R',
       run(v){ const R=v['ρ'], L=v['ℓ'], S=v.S; if(S<=0||L<=0||R<=0) throw 0; return R*L/S; }},
-    {no:'08', name:'MagneticForce', vars:['B','I','ℓ','θ'], result:'F',
-      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; return v.B*v.I*L*Math.sin(th); }},
+    {no:'08', name:'MagneticForce', vars:['I','B','ℓ','θ'], result:'F',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; return v.I*v.B*L*Math.sin(th); }},
     {no:'09', name:'RC VR', vars:['V','C','R','t'], result:'VR',
       run(v){ const {V,C,R,t}=v; if(C<=0||R<=0||t<=0) throw 0; return V*Math.exp(-t/(C*R)); }},
     {no:'10', name:'VoltageGain', vars:["E'","E"], result:'G',
@@ -569,10 +569,10 @@ a.home:hover{background:#fff}
       run(v){ const {K,x}=v; if(K<=0||x<=0) throw 0; return 0.5*K*x*x; }},
     {no:'21', name:'Bernoulli', vars:['v','z','ρ','P'], result:'C',
       run(v){ const {v:vv,z}=v; const rho=v['ρ'], P=v.P; if(vv<=0||z<=0||rho<=0||P<=0) throw 0; return 0.5*vv*vv + 9.80665*z + P/rho; }},
-    {no:'22', name:'Stadia height', vars:['ℓ','θ'], result:'h',
-      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; const K=100, C=0; return K*L*Math.sin(2*th)/2 + C*Math.sin(th); }},
-    {no:'23', name:'Stadia distance', vars:['ℓ','θ'], result:'S',
-      run(v){ const L=v['ℓ'], th=toRad(v['θ']); if(L<=0) throw 0; const K=100, C=0; return K*L*Math.cos(th)*Math.cos(th) + C*Math.cos(th); }}
+    {no:'22', name:'Stadia height', vars:['K','C','ℓ','θ'], result:'h',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']), K=v.K, C=v.C; if(L<=0) throw 0; return K*L*Math.sin(2*th)/2 + C*Math.sin(th); }},
+    {no:'23', name:'Stadia distance', vars:['K','C','ℓ','θ'], result:'S',
+      run(v){ const L=v['ℓ'], th=toRad(v['θ']), K=v.K, C=v.C; if(L<=0) throw 0; return K*L*Math.cos(th)*Math.cos(th) + C*Math.cos(th); }}
   ];
   let formulas = BUILTIN_FMLA;
   let fmlaIdx=0;
@@ -702,15 +702,17 @@ a.home:hover{background:#fff}
     if(!r) return 'Math ERROR';
     if(r.d===1) return String(r.n)+'.';
     if(fracForm==='decimal') return fmtNum(ratVal(r));
-    if(fracForm==='improper') return r.n+'/'+r.d;
+    // Casio LCD uses ⌟ separator
+    if(fracForm==='improper') return r.n+'⌟'+r.d;
     const w=Math.trunc(r.n/r.d), rem=Math.abs(r.n%r.d);
-    if(w===0) return (r.n<0?'-':'')+rem+'/'+r.d;
+    if(w===0) return (r.n<0?'-':'')+rem+'⌟'+r.d;
     if(rem===0) return String(w)+'.';
-    return (r.n<0&&w===0?'-':'')+w+' '+rem+'/'+r.d;
+    // mixed: a⌟b⌟c
+    return (r.n<0?'-':'')+Math.abs(w)+'⌟'+rem+'⌟'+r.d;
   }
 
   function fmtNum(v){
-    if(v==null || !Number.isFinite(v)) return 'Math ERROR';
+    if(v==null || !Number.isFinite(v) || Math.abs(v) >= 1e100) return 'Math ERROR';
     if(engSteps!==0) return fmtEng(v, engSteps);
     if(typeof dispFmt!=='undefined' && dispFmt==='fix'){
       return v.toFixed(fixDigits);
@@ -771,6 +773,14 @@ a.home:hover{background:#fff}
     return c;
   }
 
+  const OVERFLOW_LIM = 1e100;
+  function CalcError(kind, at){ const e=new Error(kind+' ERROR'); e.kind=kind; e.at=at; return e; }
+  function raise(kind, at){ throw CalcError(kind, at); }
+  function checkOverflow(v){
+    if(v==null || !Number.isFinite(v) || Math.abs(v) >= OVERFLOW_LIM) raise('Math');
+    return v;
+  }
+
   // ---- tokenizer / parser ----
   // Supports: numbers, fractions a⌟b⌟c as (a+b/c), ops + − × ÷ ^ , ( ) 
   // functions: sin cos tan asin acos atan sinh.. log ln sqrt cbrt abs fact rnd
@@ -778,37 +788,42 @@ a.home:hover{background:#fff}
   // constants/vars: π e Ans A-F X Y M
 
   function tokenize(src){
-    const s=src.replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'PI').replace(/²/g,'^2').replace(/³/g,'^3');
+    const s=src.replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'PI').replace(/²/g,'^2').replace(/³/g,'^3').replace(/Ran#/g,'Ran');
     const tokens=[];
     let i=0;
     while(i<s.length){
       const c=s[i];
       if(c===' '||c==='\t'){ i++; continue; }
-      if(/[0-9.]/.test(c) || (c==='e'||c==='E') && tokens.length && tokens[tokens.length-1].t==='num'){
-        // number incl sci
+      if(/[0-9.]/.test(c) || ((c==='e'||c==='E') && tokens.length && tokens[tokens.length-1].t==='num' && /[0-9.]/.test(s[i-1]||''))){
         let j=i;
         if(s[j]==='.') j++;
         while(/[0-9]/.test(s[j])) j++;
         if(s[j]==='.'){ j++; while(/[0-9]/.test(s[j])) j++; }
-        if(s[j]==='e'||s[j]==='E'){
+        if((s[j]==='e'||s[j]==='E') && /[0-9.]/.test(s[j-1]||'')){
           j++; if(s[j]==='+'||s[j]==='-') j++;
           while(/[0-9]/.test(s[j])) j++;
         }
         const raw=s.slice(i,j);
-        if(raw===''||raw==='.'||raw==='e'||raw==='E') throw new Error('bad num');
+        if(raw===''||raw==='.'||raw==='e'||raw==='E') raise('Syntax', i);
         tokens.push({t:'num', v:parseFloat(raw)});
         i=j; continue;
       }
-      // fraction marker ⌟ or special /
       if(c==='⌟'){ tokens.push({t:'frac'}); i++; continue; }
-      // multi-char ids
+      if(c==='%'){ tokens.push({t:'post', v:'pct'}); i++; continue; }
+      if(c==='ˣ'){ // ˣ√ infix
+        if(s.slice(i,i+2)==='ˣ√'){ tokens.push({t:'op', v:'xroot'}); i+=2; continue; }
+      }
       const rest=s.slice(i);
-      const m=rest.match(/^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|abs|fact|rnd|Pol|Rec|nPr|nCr|Ans|PI|ENG|dms|Ran)\b/);
+      const m=rest.match(/^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|fact|rnd|Pol|Rec|nPr|nCr|Ans|PI|ENG|dms|Ran|and|or|xor|xnor|Not|Neg)\b/);
       if(m){ tokens.push({t:'id', v:m[1]}); i+=m[1].length; continue; }
+      if(c==='e' && !/[0-9]/.test(s[i+1]||'')){ tokens.push({t:'id', v:'e'}); i++; continue; }
+      if((c==='P'||c==='C') && tokens.length && (tokens[tokens.length-1].t==='num' || tokens[tokens.length-1].t==='id' || (tokens[tokens.length-1].t==='op'&&tokens[tokens.length-1].v===')'))){
+        tokens.push({t:'op', v:c}); i++; continue;
+      }
       if(/[A-FXYM]/.test(c) && !/[a-z]/.test(s[i+1]||'')){ tokens.push({t:'id', v:c}); i++; continue; }
       if('+-*/^(),'.includes(c)){ tokens.push({t:'op', v:c}); i++; continue; }
       if(c==='!'){ tokens.push({t:'id', v:'fact'}); i++; continue; }
-      throw new Error('bad token @'+i+':'+c);
+      raise('Syntax', i);
     }
     return tokens;
   }
@@ -822,7 +837,20 @@ a.home:hover{background:#fff}
     let pos=0;
     function peek(){ return tokens[pos]; }
     function take(){ return tokens[pos++]; }
-    function parseExpr(){ return parseAdd(); }
+    function parseExpr(){ return parseLogic(); }
+    // BASE logic: and < or/xor/xnor (classroom subset; also allowed in COMP as integer bitwise)
+    function parseLogic(){
+      let left=parseAdd();
+      while(peek()&&peek().t==='id'&&(peek().v==='and'||peek().v==='or'||peek().v==='xor'||peek().v==='xnor')){
+        const op=take().v; const right=parseAdd();
+        const a=Math.trunc(left)|0, b=Math.trunc(right)|0;
+        if(op==='and') left=a&b;
+        else if(op==='or') left=a|b;
+        else if(op==='xor') left=a^b;
+        else left=~(a^b);
+      }
+      return left;
+    }
     function parseAdd(){
       let left=parseMul();
       while(peek()&&peek().t==='op'&&(peek().v==='+'||peek().v==='-')){
@@ -832,116 +860,193 @@ a.home:hover{background:#fff}
       return left;
     }
     function parseMul(){
-      let left=parsePow();
+      let left=parsePerm();
       while(peek()&&peek().t==='op'&&(peek().v==='*'||peek().v==='/'||peek().v===',')){
-        // comma only inside call
         if(peek().v===',') break;
-        const op=take().v; const right=parsePow();
+        const op=take().v; const right=parsePerm();
         left = op==='*' ? left*right : left/right;
       }
-      // implicit mul: num id or )(
       while(peek() && (peek().t==='num' || peek().t==='id' || (peek().t==='op'&&peek().v==='('))){
-        if(peek().t==='op'&&peek().v==='('){ left*=parsePow(); }
+        if(peek().t==='op'&&peek().v==='('){ left*=parsePerm(); }
         else if(peek().t==='id' && isFuncName(peek().v)) break;
-        else left*=parsePow();
+        else if(peek().t==='id' && (peek().v==='and'||peek().v==='or'||peek().v==='xor'||peek().v==='xnor')) break;
+        else left*=parsePerm();
+      }
+      return left;
+    }
+    function parsePerm(){
+      let left=parsePow();
+      while(peek()&&peek().t==='op'&&(peek().v==='P'||peek().v==='C')){
+        const op=take().v; const right=parsePow();
+        left = op==='P' ? nPr(left,right) : nCr(left,right);
+        if(!Number.isFinite(left)) raise('Math');
       }
       return left;
     }
     function parsePow(){
       let left=parseUnary();
       if(peek()&&peek().t==='op'&&peek().v==='^'){
-        take(); const right=parsePow(); // right-assoc
+        take(); const right=parsePow();
         left=Math.pow(left,right);
+        checkOverflow(left);
+      } else if(peek()&&peek().t==='op'&&peek().v==='xroot'){
+        take(); const right=parsePow();
+        const m=left, n=right;
+        if(m===0) raise('Math');
+        if(n<0){
+          if(!Number.isInteger(m) || m%2===0) raise('Math');
+          left=-Math.pow(-n, 1/m);
+        } else left=Math.pow(n, 1/m);
+        checkOverflow(left);
       }
       return left;
     }
     function isFuncName(v){
-      return /^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|abs|fact|rnd|Pol|Rec|nPr|nCr|dms|ENG|Ran)$/.test(v);
+      return /^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|exp|sqrt|cbrt|xroot|abs|fact|rnd|Pol|Rec|nPr|nCr|dms|ENG|Ran|Not|Neg)$/.test(v);
     }
     function parseUnary(){
       if(peek()&&peek().t==='op'&&peek().v==='-'){ take(); return -parseUnary(); }
       if(peek()&&peek().t==='op'&&peek().v==='+'){ take(); return parseUnary(); }
+      if(peek()&&peek().t==='id'&&peek().v==='Not'){ take(); return ~(Math.trunc(parseUnary())|0); }
+      if(peek()&&peek().t==='id'&&peek().v==='Neg'){ take(); return -Math.trunc(parseUnary()); }
       return parsePost();
     }
     function parsePost(){
       let left=parsePrim();
-      while(peek()&&peek().t==='id'&&peek().v==='fact'){ take(); left=factorial(left); }
-      while(peek()&&peek().t==='op'&&peek().v==='^' && tokens[pos+1] && tokens[pos+1].t==='num' && (tokens[pos+1].v===2||tokens[pos+1].v===3) && false){ /* handled */ }
+      while(true){
+        if(peek()&&peek().t==='id'&&peek().v==='fact'){ take(); left=factorial(left); if(!Number.isFinite(left)) raise('Math'); continue; }
+        if(peek()&&peek().t==='post'&&peek().v==='pct'){ take(); left=left/100; continue; }
+        break;
+      }
       return left;
     }
     function parsePrim(){
       const tk=peek();
-      if(!tk) throw new Error('eof');
+      if(!tk) raise('Syntax');
       if(tk.t==='num'){ take(); return tk.v; }
       if(tk.t==='op'&&tk.v==='('){
         take(); const v=parseExpr();
-        if(!peek()||peek().v!==')') throw new Error('paren');
+        if(!peek()||peek().v!==')') raise('Syntax');
         take(); return v;
       }
       if(tk.t==='id'){
         const id=take().v;
         if(id==='PI') return Math.PI;
-        if(id==='e' || id==='E' && false) return Math.E;
+        if(id==='e') return Math.E;
         if(id==='Ans') return ans;
         if(/^[A-FXYM]$/.test(id)) return vars[id]||0;
-        if(id==='Ran' || id==='rnd') return Math.random();
-        // function call optional (
+        if(id==='Ran') return Math.floor(Math.random()*1000)/1000;
         let arg, arg2;
         if(peek()&&peek().t==='op'&&peek().v==='('){
           take();
           arg=parseExpr();
           if(peek()&&peek().t==='op'&&peek().v===','){ take(); arg2=parseExpr(); }
-          if(!peek()||peek().v!==')') throw new Error('paren');
+          if(!peek()||peek().v!==')') raise('Syntax');
           take();
+        } else if(id==='xroot'){
+          // ˣ√ written as xroot(n) after base via SHIFT+^ inserting "ˣ√(" — handled as fn
+          arg=parseUnary();
         } else {
           arg=parseUnary();
         }
-        return applyFn(id, arg, arg2);
+        const out=applyFn(id, arg, arg2);
+        checkOverflow(out);
+        return out;
       }
-      throw new Error('prim');
+      raise('Syntax');
     }
     const val=parseExpr();
-    if(pos<tokens.length) throw new Error('trailing');
+    if(pos<tokens.length) raise('Syntax');
+    checkOverflow(val);
     return val;
   }
 
   function applyFn(id, a, b){
     switch(id){
-      case 'sin': return hyp?Math.sinh(toRad(a)):Math.sin(toRad(a));
-      case 'cos': return hyp?Math.cosh(toRad(a)):Math.cos(toRad(a));
-      case 'tan': return hyp?Math.tanh(toRad(a)):Math.tan(toRad(a));
-      case 'asin': return hyp?fromRad(Math.asinh(a)):fromRad(Math.asin(a));
-      case 'acos': return hyp?fromRad(Math.acosh(a)):fromRad(Math.acos(a));
-      case 'atan': return hyp?fromRad(Math.atanh(a)):fromRad(Math.atan(a));
+      case 'sin': return Math.sin(toRad(a));
+      case 'cos': return Math.cos(toRad(a));
+      case 'tan': return Math.tan(toRad(a));
+      case 'asin': {
+        if(Math.abs(a)>1) raise('Arg');
+        return fromRad(Math.asin(a));
+      }
+      case 'acos': {
+        if(Math.abs(a)>1) raise('Arg');
+        return fromRad(Math.acos(a));
+      }
+      case 'atan': return fromRad(Math.atan(a));
       case 'sinh': return Math.sinh(a);
       case 'cosh': return Math.cosh(a);
       case 'tanh': return Math.tanh(a);
       case 'asinh': return Math.asinh(a);
-      case 'acosh': return Math.acosh(a);
-      case 'atanh': return Math.atanh(a);
-      case 'log': return Math.log10?Math.log10(a):Math.log(a)/Math.LN10;
-      case 'ln': return Math.log(a);
+      case 'acosh': {
+        if(a<1) raise('Arg');
+        return Math.acosh(a);
+      }
+      case 'atanh': {
+        if(Math.abs(a)>=1) raise('Arg');
+        return Math.atanh(a);
+      }
+      case 'log': {
+        if(a<=0) raise('Arg');
+        return Math.log10?Math.log10(a):Math.log(a)/Math.LN10;
+      }
+      case 'ln': {
+        if(a<=0) raise('Arg');
+        return Math.log(a);
+      }
       case 'exp': return Math.exp(a);
-      case 'sqrt': return Math.sqrt(a);
+      case 'sqrt': {
+        if(a<0) raise('Arg');
+        return Math.sqrt(a);
+      }
       case 'cbrt': return Math.cbrt?Math.cbrt(a):Math.pow(a,1/3);
+      case 'xroot': {
+        // b-th root of a? CalcX: xroot(m, n) = n^(1/m); SHIFT+^ inserts ˣ√( after left value via infix style
+        // Our insert: leftˣ√(right) → we parse xroot as function of one arg after rewriting; binary via nPr style
+        // When called as applyFn('xroot', degree, radicand) from binary, or unary cbrt-like
+        if(b!=null && Number.isFinite(b)){
+          const m=a, n=b;
+          if(m===0) raise('Math');
+          if(n<0){
+            if(!Number.isInteger(m) || m%2===0) raise('Math');
+            return -Math.pow(-n, 1/m);
+          }
+          return Math.pow(n, 1/m);
+        }
+        // unary: cube root fallback not used; treat as Math.pow(a, 1/Ans) unlikely
+        return Math.pow(a, 1/3);
+      }
       case 'abs': return Math.abs(a);
-      case 'fact': return factorial(a);
+      case 'fact': {
+        const f=factorial(a);
+        if(!Number.isFinite(f)) raise('Arg');
+        return f;
+      }
       case 'rnd': return Math.round(a);
-      case 'nPr': return nPr(a,b);
-      case 'nCr': return nCr(a,b);
+      case 'nPr': {
+        const v=nPr(a,b);
+        if(!Number.isFinite(v)) raise('Math');
+        return v;
+      }
+      case 'nCr': {
+        const v=nCr(a,b);
+        if(!Number.isFinite(v)) raise('Math');
+        return v;
+      }
       case 'Pol': {
-        // x,y → r stored, theta in Y? classic: Pol(x,y) displays r, stores θ
         const r=Math.hypot(a,b); const th=fromRad(Math.atan2(b,a));
         vars.Y=th; vars.X=r; return r;
       }
       case 'Rec': {
-        // r,θ → x, y stored
         const x=a*Math.cos(toRad(b)), y=a*Math.sin(toRad(b));
         vars.X=x; vars.Y=y; return x;
       }
       case 'dms': return dmsToDec(a);
-      case 'ENG': return a; // display handled elsewhere
-      default: return NaN;
+      case 'ENG': return a;
+      case 'Not': return ~(Math.trunc(a)|0);
+      case 'Neg': return -Math.trunc(a);
+      default: raise('Syntax');
     }
   }
 
@@ -1060,7 +1165,7 @@ a.home:hover{background:#fff}
     update();
   }
   function insertTrig(base, inverse){
-    // hyp sticky only for the next trig key — bake sinh/asinh into the token
+    // hyp sticky only for the next trig key — bake sinh/asinh into the token (NO toRad)
     let name=base;
     if(hyp){
       name = inverse ? ('a'+base+'h') : (base+'h');
@@ -1096,16 +1201,18 @@ a.home:hover{background:#fff}
   }
 
   function commitValue(v, keepLine, asFrac){
-    if(!Number.isFinite(v)){ result='Math ERROR'; line=''; cursor=0; fresh=true; update(); return; }
+    if(v==null || !Number.isFinite(v) || Math.abs(v) >= 1e100){
+      result='Math ERROR'; /* keep line for cursor */ fresh=true; update(); return;
+    }
     ans=v;
     const r=ratFromNum(v);
     const wantFrac = asFrac || (fracForm!=='decimal' && preferFrac);
-    if(wantFrac && r && r.d!==1 && r.d<10000 && Math.abs(ratVal(r)-v)<1e-10){
+    if(wantFrac && r && r.d!==1 && r.d<=10000 && Math.abs(ratVal(r)-v)<1e-9){
       result=fmtRat(r);
     } else {
       result=fmtNum(v);
     }
-    preferFrac=false;
+    // keep preferFrac so SHIFT d/c can reformat; clear only on new entry
     if(!keepLine){ line=''; cursor=0; }
     fresh=true;
     update();
@@ -1115,20 +1222,77 @@ a.home:hover{background:#fff}
     const src=line.trim();
     if(!src){ commitValue(ans); return; }
     try{
-      // fraction-only exact path
-      const fr=src.match(/^(\d+)⌟(\d+)⌟(\d+)$/);
-      const fr2=src.match(/^(\d+)⌟(\d+)$/);
+      const fr=src.match(/^(-?\d+)⌟(\d+)⌟(\d+)$/);
+      const fr2=src.match(/^(-?\d+)⌟(\d+)$/);
       let v;
       if(fr){ preferFrac=true; v=ratVal(ratAdd(rat(+fr[1],1), rat(+fr[2],+fr[3]))); }
       else if(fr2){ preferFrac=true; v=ratVal(rat(+fr2[1],+fr2[2])); }
-      else { if(src.includes('⌟')) preferFrac=true; v=parseEval(src); }
+      else {
+        if(src.includes('⌟')) preferFrac=true;
+        // try exact rational for simple ⌟ +/− ⌟ patterns: a⌟b+c⌟d
+        const rf=tryEvalFracExpr(src);
+        if(rf){ preferFrac=true; v=ratVal(rf); }
+        else v=parseEval(src);
+      }
+      checkOverflow(v);
       history.push({line:src, result:v});
       if(history.length>30) history.shift();
       histIdx=-1;
       commitValue(v);
     }catch(e){
-      result='Math ERROR'; fresh=true; update();
+      const kind=(e && e.kind) || (e && /Arg/.test(String(e.message))?'Arg': /Syntax|bad|token|paren|eof|prim|trailing/.test(String(e&&e.message))?'Syntax':'Math');
+      result=kind+' ERROR';
+      // keep expression on LCD for error cursor (P0)
+      fresh=true; update();
     }
+  }
+
+  // Exact rational eval for classroom fraction drills: terms of a⌟b or a⌟b⌟c with + − × ÷
+  function tryEvalFracExpr(src){
+    if(!src.includes('⌟')) return null;
+    // only allow digits, ⌟, + − × ÷ * / ( ) and spaces
+    if(/[^0-9⌟+\-×÷*/() .\s]/.test(src)) return null;
+    try{
+      let t=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+      // tokenize numbers/fracs and ops with a tiny recursive descent on rationals
+      const toks=[];
+      let i=0;
+      while(i<t.length){
+        if(/\s/.test(t[i])){ i++; continue; }
+        if('+-*/()'.includes(t[i])){ toks.push(t[i]); i++; continue; }
+        const m=t.slice(i).match(/^(\d+)⌟(\d+)⌟(\d+)/);
+        if(m){ toks.push(ratAdd(rat(+m[1],1), rat(+m[2],+m[3]))); i+=m[0].length; continue; }
+        const m2=t.slice(i).match(/^(\d+)⌟(\d+)/);
+        if(m2){ toks.push(rat(+m2[1],+m2[2])); i+=m2[0].length; continue; }
+        const m3=t.slice(i).match(/^\d+(?:\.\d+)?/);
+        if(m3){ const r=ratFromNum(+m3[0]); if(!r) return null; toks.push(r); i+=m3[0].length; continue; }
+        return null;
+      }
+      let p=0;
+      function peek(){ return toks[p]; }
+      function take(){ return toks[p++]; }
+      function P(){
+        let left=M();
+        while(peek()==='+'||peek()==='-'){ const op=take(); const r=M(); left=op==='+'?ratAdd(left,r):ratSub(left,r); }
+        return left;
+      }
+      function M(){
+        let left=U();
+        while(peek()==='*'||peek()==='/'){ const op=take(); const r=U(); left=op==='*'?ratMul(left,r):ratDiv(left,r); }
+        return left;
+      }
+      function U(){
+        if(peek()==='-'){ take(); const r=U(); return rat(-r.n,r.d); }
+        if(peek()==='+'){ take(); return U(); }
+        if(peek()==='('){ take(); const r=P(); if(take()!==')') throw 0; return r; }
+        const v=take();
+        if(!v || typeof v!=='object') throw 0;
+        return v;
+      }
+      const out=P();
+      if(p!==toks.length) return null;
+      return out;
+    }catch(e){ return null; }
   }
 
   function applyUnaryImmediate(fnName, shiftPow){
@@ -1146,12 +1310,12 @@ a.home:hover{background:#fff}
     else if(fnName==='sqrt') v=Math.sqrt(v);
     else if(fnName==='log') v=Math.log10?Math.log10(v):Math.log(v)/Math.LN10;
     else if(fnName==='ln') v=Math.log(v);
-    else if(fnName==='sin') v=hyp?Math.sinh(toRad(v)):Math.sin(toRad(v));
-    else if(fnName==='cos') v=hyp?Math.cosh(toRad(v)):Math.cos(toRad(v));
-    else if(fnName==='tan') v=hyp?Math.tanh(toRad(v)):Math.tan(toRad(v));
-    else if(fnName==='asin') v=hyp?fromRad(Math.asinh(v)):fromRad(Math.asin(v));
-    else if(fnName==='acos') v=hyp?fromRad(Math.acosh(v)):fromRad(Math.acos(v));
-    else if(fnName==='atan') v=hyp?fromRad(Math.atanh(v)):fromRad(Math.atan(v));
+    else if(fnName==='sin') v=hyp?Math.sinh(v):Math.sin(toRad(v));
+    else if(fnName==='cos') v=hyp?Math.cosh(v):Math.cos(toRad(v));
+    else if(fnName==='tan') v=hyp?Math.tanh(v):Math.tan(toRad(v));
+    else if(fnName==='asin') v=hyp?Math.asinh(v):fromRad(Math.asin(v));
+    else if(fnName==='acos') v=hyp?Math.acosh(v):fromRad(Math.acos(v));
+    else if(fnName==='atan') v=hyp?Math.atanh(v):fromRad(Math.atan(v));
     else if(fnName==='dms'){
       // toggle: if result looks like dms display string containing ° use other way — use flag
       if(String(result).includes('°')){
@@ -1275,7 +1439,7 @@ a.home:hover{background:#fff}
       `<button type="button" class="pbtn" data-pedit="1">EDIT／錄製 → P${progIdx+1}</button>` +
       `<button type="button" class="pbtn" data-prun="1">RUN P${progIdx+1}</button>` +
       `<button type="button" class="pbtn" data-pcl="1">DEL／清空 P${progIdx+1}</button>` +
-      `<div class="psteps">指令子集：? → : ^　以及按鍵巨集（localStorage）</div>` +
+      `<div class="psteps">⚠ 按鍵巨集（錄製按鍵重播）≠ Casio BASIC；無 P-CMD／Goto／If。僅課堂練習用。</div>` +
       `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
     showPanel('Prog P1–P4', html);
   }
@@ -1396,10 +1560,10 @@ a.home:hover{background:#fff}
     if(k==='fix'){ dispFmt='fix'; setupAwait='fix'; toast('Fix：再按 0–9'); openSetup(); return; }
     if(k==='sci'){ dispFmt='sci'; setupAwait='sci'; toast('Sci：再按 1–0'); openSetup(); return; }
     if(k==='norm'){ dispFmt='norm'; normMode = normMode===1?2:1; toast('Norm'+normMode); hidePanel(); update(); return; }
-    if(k==='abc'){ fracForm='mixed'; toast('ab/c'); hidePanel(); update(); return; }
-    if(k==='dc'){ fracForm='improper'; toast('d/c'); hidePanel(); update(); return; }
-    if(k==='abi'){ cmplxFmt='rect'; toast('a+bi'); hidePanel(); update(); return; }
-    if(k==='rth'){ cmplxFmt='polar'; toast('r∠θ'); hidePanel(); update(); return; }
+    if(k==='abc'){ fracForm='mixed'; preferFrac=true; toast('ab/c'); hidePanel(); commitValue(currentValue(), true, true); return; }
+    if(k==='dc'){ fracForm='improper'; preferFrac=true; toast('d/c'); hidePanel(); commitValue(currentValue(), true, true); return; }
+    if(k==='abi'){ cmplxFmt='rect'; toast('a+bi'); hidePanel(); if(calcMode==='cmplx'){ result=fmtComplex(lastCmplx); } update(); return; }
+    if(k==='rth'){ cmplxFmt='polar'; toast('r∠θ'); hidePanel(); if(calcMode==='cmplx'){ result=fmtComplex(lastCmplx); } update(); return; }
     if(k==='freqon'){ freqOn=true; toast('FreqOn'); hidePanel(); return; }
     if(k==='freqoff'){ freqOn=false; toast('FreqOff'); hidePanel(); return; }
     if(k==='contrast'){ toast('Contrast：課堂 stub'); return; }
@@ -1468,8 +1632,13 @@ a.home:hover{background:#fff}
     ans=v; result=fmtBase(v); history.push({line:src,result:v}); line=''; cursor=0; fresh=true; update();
   }
   function parseComplex(src){
-    // forms: a+bi | a-bi | bi | a | i
+    // forms: a+bi | a-bi | bi | a | i | r∠θ
     src=String(src).replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*');
+    const pol=src.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)∠([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)$/);
+    if(pol){
+      const r=+pol[1], th=toRad(+pol[2]);
+      return {re:r*Math.cos(th), im:r*Math.sin(th)};
+    }
     if(!src) return {re:ans, im:0};
     if(/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(src) || src==='Ans'){
       const v=src==='Ans'?ans:Number(src); return {re:v, im:0};
@@ -1508,6 +1677,11 @@ a.home:hover{background:#fff}
     if(!z || !Number.isFinite(z.re) || !Number.isFinite(z.im)) return 'Math ERROR';
     lastCmplx={re:z.re, im:z.im};
     if(showIm) return fmtNum(z.im)+'i';
+    if(cmplxFmt==='polar'){
+      const r=Math.hypot(z.re,z.im);
+      const th=fromRad(Math.atan2(z.im,z.re));
+      return fmtNum(r).replace(/\.$/,'')+'∠'+fmtNum(th).replace(/\.$/,'');
+    }
     if(Math.abs(z.im)<1e-12) return fmtNum(z.re);
     const imAbs=Math.abs(z.im);
     const imStr = (imAbs===1?'':fmtNum(imAbs).replace(/\.$/,'')) + 'i';
@@ -1533,6 +1707,14 @@ a.home:hover{background:#fff}
     const sn=Math.sqrt(Math.max(0, sumsq/n - mean*mean));
     const sn1=n>1?Math.sqrt(Math.max(0, (sumsq-n*mean*mean)/(n-1))):NaN;
     return {n,sum,mean,sumsq,sn,sn1};
+  }
+  function openBaseLogic(){
+    uiMode='logic';
+    const html = `<div class="meta">BASE LOGIC（課堂子集）　按鍵插入運算子</div>` +
+      ['and','or','xor','xnor','Not','Neg'].map(op=>`<button type="button" class="pbtn" data-logic="${op}">${op}</button>`).join('') +
+      `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
+    showPanel('LOGIC', html);
+    toast('LOGIC：and／or／xor／xnor／Not／Neg');
   }
   function openStatPanel(kind){
     if(calcMode!=='sd' && calcMode!=='reg'){ toast('請先 MODE→SD／REG'); return; }
@@ -1585,7 +1767,7 @@ a.home:hover{background:#fff}
   }
   function recallVar(name){
     if(name==='π'){ insertText('π'); rclWait=false; alpha=false; update(); return; }
-    if(name==='e'){ insertText(String(Math.E)); rclWait=false; alpha=false; update(); return; }
+    if(name==='e'){ insertText('e'); rclWait=false; alpha=false; update(); return; }
     if(/^[A-FXYM]$/.test(name)){
       const v=vars[name]||0;
       if(fresh){ line=''; cursor=0; fresh=false; }
@@ -1743,12 +1925,18 @@ a.home:hover{background:#fff}
       rclWait=false;
     }
 
-    // ALPHA layer
+    // ALPHA layer — insert symbols into expression (never immediate commit)
     if(alpha){
       alpha=false;
       const m=ALPHA_MAP[lab];
-      if(m==='π'){ commitValue(Math.PI); return; }
-      if(m==='e'){ commitValue(Math.E); return; }
+      if(m==='π'){
+        if(fresh){line='';cursor=0;fresh=false;}
+        insertText('π'); update(); return;
+      }
+      if(m==='e'){
+        if(fresh){line='';cursor=0;fresh=false;}
+        insertText('e'); update(); return;
+      }
       if(m==='i'){
         if(fresh){line='';cursor=0;fresh=false;}
         insertText('i'); update(); return;
@@ -1769,34 +1957,73 @@ a.home:hover{background:#fff}
       if(lab==='tan'){ insertTrig('tan', true); return; }
       if(lab==='log'){ if(calcMode==='base'){ setBaseRadix(2); return; } insertPrefixFn('10^('); return; }
       if(lab==='ln'){ if(calcMode==='base'){ setBaseRadix(8); return; } insertPrefixFn('exp('); return; }
-      if(lab==='x^3' || lab==='^'){ if(lab==='^' && calcMode==='base'){ setBaseRadix(16); return; } insertPrefixFn('cbrt('); return; }
-      if(lab==='x^2'){ if(calcMode==='base'){ setBaseRadix(10); return; } insertPostfix('^3'); return; }
+      // SHIFT+^ = ˣ√ (xth root); in BASE = HEX. Do NOT map to cbrt.
+      if(lab==='^'){
+        if(calcMode==='base'){ setBaseRadix(16); return; }
+        if(fresh){ line=String(ans).replace(/\.0$/,''); cursor=line.length; fresh=false; }
+        insertText('ˣ√'); update(); return;
+      }
+      // SHIFT+x³ stays cube root via x^3 key legend ∛
+      if(lab==='x^3'){ insertPrefixFn('cbrt('); return; }
+      // SHIFT+x²: only DEC in BASE; outside BASE do nothing (legend is DEC, not cube)
+      if(lab==='x^2'){ if(calcMode==='base'){ setBaseRadix(10); return; } update(); return; }
       if(lab==='1'){ openStatPanel('sum'); return; }
       if(lab==='2'){ openStatPanel('var'); return; }
-      if(lab==='x^-1'){ insertPostfix('!'); return; }
-      if(lab==='Frac'){ fracForm = fracForm==='mixed'?'improper':fracForm==='improper'?'decimal':'mixed'; toast('分數顯示：'+fracForm); commitValue(currentValue()); return; }
-      if(lab==='('){ insertPostfix('%'); return; }
+      if(lab==='x^-1'){
+        if(calcMode==='base'){ openBaseLogic(); return; }
+        insertPostfix('!'); return;
+      }
+      if(lab==='Frac'){
+        // d/c: cycle mixed ↔ improper ↔ decimal and refresh LCD
+        preferFrac=true;
+        fracForm = fracForm==='mixed'?'improper':fracForm==='improper'?'decimal':'mixed';
+        toast('分數顯示：'+(fracForm==='mixed'?'ab/c':fracForm==='improper'?'d/c':'小數'));
+        commitValue(currentValue(), true, fracForm!=='decimal');
+        return;
+      }
+      if(lab==='('){ if(fresh){ line=String(ans).replace(/\.0$/,''); cursor=line.length; fresh=false; } insertText('%'); update(); return; }
       if(lab===')'){ insertPrefixFn('abs('); return; }
       if(lab==='M+'){ vars.M -= currentValue(); toast('M='+fmtNum(vars.M)); fresh=true; update(); return; }
       if(lab==='7'){ openConst(); return; }
       if(lab==='9'){ openClr(); return; }
       if(lab==='DEL'){ insertMode=!insertMode; toast(insertMode?'INS 插入':'OVER 覆寫'); update(); return; }
-      if(lab==='×'){ if(fresh){line='';cursor=0;fresh=false;} insertText('nPr('); update(); return; }
-      if(lab==='÷'){ if(fresh){line='';cursor=0;fresh=false;} insertText('nCr('); update(); return; }
+      // nPr / nCr infix P / C
+      if(lab==='×'){ if(fresh){ line=String(ans).replace(/\.0$/,''); cursor=line.length; fresh=false; } insertText('P'); update(); return; }
+      if(lab==='÷'){ if(fresh){ line=String(ans).replace(/\.0$/,''); cursor=line.length; fresh=false; } insertText('C'); update(); return; }
       if(lab==='+'){ if(fresh){line='';cursor=0;fresh=false;} insertText('Pol('); update(); return; }
       if(lab==='−'){ if(fresh){line='';cursor=0;fresh=false;} insertText('Rec('); update(); return; }
       if(lab==='0'){ insertPrefixFn('rnd('); return; }
-      if(lab==='.'){ commitValue(Math.random()); return; }
-      if(lab==='Ans'){ // DRG
-        ang = ang==='deg'?'rad':ang==='rad'?'gra':'deg';
-        toast(ang.toUpperCase()); update(); return;
+      // Ran#: insert token, evaluate on EXE
+      if(lab==='.'){ if(fresh){line='';cursor=0;fresh=false;} insertText('Ran#'); update(); return; }
+      // SHIFT+EXP → π
+      if(lab==='EXP'){ if(fresh){line='';cursor=0;fresh=false;} insertText('π'); update(); return; }
+      // DRG▸: convert displayed numeric value between Deg/Rad/Gra
+      if(lab==='Ans'){
+        const v=currentValue();
+        let out=v;
+        if(ang==='deg'){ // Deg → Rad
+          out=v*Math.PI/180; ang='rad';
+        } else if(ang==='rad'){ // Rad → Gra
+          out=v*200/Math.PI; ang='gra';
+        } else { // Gra → Deg
+          out=v*180/200; ang='deg';
+        }
+        toast('DRG▸ '+ang.toUpperCase());
+        preferFrac=false;
+        commitValue(out, true);
+        return;
       }
       if(lab==='ENG'){ engSteps -= 1; commitValue(currentValue()); return; }
       if(lab==='MODE'){ openSetup(); return; }
-      if(lab==='sqrt'){ insertPrefixFn('cbrt('); return; }
-      if(lab==='EXE'){ // Re⇔Im in CMPLX
+      // SHIFT+√: no-op (remove wrong cbrt). Cube root is SHIFT+x³.
+      if(lab==='sqrt'){ update(); return; }
+      if(lab==='EXE'){
         if(calcMode==='cmplx'){ showIm=!showIm; result=fmtComplex(lastCmplx); toast(showIm?'Im':'Re'); update(); return; }
       }
+      // SHIFT+(-) → ∠ for CMPLX polar entry
+      if(lab==='(-)'){ if(fresh){line='';cursor=0;fresh=false;} insertText('∠'); update(); return; }
+      // SHIFT+3 P-CMD: honest toast — not Casio BASIC
+      if(lab==='3'){ toast('P-CMD 未實作（Prog＝按鍵巨集≠BASIC）'); update(); return; }
       update(); return;
     }
 
@@ -1853,7 +2080,7 @@ a.home:hover{background:#fff}
     if(lab==='RIGHT'){ if(fresh){ fresh=false; } cursor=Math.min(line.length,cursor+1); update(); return; }
 
     if(lab==='DEL'){
-      if(fresh || result==='Math ERROR'){ clearAll(); return; }
+      if(fresh || /ERROR$/.test(result)){ clearAll(); return; }
       if(cursor>0){ line=line.slice(0,cursor-1)+line.slice(cursor); cursor--; }
       if(!line){ result='0.'; fresh=true; }
       else if(/^[0-9.eE+-]+$/.test(line)) result = line.includes('.')||/[eE]/.test(line)?line:line+'.';
@@ -1938,8 +2165,16 @@ a.home:hover{background:#fff}
   // Panel clicks
   if(panel){
     panel.addEventListener('click', e=>{
-      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-cpage],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv],[data-radix]');
+      const t=e.target.closest('[data-ci],[data-clr],[data-fi],[data-cpage],[data-pi],[data-prun],[data-pedit],[data-pcl],[data-pexit],[data-mode],[data-modepage],[data-setup],[data-statv],[data-radix],[data-logic]');
       if(!t) return;
+      if(t.dataset.logic){
+        hidePanel();
+        if(fresh){ line=''; cursor=0; fresh=false; }
+        const op=t.dataset.logic;
+        if(op==='Not'||op==='Neg') insertText(op+'(');
+        else insertText(op);
+        update(); return;
+      }
       if(t.dataset.radix){
         hidePanel();
         setBaseRadix(+t.dataset.radix);
