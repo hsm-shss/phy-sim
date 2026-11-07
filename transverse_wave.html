@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 橫波 y = A sin(kx − ωt) | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🌊 橫波 y = A sin(kx − ωt)</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">調節振幅、波長、頻率，觀察橫波波形與質點上下振動（波速 v = fλ）。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">參數</h2>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">振幅 A：<b id="Av">40</b> px</span>
+                        <input id="A" type="range" min="10" max="80" step="1" value="40" class="w-full accent-sky-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">波長 λ：<b id="Lv">120</b> px</span>
+                        <input id="L" type="range" min="60" max="240" step="5" value="120" class="w-full accent-sky-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">頻率 f：<b id="fv">0.5</b> Hz</span>
+                        <input id="f" type="range" min="0.1" max="2" step="0.05" value="0.5" class="w-full accent-sky-600 mt-1"></label>
+                    <div class="rounded-xl bg-sky-50 border border-sky-100 p-3 text-sm">
+                        <p>波速 v = fλ = <b id="vv">—</b> px/s</p>
+                        <p class="text-xs text-slate-500 mt-1">紅點：固定 x 的質點，只上下振動</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="640" height="320" class="w-full h-auto rounded-xl bg-slate-900"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const A=document.getElementById('A'),L=document.getElementById('L'),f=document.getElementById('f');
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  let t0=performance.now();
+  function frame(ts){
+    const a=+A.value,lam=+L.value,freq=+f.value,t=(ts-t0)/1000;
+    document.getElementById('Av').textContent=a;document.getElementById('Lv').textContent=lam;document.getElementById('fv').textContent=freq.toFixed(2);
+    document.getElementById('vv').textContent=(freq*lam).toFixed(1);
+    const k=2*Math.PI/lam, w=2*Math.PI*freq, cy=160;
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,640,320);
+    ctx.strokeStyle='#334155';ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(640,cy);ctx.stroke();
+    ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();
+    for(let x=0;x<=640;x++){const y=cy - a*Math.sin(k*x - w*t); if(x===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke();ctx.lineWidth=1;
+    const px=200; const py=cy - a*Math.sin(k*px - w*t);
+    ctx.fillStyle='#f87171';ctx.beginPath();ctx.arc(px,py,6,0,6.28);ctx.fill();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>

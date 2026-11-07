@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☢️ α 粒子空氣射程 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">☢️ α 粒子空氣射程</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">定性演示 α 粒子在空氣／吸收體中的射程：能量越高射程越長；吸收體可完全阻擋。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">參數</h2>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">α 能量 E：<b id="Ev">5.0</b> MeV</span>
+                        <input id="E" type="range" min="2" max="8" step="0.1" value="5" class="w-full accent-rose-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">空氣壓力（相對）：<b id="Pv">1.0</b></span>
+                        <input id="P" type="range" min="0.2" max="2" step="0.1" value="1" class="w-full accent-rose-600 mt-1"></label>
+                    <label class="flex items-center gap-2 text-sm"><input id="abs" type="checkbox" class="accent-rose-600"> 插入紙片吸收體</label>
+                    <div class="rounded-xl bg-rose-50 border border-rose-100 p-3 text-sm">
+                        <p>估計射程 R ≈ <b id="Rout">—</b> cm（空氣）</p>
+                        <p class="text-xs text-slate-500 mt-1">經驗式（示意）：R ≈ 0.31 E^(3/2) / P</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="560" height="280" class="w-full h-auto rounded-xl bg-slate-900"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const E=document.getElementById('E'),P=document.getElementById('P'),abs=document.getElementById('abs');
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  let particles=[];
+  function rangeCm(){return 0.31*Math.pow(+E.value,1.5)/(+P.value);}
+  function spawn(){
+    for(let i=0;i<3;i++) particles.push({x:40,y:80+i*60,alive:true,path:0});
+  }
+  setInterval(()=>{if(particles.filter(p=>p.alive).length<6)spawn();},400);
+  function frame(){
+    document.getElementById('Ev').textContent=(+E.value).toFixed(1);
+    document.getElementById('Pv').textContent=(+P.value).toFixed(1);
+    const R=rangeCm(); document.getElementById('Rout').textContent=R.toFixed(2);
+    const scale=40; // px per cm
+    ctx.fillStyle='#0f172a';ctx.fillRect(0,0,560,280);
+    ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';ctx.fillText('源',20,30);
+    ctx.fillStyle='#f43f5e';ctx.fillRect(30,60,12,160);
+    if(abs.checked){ctx.fillStyle='#e2e8f0';ctx.fillRect(90,40,14,200);ctx.fillStyle='#64748b';ctx.fillText('紙',92,30);}
+    // range marker
+    ctx.strokeStyle='#64748b';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(40+R*scale,40);ctx.lineTo(40+R*scale,240);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#94a3b8';ctx.fillText('R', 40+R*scale+4, 50);
+    particles.forEach(p=>{
+      if(!p.alive)return;
+      if(abs.checked && p.x>=90){p.alive=false;return;}
+      p.x+=2.5; p.path=p.x-40;
+      if(p.path>R*scale){p.alive=false;return;}
+      ctx.fillStyle='#fb7185';ctx.beginPath();ctx.arc(p.x,p.y,3,0,6.28);ctx.fill();
+    });
+    particles=particles.filter(p=>p.alive||p.x<600);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>

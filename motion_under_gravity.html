@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⬇️ 自由落體／重力加速度 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+        
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">⬇️ 自由落體／重力加速度</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">觀察自由落體 s = ½gt²；用時間標記點估算 g；比較有無空氣阻力的定性差異。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">設定</h2>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">g：<b id="gv">9.81</b> m/s²</span>
+                        <input id="g" type="range" min="5" max="15" step="0.01" value="9.81" class="w-full accent-orange-600 mt-1"></label>
+                    <label class="block text-sm"><span class="font-medium text-slate-600">掉落高度 H：<b id="hv">20</b> m</span>
+                        <input id="H" type="range" min="5" max="40" step="1" value="20" class="w-full accent-orange-600 mt-1"></label>
+                    <label class="flex items-center gap-2 text-sm"><input id="drag" type="checkbox" class="accent-orange-600"> 簡易空氣阻力（定性）</label>
+                    <div class="flex gap-2">
+                        <button id="drop" class="flex-1 px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold">投放</button>
+                        <button id="reset" class="flex-1 px-4 py-2 rounded-xl bg-slate-100 text-sm font-bold">重設</button>
+                    </div>
+                    <div class="rounded-xl bg-orange-50 border border-orange-100 p-3 text-sm space-y-1">
+                        <p>時間 t：<b id="tout">0.00</b> s</p>
+                        <p>位置 y：<b id="yout">0.00</b> m</p>
+                        <p>速率 v：<b id="vout">0.00</b> m/s</p>
+                        <p class="text-xs text-slate-500">理論落地：t = √(2H/g)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <canvas id="cv" width="480" height="480" class="w-full h-auto rounded-xl bg-slate-50"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+<script>
+
+(function(){
+  const gEl=document.getElementById('g'),HEl=document.getElementById('H'),drag=document.getElementById('drag');
+  const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  let running=false,t=0,y=0,v=0,markers=[];
+  function syncLabels(){document.getElementById('gv').textContent=(+gEl.value).toFixed(2);document.getElementById('hv').textContent=HEl.value;}
+  function draw(){
+    const H=+HEl.value; syncLabels();
+    ctx.clearRect(0,0,480,480);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,480,480);
+    const top=40,bot=440,scale=(bot-top)/H;
+    ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(80,top);ctx.lineTo(80,bot);ctx.lineTo(400,bot);ctx.stroke();
+    ctx.fillStyle='#64748b';ctx.font='12px sans-serif';ctx.fillText('y=0 (釋放)',90,top+12);ctx.fillText('地面 y=H',90,bot+16);
+    markers.forEach(m=>{const yy=top+m.y*scale;ctx.strokeStyle='#fb923c';ctx.beginPath();ctx.moveTo(100,yy);ctx.lineTo(200,yy);ctx.stroke();ctx.fillText(m.t.toFixed(2)+'s',205,yy+4);});
+    const yy=top+y*scale;
+    ctx.fillStyle='#ea580c';ctx.beginPath();ctx.arc(140,yy,12,0,6.28);ctx.fill();
+    document.getElementById('tout').textContent=t.toFixed(2);
+    document.getElementById('yout').textContent=y.toFixed(2);
+    document.getElementById('vout').textContent=v.toFixed(2);
+  }
+  let last=null;
+  function loop(ts){
+    if(!running){draw();return;}
+    if(last==null)last=ts; const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    const g=+gEl.value; const H=+HEl.value;
+    const a = drag.checked ? Math.max(0.5, g - 0.015*v*v) : g;
+    v+=a*dt; y+=v*dt; t+=dt;
+    if(Math.floor(t*2)>markers.length) markers.push({t,y:Math.min(y,H)});
+    if(y>=H){y=H;v=0;running=false;last=null;}
+    draw(); if(running) requestAnimationFrame(loop);
+  }
+  document.getElementById('drop').onclick=()=>{y=0;v=0;t=0;markers=[];running=true;last=null;requestAnimationFrame(loop);};
+  document.getElementById('reset').onclick=()=>{running=false;y=0;v=0;t=0;markers=[];last=null;draw();};
+  [gEl,HEl].forEach(e=>e.addEventListener('input',()=>{if(!running)draw();}));
+  draw();
+})();
+
+</script>
+</body>
+</html>
