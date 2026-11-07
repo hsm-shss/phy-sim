@@ -284,7 +284,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
-    <span class="build-tag">外觀 v2 · 前綴 sin／BASE</span>
+    <span class="build-tag">外觀 v2 · 前綴 sin／BASE 單數</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -433,7 +433,7 @@ a.home:hover{background:#fff}
     <div id="panelBody"></div>
   </div>
 
-  <p class="hint">外觀 v2 · 前綴 sin／BASE　｜　輸入同真機：先 sin 再數字再 EXE（前綴）　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
+  <p class="hint">外觀 v2 · 前綴 sin／BASE 單數　｜　輸入同真機：先 sin 再數字再 EXE（前綴）　｜　黃色＝SHIFT　紅色＝ALPHA　MODE＝螢幕選單（1–6）　選 3 後 LCD 顯示 BASE 進制　SHIFT+MODE＝SETUP　FMLA＝23公式　SHIFT+7＝CONST　Enter＝EXE</p>
   <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方）。依 Casio fx-50FH 說明書課堂重製：MODE／SETUP／FMLA 23 公式／CONST／Prog P1–P4；非原廠韌體。BASE／統計／複數／Casio BASIC 為課堂可用子集。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -1447,8 +1447,15 @@ a.home:hover{background:#fff}
   function evalBaseLine(){
     const src=line.trim();
     if(!src){ result=fmtBase(ans); fresh=true; update(); return; }
-    // very small classroom parser: a±b / a*b / a/b with optional hex letters
+    // classroom BASE-N: bare number OR a±b / a*b / a/b (hex letters A–F allowed)
     const norm=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+    const bare=norm.match(/^([0-9A-Fa-f]+)$/);
+    if(bare){
+      const v=parseBaseInput(bare[1]);
+      if(!Number.isFinite(v)){ result='Math ERROR'; fresh=true; update(); return; }
+      ans=v; result=fmtBase(v); history.push({line:src,result:v}); line=''; cursor=0; fresh=true; update();
+      return;
+    }
     const m=norm.match(/^([0-9A-Fa-f]+)\s*([+\-*/])\s*([0-9A-Fa-f]+)$/);
     if(!m){ result='Math ERROR'; fresh=true; update(); return; }
     const a=parseInt(m[1], baseRadix), b=parseInt(m[3], baseRadix), op=m[2];
