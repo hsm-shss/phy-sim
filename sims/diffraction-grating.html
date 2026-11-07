@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">Physics Lab: Diffraction Grating Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+        }
+        input[type=range]:focus {
+            outline: none; 
+        }
+        .neon-text {
+            text-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+        }
+        .screen-glow {
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col relative">
+
+    <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-lg">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-microscope text-2xl text-blue-400"></i>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider" data-i18n="headerTitle">Physics Lab: Diffraction Grating</h1>
+                    <p class="text-xs text-gray-400" data-i18n="headerSubtitle">Formula Check: d sin θ = n λ</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" data-lang-switch="en-US" class="px-3 py-1 text-xs font-semibold border border-gray-600 rounded-full bg-white/70 text-gray-800 hover:bg-white hover:text-gray-900 transition" data-i18n="languageButtonEnglish">EN</button>
+                <button type="button" data-lang-switch="zh-HK" class="px-3 py-1 text-xs font-semibold border border-gray-600 rounded-full bg-white/70 text-gray-800 hover:bg-white hover:text-gray-900 transition" data-i18n="languageButtonChinese">繁</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-1 space-y-6 bg-gray-800 p-6 rounded-xl shadow-xl h-fit">
+            <h2 class="text-lg font-semibold border-l-4 border-blue-500 pl-3 mb-4" data-i18n="controlsHeading">Experiment Parameters</h2>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-medium text-gray-300" data-i18n="wavelengthLabel">Laser wavelength (λ)</label>
+                    <span id="lambda-display" class="font-mono font-bold text-blue-400 bg-gray-900 px-2 py-1 rounded">532 nm</span>
+                </div>
+                <input type="range" id="lambda-slider" min="380" max="750" value="532" step="1" 
+                    class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb-color">
+                <div class="w-full h-3 rounded bg-gradient-to-r from-purple-600 via-blue-500 via-green-500 via-yellow-400 via-orange-500 to-red-600 opacity-80"></div>
+            </div>
+
+            <div class="space-y-2 pt-4 border-t border-gray-700">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-medium text-gray-300" data-i18n="linesLabel">Grating line density (N)</label>
+                    <span id="lines-display" class="font-mono font-bold text-gray-100 bg-gray-900 px-2 py-1 rounded">500 lines/mm</span>
+                </div>
+                <input type="range" id="lines-slider" min="100" max="1200" value="500" step="50" 
+                    class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white">
+                <p class="text-xs text-gray-400 mt-1">
+                    <span data-i18n="spacingLabel">Grating spacing d =</span>
+                    <span id="d-value" class="text-yellow-400">2.00</span>
+                    <span data-i18n="micrometerUnit">µm</span>
+                </p>
+            </div>
+
+            <div class="bg-gray-900/50 p-4 rounded border border-gray-700 mt-6">
+                <h3 class="text-sm font-bold text-gray-300 mb-2"><i class="fas fa-book-open mr-2"></i><span data-i18n="theoryHeading">Theory Insight</span></h3>
+                <p class="text-xs text-gray-400 leading-relaxed" data-i18n="theoryText">
+                    Light diffracts as it passes through each slit. Increasing the wavelength or decreasing the grating spacing widens the diffraction angle.
+                </p>
+                <span class="block mt-2 text-center font-serif italic text-lg text-blue-200" data-i18n="theoryEquation">d sin θ = n λ</span>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-700 relative">
+                <div class="absolute top-3 left-3 z-10 bg-gray-900/80 px-3 py-1 rounded text-xs text-gray-300 border border-gray-600" data-i18n="screenLabel">
+                    Screen View
+                </div>
+                <canvas id="diffraction-canvas" class="w-full h-64 screen-glow"></canvas>
+                <div class="absolute bottom-0 w-full flex justify-between px-4 text-[10px] text-gray-500 pb-1 select-none font-mono">
+                    <span>-90°</span>
+                    <span>-45°</span>
+                    <span data-i18n="screenCenterMarker">0° (Central Maximum)</span>
+                    <span>+45°</span>
+                    <span>+90°</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-700 flex-grow">
+                <div class="p-4 bg-gray-750 border-b border-gray-700 flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-200"><i class="fas fa-table mr-2"></i><span data-i18n="dataHeading">Measurement Data</span></h3>
+                    <span class="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded">
+                        <span data-i18n="maxOrderLabel">Max order (nₘₐₓ):</span> <span id="max-order"></span>
+                    </span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-900/50">
+                            <tr>
+                                <th class="px-6 py-3" data-i18n="columnOrder">Order (n)</th>
+                                <th class="px-6 py-3" data-i18n="columnFormula">Formula (sin θ)</th>
+                                <th class="px-6 py-3 text-right" data-i18n="columnAngle">Diffraction angle (θ)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-gray-700"></tbody>
+                    </table>
+                </div>
+                <div id="warning-msg" class="hidden p-3 bg-red-900/30 text-red-300 text-xs text-center border-t border-red-900" data-i18n="warningMessage">
+                    Note: some higher orders cannot form because sin θ &gt; 1.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            "en-US": {
+                title: "Physics Lab: Diffraction Grating Simulation",
+                languageButtonEnglish: "EN",
+                languageButtonChinese: "繁",
+                headerTitle: "Physics Lab: Diffraction Grating",
+                headerSubtitle: "Formula Check: d sin θ = n λ",
+                controlsHeading: "Experiment Parameters",
+                wavelengthLabel: "Laser wavelength (λ)",
+                linesLabel: "Grating line density (N)",
+                spacingLabel: "Grating spacing d =",
+                micrometerUnit: "µm",
+                theoryHeading: "Theory Insight",
+                theoryText: "Light diffracts as it passes through each slit. Increasing the wavelength or decreasing the grating spacing widens the diffraction angle.",
+                theoryEquation: "d sin θ = n λ",
+                screenLabel: "Screen View",
+                screenCenterMarker: "0° (Central Maximum)",
+                dataHeading: "Measurement Data",
+                maxOrderLabel: "Max order (nₘₐₓ):",
+                columnOrder: "Order (n)",
+                columnFormula: "Formula (sin θ)",
+                columnAngle: "Diffraction angle (θ)",
+                warningMessage: "Note: some higher orders cannot form because sin θ > 1.",
+                lambdaDisplayFormat: "{value} nm",
+                linesDisplayFormat: "{value} lines/mm",
+                tableCentralOrder: "0 (Central Bright Fringe)"
+            },
+            "zh-HK": {
+                title: "物理實驗室：繞射光柵模擬",
+                languageButtonEnglish: "EN",
+                languageButtonChinese: "繁",
+                headerTitle: "物理實驗室：繞射光柵",
+                headerSubtitle: "公式驗證：d sin θ = n λ",
+                controlsHeading: "實驗參數設定",
+                wavelengthLabel: "激光波長 (λ)",
+                linesLabel: "光柵線密度 (N)",
+                spacingLabel: "光柵間距 d =",
+                micrometerUnit: "微米",
+                theoryHeading: "原理提示",
+                theoryText: "光線通過狹縫時會產生繞射。波長增加或光柵間距減少時，繞射角度會變大。",
+                theoryEquation: "d sin θ = n λ",
+                screenLabel: "模擬屏幕視角",
+                screenCenterMarker: "0°（中央亮紋）",
+                dataHeading: "測量數據",
+                maxOrderLabel: "最大級數 (nₘₐₓ)：",
+                columnOrder: "級數 (n)",
+                columnFormula: "計算公式 (sin θ)",
+                columnAngle: "繞射角 (θ)",
+                warningMessage: "注意：部分高階級數因 sin θ > 1 而無法形成。",
+                lambdaDisplayFormat: "{value} nm",
+                linesDisplayFormat: "{value} 線/毫米",
+                tableCentralOrder: "0（中央）"
+            }
+        };
+
+        let currentLang = "en-US";
+
+        const lambdaSlider = document.getElementById('lambda-slider');
+        const lambdaDisplay = document.getElementById('lambda-display');
+        const linesSlider = document.getElementById('lines-slider');
+        const linesDisplay = document.getElementById('lines-display');
+        const dValueDisplay = document.getElementById('d-value');
+        const maxOrderDisplay = document.getElementById('max-order');
+        const tableBody = document.getElementById('data-table-body');
+        const warningMsg = document.getElementById('warning-msg');
+        const canvas = document.getElementById('diffraction-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function getTranslation(key) {
+            const dict = translations[currentLang] || translations["en-US"];
+            return dict[key] ?? "";
+        }
+
+        function applyTranslations() {
+            const dict = translations[currentLang] || translations["en-US"];
+            document.documentElement.lang = currentLang;
+            document.title = dict.title || document.title;
+            document.querySelectorAll("[data-i18n]").forEach((el) => {
+                const key = el.dataset.i18n;
+                if (!key) return;
+                const text = dict[key];
+                if (typeof text !== "undefined") {
+                    el.textContent = text;
+                }
+            });
+            updateLangButtons();
+            updateUI();
+        }
+
+        function updateLangButtons() {
+            document.querySelectorAll("[data-lang-switch]").forEach((btn) => {
+                const isActive = btn.dataset.langSwitch === currentLang;
+                btn.classList.toggle("text-gray-900", isActive);
+                btn.classList.toggle("text-gray-800", !isActive);
+                btn.classList.toggle("shadow-lg", isActive);
+                btn.classList.toggle("bg-white", isActive);
+                btn.classList.toggle("bg-white/70", !isActive);
+                btn.classList.toggle("ring-1", isActive);
+                btn.classList.toggle("ring-blue-400", isActive);
+            });
+        }
+
+        function setLanguage(lang, skipUrlUpdate = false) {
+            if (!translations[lang]) lang = "en-US";
+            currentLang = lang;
+            applyTranslations();
+            if (!skipUrlUpdate) {
+                const url = new URL(window.location);
+                url.searchParams.set("lang", lang);
+                window.history.pushState({}, "", url);
+            }
+        }
+
+        function setupLanguageSwitcher() {
+            document.querySelectorAll("[data-lang-switch]").forEach((btn) => {
+                btn.addEventListener("click", () => setLanguage(btn.dataset.langSwitch));
+            });
+        }
+
+        function initLanguage() {
+            setupLanguageSwitcher();
+            const params = new URLSearchParams(window.location.search);
+            const langParam = params.get("lang");
+            const initialLang = translations[langParam] ? langParam : "en-US";
+            setLanguage(initialLang, true);
+        }
+
+        let state = {
+            lambda: 532,
+            linesPerMm: 500
+        };
+
+        function wavelengthToColor(wavelength) {
+            let R, G, B, alpha;
+            if (wavelength >= 380 && wavelength < 440) {
+                R = -(wavelength - 440) / (440 - 380); G = 0; B = 1;
+            } else if (wavelength >= 440 && wavelength < 490) {
+                R = 0; G = (wavelength - 440) / (490 - 440); B = 1;
+            } else if (wavelength >= 490 && wavelength < 510) {
+                R = 0; G = 1; B = -(wavelength - 510) / (510 - 490);
+            } else if (wavelength >= 510 && wavelength < 580) {
+                R = (wavelength - 510) / (580 - 510); G = 1; B = 0;
+            } else if (wavelength >= 580 && wavelength < 645) {
+                R = 1; G = -(wavelength - 645) / (645 - 580); B = 0;
+            } else if (wavelength >= 645 && wavelength <= 750) {
+                R = 1; G = 0; B = 0;
+            } else {
+                R = 0; G = 0; B = 0;
+            }
+            
+            if (wavelength > 700) alpha = 0.3 + 0.7 * (750 - wavelength) / (750 - 700);
+            else if (wavelength < 420) alpha = 0.3 + 0.7 * (wavelength - 380) / (420 - 380);
+            else alpha = 1;
+
+            return `rgba(${R * 255}, ${G * 255}, ${B * 255}, ${alpha})`;
+        }
+
+        function calculate() {
+            const d_mm = 1 / state.linesPerMm;
+            const d_m = d_mm * 1e-3;
+            const d_microns = d_mm * 1000;
+            const lambda_m = state.lambda * 1e-9;
+            const maxOrder = Math.floor(d_m / lambda_m);
+            return { d_microns, d_m, lambda_m, maxOrder };
+        }
+
+        function updateUI() {
+            const calc = calculate();
+            const color = wavelengthToColor(state.lambda);
+            lambdaDisplay.textContent = getTranslation('lambdaDisplayFormat').replace('{value}', state.lambda);
+            lambdaDisplay.style.color = color;
+            lambdaDisplay.style.textShadow = `0 0 10px ${color}`;
+            linesDisplay.textContent = getTranslation('linesDisplayFormat').replace('{value}', state.linesPerMm);
+            dValueDisplay.textContent = calc.d_microns.toFixed(2);
+            maxOrderDisplay.textContent = calc.maxOrder;
+
+            const sheet = document.createElement('style');
+            sheet.innerHTML = `
+                #lambda-slider::-webkit-slider-thumb { background: ${color} !important; box-shadow: 0 0 10px ${color}; width: 16px; height: 16px; border-radius: 50%; margin-top: -4px; }
+                #lambda-slider::-moz-range-thumb { background: ${color} !important; box-shadow: 0 0 10px ${color}; }
+            `;
+            const existingStyle = document.getElementById('dynamic-slider-style');
+            if(existingStyle) existingStyle.remove();
+            sheet.id = 'dynamic-slider-style';
+            document.head.appendChild(sheet);
+
+            updateTable(calc);
+            drawSimulation(calc, color);
+        }
+
+        function updateTable(calc) {
+            tableBody.innerHTML = '';
+            const row0 = `
+                <tr class="bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                    <td class="px-6 py-4 font-medium text-white">${getTranslation('tableCentralOrder')}</td>
+                    <td class="px-6 py-4 font-mono text-gray-400">0.000</td>
+                    <td class="px-6 py-4 text-right font-bold text-blue-300">0.0°</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row0);
+
+            for (let n = 1; n <= calc.maxOrder; n++) {
+                const sinTheta = (n * calc.lambda_m) / calc.d_m;
+                const thetaRad = Math.asin(sinTheta);
+                const thetaDeg = (thetaRad * 180 / Math.PI).toFixed(1);
+                const row = `
+                    <tr class="bg-gray-800/50 hover:bg-gray-800 transition-colors border-t border-gray-700">
+                        <td class="px-6 py-4 font-medium text-white">±${n}</td>
+                        <td class="px-6 py-4 font-mono text-gray-400">${sinTheta.toFixed(3)}</td>
+                        <td class="px-6 py-4 text-right font-bold text-blue-300">${thetaDeg}°</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            }
+
+            warningMsg.classList.toggle('hidden', calc.maxOrder > 0);
+        }
+
+        function drawSimulation(calc, color) {
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            const centerY = height / 2;
+            const centerX = width / 2;
+            
+            ctx.clearRect(0, 0, width, height);
+            drawSpot(centerX, centerY, color, 1.5, 20);
+
+            for (let n = 1; n <= calc.maxOrder; n++) {
+                const sinTheta = (n * calc.lambda_m) / calc.d_m;
+                const thetaRad = Math.asin(sinTheta);
+                const thetaDeg = thetaRad * 180 / Math.PI;
+                const offsetPixels = (thetaDeg / 90) * (width / 2) * 0.9;
+                const intensity = 1 / (n * 0.8 + 1); 
+                drawSpot(centerX + offsetPixels, centerY, color, intensity, Math.max(5, 15 - n));
+                drawSpot(centerX - offsetPixels, centerY, color, intensity, Math.max(5, 15 - n));
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY + 40);
+                ctx.lineTo(centerX + offsetPixels, centerY + 40);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                if (n <= 2 || calc.maxOrder < 4) {
+                    ctx.fillText(`n=${n}`, centerX + offsetPixels, centerY - 25);
+                    ctx.fillText(`${thetaDeg.toFixed(1)}°`, centerX + offsetPixels, centerY - 12);
+                    ctx.fillText(`n=-${n}`, centerX - offsetPixels, centerY - 25);
+                    ctx.fillText(`${thetaDeg.toFixed(1)}°`, centerX - offsetPixels, centerY - 12);
+                }
+            }
+        }
+
+        function drawSpot(x, y, color, intensity, radiusBase) {
+            ctx.beginPath();
+            ctx.arc(x, y, radiusBase, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = intensity;
+            ctx.shadowBlur = 20 * intensity;
+            ctx.shadowColor = color;
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y, radiusBase * 0.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.globalAlpha = intensity * 0.8;
+            ctx.shadowBlur = 5;
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.2 * intensity;
+            ctx.fillRect(x - 2, 0, 4, canvas.height);
+            ctx.globalAlpha = 1.0;
+        }
+
+        lambdaSlider.addEventListener('input', (e) => {
+            state.lambda = parseInt(e.target.value, 10);
+            updateUI();
+        });
+
+        linesSlider.addEventListener('input', (e) => {
+            state.linesPerMm = parseInt(e.target.value, 10);
+            updateUI();
+        });
+
+        window.addEventListener('resize', updateUI);
+
+        initLanguage();
+        updateUI();
+    </script>
+</body>
+</html>

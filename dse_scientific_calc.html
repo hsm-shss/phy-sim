@@ -1,131 +1,389 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔢 課堂科學計算器 | SHSS物理虛擬實驗室</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
-        .font-mono{font-variant-numeric:tabular-nums;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>fx-3650P 課堂模擬器（非官方）| SHSS物理虛擬實驗室</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+:root{--ink:#1e293b;}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff;color:var(--ink)}
+.calc-wrap{max-width:420px;margin:0 auto}
+.shell{
+  position:relative;width:100%;padding:18px 14px 22px;
+  border:3px solid #3f464d;
+  border-radius:28px 28px 46px 46px / 24px 24px 54px 54px;
+  background:linear-gradient(105deg,#9aa1a8 0%,#f0f1f2 7%,#d2d6da 24%,#e1e3e5 50%,#bdc2c7 82%,#f0f1f2 96%,#8e969e 100%);
+  box-shadow:inset 0 2px 2px #fff,inset 0 -5px 8px #6f757b44,0 3px 0 #111820,0 18px 32px -14px #28394e66;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+}
+.hw-head{display:flex;justify-content:space-between;align-items:flex-start;padding:0 4px 2px}
+.hw-logo{font-weight:850;font-size:20px;letter-spacing:-1px;color:#292f35;line-height:1}
+.hw-logo em{display:block;font-family:Georgia,serif;font-style:italic;font-size:11px;margin-top:4px;color:#343c45;font-weight:500}
+.hw-model{font-size:11px;font-weight:700;color:#2c343c;letter-spacing:.3px;margin-top:6px}
+.hw-sub{display:flex;justify-content:space-between;color:#5c6972;font-size:7px;letter-spacing:1px;margin:8px 4px 6px;font-weight:700}
+.bezel{padding:7px;border-radius:10px 10px 15px 15px;background:linear-gradient(155deg,#8f969b,#eef0ef 70%,#a5abb0);box-shadow:inset 0 2px 4px #41494c80,0 1px 0 #fff;margin-bottom:12px}
+.lcd{
+  border-radius:5px;border:1px solid #566863;background:#cfdcd4;
+  box-shadow:inset 0 2px 6px #273a3055;min-height:92px;padding:6px 10px 8px;position:relative;
+  font-family:'Courier New',ui-monospace,monospace;color:#1a2e24;
+}
+.lcd-ind{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:9px;font-weight:800;letter-spacing:.4px;min-height:14px;opacity:.85}
+.lcd-ind span.on{color:#0f2418}
+.lcd-ind span:not(.on){opacity:.22}
+.lcd-expr{font-size:12px;min-height:16px;text-align:left;opacity:.75;word-break:break-all;margin-top:2px}
+.lcd-main{font-size:28px;font-weight:700;text-align:right;letter-spacing:1px;line-height:1.15;margin-top:4px;word-break:break-all}
+.deck{display:grid;gap:5px}
+.row6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.row5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.slot{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
+.leg{height:12px;display:flex;align-items:flex-end;justify-content:space-between;font:700 7.5px/1 Arial,sans-serif;padding:0 1px;pointer-events:none;color:#846631}
+.leg .a{color:#973b46}
+.leg .g{color:#3d6b5c}
+.key{
+  display:flex;align-items:center;justify-content:center;width:100%;min-width:0;height:38px;padding:0 2px;
+  border:1px solid #353a40;border-radius:11px 11px 14px 14px / 8px 8px 14px 14px;
+  background:linear-gradient(160deg,#575d65 0%,#363b43 56%,#2b3139 100%);
+  box-shadow:inset 0 1px 2px #ffffff55,0 2px 1px #1a202bc4,0 3px 3px #6f757b66;
+  color:#f5f6f8;font:600 13px/1 Arial,sans-serif;cursor:pointer;
+}
+.key:active,.key.is-down{filter:brightness(1.25);transform:translateY(1px);box-shadow:inset 0 1px 3px #151b25}
+.key.sm{font-size:10px;font-weight:700}
+.key.metal{background:linear-gradient(155deg,#aeb2b4,#737b82);color:#202930;border-color:#676d73;border-radius:40% 35% 38% 35%;font-size:9px}
+.key.orange{background:linear-gradient(145deg,#f39b39,#c15b17);border-color:#9a4e23;color:#fff;font-size:12px}
+.key.warn{color:#f1a0a6}
+.key.num{height:42px;font-size:20px;font-weight:500;border-radius:12px 12px 16px 16px;background:linear-gradient(150deg,#333b47,#1c2431)}
+.key.exe{background:linear-gradient(150deg,#3a4350,#1a222e);font-size:14px;font-weight:700}
+.replay{
+  grid-column:3/5;grid-row:1/3;align-self:end;height:98px;border-radius:50%;
+  border:1px solid #747d84;background:radial-gradient(circle at 35% 20%,#b8bcbf,#8d969d 75%);
+  box-shadow:inset 0 1px 2px #f1f3f3,0 2px 2px #4f575c77;position:relative;
+}
+.replay>i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:7px;font-weight:800;color:#5f6972;pointer-events:none;letter-spacing:.3px}
+.replay .rk{position:absolute;width:34px;height:34px;border:0;background:transparent;box-shadow:none;color:#e6e9eb;font-size:12px;text-shadow:0 1px 2px #37414b;cursor:pointer}
+.replay .rk.u{top:2px;left:calc(50% - 17px)}
+.replay .rk.d{bottom:2px;left:calc(50% - 17px)}
+.replay .rk.l{top:32px;left:2px}
+.replay .rk.r{top:32px;right:2px}
+.ctrl2{display:grid;grid-template-columns:1fr 1.55fr 1fr;gap:5px;margin-bottom:5px;align-items:end}
+.teach{background:#f1f7ff;border:1px solid #b4cde7;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.teach-keys{display:flex;flex-wrap:wrap;gap:4px;max-height:88px;overflow:auto}
+.tk{display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;border:1px solid #c5d6e8;border-radius:6px;background:#fff;color:#23466b;font:12px/1.2 Arial,sans-serif}
+.tk.latest{background:#1d62b4;border-color:#1d62b4;color:#fff;font-weight:700}
+.hint{text-align:center;color:#8290a0;font-size:11px;line-height:1.7;margin-top:12px}
+.disc{font-size:11px;color:#64748b;line-height:1.7;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-top:10px}
+@media(max-width:420px){.key.num{height:40px;font-size:18px}.lcd-main{font-size:24px}}
+</style>
 </head>
-<body class="min-h-screen flex flex-col text-slate-800">
-    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                </a>
-                <div class="min-w-0">
-                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🔢 課堂科學計算器</h1>
-                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
-                </div>
-            </div>
-            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
-        </div>
-    </header>
-    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
-        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
-            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
-            <p class="text-sm text-slate-600">練習四則運算、指數、開方與三角函數（角度／弧度）；可顯示按鍵紀錄方便課堂講解。</p>
-        </div>
+<body class="min-h-screen flex flex-col">
+<header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+      </a>
+      <div class="min-w-0">
+        <h1 class="text-lg md:text-xl font-black tracking-wide truncate">fx-3650P 課堂模擬器（非官方）</h1>
+        <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab · 外觀教學用</p>
+      </div>
+    </div>
+    <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+  </div>
+</header>
 
-        <div class="grid lg:grid-cols-5 gap-6">
-            <div class="lg:col-span-3">
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <div class="bg-slate-900 text-right text-white rounded-xl p-4 mb-4 font-mono">
-                        <div id="expr" class="text-slate-400 text-sm min-h-[1.25rem] break-all">&nbsp;</div>
-                        <div id="disp" class="text-3xl font-bold tracking-wide">0</div>
-                    </div>
-                    <div class="flex items-center gap-3 mb-3 text-sm">
-                        <label class="flex items-center gap-2"><input type="radio" name="ang" value="deg" checked class="accent-amber-600"> DEG</label>
-                        <label class="flex items-center gap-2"><input type="radio" name="ang" value="rad" class="accent-amber-600"> RAD</label>
-                        <label class="flex items-center gap-2 ml-auto"><input id="keylog" type="checkbox" class="accent-amber-600" checked> 顯示按鍵紀錄</label>
-                    </div>
-                    <div id="pad" class="grid grid-cols-5 gap-2"></div>
-                </div>
-            </div>
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm h-full">
-                    <h2 class="font-bold text-slate-700 mb-2">歷史 / Ans</h2>
-                    <p class="text-sm text-slate-500 mb-2">Ans = <b id="ans">0</b></p>
-                    <ul id="hist" class="text-sm space-y-1 max-h-80 overflow-auto font-mono text-slate-600"></ul>
-                    <h2 class="font-bold text-slate-700 mt-4 mb-2">按鍵紀錄</h2>
-                    <pre id="log" class="text-xs bg-slate-50 rounded-xl p-3 min-h-[6rem] text-slate-600 whitespace-pre-wrap"></pre>
-                </div>
-            </div>
-        </div>
+<main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+  <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5">
+    <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+    <p class="text-sm text-slate-600">熟悉香港課堂常見 <b>Casio fx-3650P</b> 按鍵佈局（SHIFT／ALPHA／MODE／REPLAY／EXE）；練習 DEG／RAD、Ans、指數、開方與三角函數。本頁為<b>非官方</b>教學外觀模擬，運算引擎為校本原創，非原廠韌體。</p>
+  </div>
 
-    </main>
-    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
-        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
-            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+  <div class="grid lg:grid-cols-5 gap-6 items-start">
+    <div class="lg:col-span-3">
+      <div class="teach">
+        <div class="flex flex-wrap items-center gap-2 mb-2 text-sm text-slate-700">
+          <b>教學按鍵紀錄</b>
+          <label class="ml-auto flex items-center gap-1 text-xs"><input id="keylog" type="checkbox" checked class="accent-blue-600"> 顯示</label>
+          <button type="button" id="clrLog" class="text-xs px-2 py-1 rounded border border-slate-200 bg-white">清除紀錄</button>
         </div>
-    </footer>
+        <div id="log" class="teach-keys" aria-live="polite"></div>
+      </div>
+
+      <div class="calc-wrap">
+        <div class="shell" id="shell" aria-label="fx-3650P 外觀模擬">
+          <div class="hw-head">
+            <div>
+              <div class="hw-logo">CASIO<em>fx-3650P</em></div>
+            </div>
+            <div class="hw-model text-right">S-V.P.A.M.<div style="font-size:8px;opacity:.7;margin-top:2px">CLASSROOM SIM</div></div>
+          </div>
+          <div class="hw-sub"><span>NATURAL DISPLAY LOOK</span><span>PROGRAMMABLE</span></div>
+
+          <div class="bezel">
+            <div class="lcd">
+              <div class="lcd-ind">
+                <span id="indShift">SHIFT</span>
+                <span id="indAlpha">ALPHA</span>
+                <span id="indDeg" class="on">DEG</span>
+                <span id="indRad">RAD</span>
+                <span id="indFix">FIX</span>
+                <span id="indSci">SCI</span>
+              </div>
+              <div class="lcd-expr" id="expr">&nbsp;</div>
+              <div class="lcd-main" id="disp">0</div>
+            </div>
+          </div>
+
+          <!-- Row: SHIFT ALPHA REPLAY MODE ON -->
+          <div class="ctrl2">
+            <div class="deck" style="gap:8px">
+              <div class="slot"><div class="leg"><span>SETUP</span></div><button type="button" class="key metal" data-k="SHIFT">SHIFT</button></div>
+              <div class="slot"><div class="leg"><span class="a">A</span></div><button type="button" class="key metal" data-k="ALPHA">ALPHA</button></div>
+            </div>
+            <div class="replay" aria-label="REPLAY">
+              <i>REPLAY</i>
+              <button type="button" class="rk u" data-k="UP" title="上">▲</button>
+              <button type="button" class="rk d" data-k="DOWN" title="下">▼</button>
+              <button type="button" class="rk l" data-k="LEFT" title="左">◀</button>
+              <button type="button" class="rk r" data-k="RIGHT" title="右">▶</button>
+            </div>
+            <div class="deck" style="gap:8px">
+              <div class="slot"><div class="leg"><span>CLR</span></div><button type="button" class="key metal" data-k="MODE">MODE</button></div>
+              <div class="slot"><div class="leg"><span></span></div><button type="button" class="key metal" data-k="ON">ON</button></div>
+            </div>
+          </div>
+
+          <!-- Prog / OPTN / Vars / Menu / left-right already in replay -->
+          <div class="row6" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key orange" data-k="Prog">Prog</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="OPTN">OPTN</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="VARS">VARS</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="MENU">MENU</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key warn sm" data-k="DEL">DEL</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key warn sm" data-k="AC">AC</button></div>
+          </div>
+
+          <!-- Function rows -->
+          <div class="row6" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span>x²</span><span class="a">r</span></div><button type="button" class="key sm" data-k="x^2">x²</button></div>
+            <div class="slot"><div class="leg"><span>√</span></div><button type="button" class="key sm" data-k="sqrt">√</button></div>
+            <div class="slot"><div class="leg"><span>x³</span></div><button type="button" class="key sm" data-k="x^3">x³</button></div>
+            <div class="slot"><div class="leg"><span>∛</span></div><button type="button" class="key sm" data-k="cbrt">∛</button></div>
+            <div class="slot"><div class="leg"><span>^</span></div><button type="button" class="key sm" data-k="^">^</button></div>
+            <div class="slot"><div class="leg"><span>log</span></div><button type="button" class="key sm" data-k="log">log</button></div>
+          </div>
+          <div class="row6" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span>ln</span></div><button type="button" class="key sm" data-k="ln">ln</button></div>
+            <div class="slot"><div class="leg"><span>sin⁻¹</span><span class="a">D</span></div><button type="button" class="key sm" data-k="sin">sin</button></div>
+            <div class="slot"><div class="leg"><span>cos⁻¹</span><span class="a">E</span></div><button type="button" class="key sm" data-k="cos">cos</button></div>
+            <div class="slot"><div class="leg"><span>tan⁻¹</span><span class="a">F</span></div><button type="button" class="key sm" data-k="tan">tan</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="(">(</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k=")">)</button></div>
+          </div>
+          <div class="row6" style="margin-bottom:6px">
+            <div class="slot"><div class="leg"><span>×</span><span class="a">:</span></div><button type="button" class="key sm" data-k="*10^">×10ˣ</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="Frac">a b/c</button></div>
+            <div class="slot"><div class="leg"><span>←</span></div><button type="button" class="key sm" data-k="S<>D">S⇔D</button></div>
+            <div class="slot"><div class="leg"><span>hyp</span></div><button type="button" class="key sm" data-k="hyp">hyp</button></div>
+            <div class="slot"><div class="leg"><span>RCL</span></div><button type="button" class="key sm" data-k="RCL">RCL</button></div>
+            <div class="slot"><div class="leg"><span>STO</span></div><button type="button" class="key sm" data-k="ENG">ENG</button></div>
+          </div>
+
+          <!-- Number pad 5 cols -->
+          <div class="row5" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span></span><span class="a">A</span></div><button type="button" class="key num" data-k="7">7</button></div>
+            <div class="slot"><div class="leg"><span></span><span class="a">B</span></div><button type="button" class="key num" data-k="8">8</button></div>
+            <div class="slot"><div class="leg"><span></span><span class="a">C</span></div><button type="button" class="key num" data-k="9">9</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="DEL2" style="font-size:14px;color:#f1a0a6">DEL</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="AC2" style="font-size:14px;color:#f1a0a6">AC</button></div>
+          </div>
+          <div class="row5" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span></span><span class="a">D</span></div><button type="button" class="key num" data-k="4">4</button></div>
+            <div class="slot"><div class="leg"><span></span><span class="a">E</span></div><button type="button" class="key num" data-k="5">5</button></div>
+            <div class="slot"><div class="leg"><span></span><span class="a">F</span></div><button type="button" class="key num" data-k="6">6</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="×" style="font-size:18px">×</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="÷" style="font-size:18px">÷</button></div>
+          </div>
+          <div class="row5" style="margin-bottom:5px">
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="1">1</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="2">2</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="3">3</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="+" style="font-size:18px">+</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="−" style="font-size:18px">−</button></div>
+          </div>
+          <div class="row5">
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="0">0</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="." style="font-size:22px">.</button></div>
+            <div class="slot"><div class="leg"><span>π</span></div><button type="button" class="key num" data-k="×10ˣ" style="font-size:12px">EXP</button></div>
+            <div class="slot"><div class="leg"><span>Ans</span></div><button type="button" class="key num" data-k="Ans" style="font-size:12px">Ans</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num exe" data-k="EXE">EXE</button></div>
+          </div>
+        </div>
+        <p class="hint">鍵盤：Enter＝EXE · Backspace＝DEL · Esc＝AC · Space＝SHIFT<br>黃色標籤＝SHIFT 第二功能 · 紅色標籤＝ALPHA</p>
+        <div class="disc">⚠ 非官方模擬器，未獲 Casio／考試機構認證。重要計算請以真機核對。Prog／完整程式語言未實作；本頁聚焦外觀辨識與基礎科學計算。</div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="font-bold text-slate-700 mb-2">MODE／角度</h2>
+        <p class="text-sm text-slate-500 mb-3">按 <b>MODE</b> 切換 DEG／RAD（螢幕上方指示燈會變）。SHIFT→MODE 可重置為 DEG。</p>
+        <div class="flex gap-3 text-sm mb-4">
+          <span class="px-3 py-1 rounded-full bg-slate-100 font-bold" id="modeBadge">COMP · DEG</span>
+        </div>
+        <h2 class="font-bold text-slate-700 mb-2">歷史 / Ans</h2>
+        <p class="text-sm text-slate-500 mb-2">Ans = <b id="ans">0</b></p>
+        <ul id="hist" class="text-sm space-y-1 max-h-72 overflow-auto font-mono text-slate-600"></ul>
+        <h2 class="font-bold text-slate-700 mt-4 mb-2">課堂提示</h2>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>SHIFT（黃）再開 sin → arcsin</li>
+          <li>SHIFT √ → 平方；SHIFT x² 亦為平方捷徑</li>
+          <li>Ans 可接續上一題答案</li>
+          <li>教學模式可投影「按鍵紀錄」逐步示範</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+  <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+    &copy; 2026 SHSS物理虛擬實驗室 · fx-3650P 外觀為教學模擬（非官方）· 運算邏輯原創
+  </div>
+</footer>
+
 <script>
-
 (function(){
   const disp=document.getElementById('disp'), expr=document.getElementById('expr');
   const hist=document.getElementById('hist'), logEl=document.getElementById('log'), ansEl=document.getElementById('ans');
-  let cur='0', pending='', op=null, ans=0, keys=[];
-  const buttons=[
-    ['C','CE','(',')','÷'],
-    ['7','8','9','×','^'],
-    ['4','5','6','−','√'],
-    ['1','2','3','+','sin'],
-    ['0','.','±','=','cos'],
-    ['Ans','π','e','1/x','tan']
-  ];
-  const pad=document.getElementById('pad');
-  buttons.flat().forEach(lab=>{
-    const b=document.createElement('button');
-    b.textContent=lab; b.className='px-2 py-3 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200';
-    if(lab==='=') b.className+=' bg-amber-500 text-white hover:bg-amber-600';
-    if(['C','CE'].includes(lab)) b.className+=' bg-rose-100';
-    b.onclick=()=>press(lab); pad.appendChild(b);
-  });
-  function angMode(){return document.querySelector('input[name=ang]:checked').value;}
-  function toRad(x){return angMode()==='deg'?x*Math.PI/180:x;}
-  function logKey(k){keys.push(k); if(document.getElementById('keylog').checked) logEl.textContent=keys.join(' '); else logEl.textContent='';}
-  function update(){disp.textContent=cur; expr.textContent=pending||'\u00a0'; ansEl.textContent=ans;}
+  const modeBadge=document.getElementById('modeBadge');
+  let cur='0', pending='', op=null, acc=null, ans=0, keys=[], shift=false, alpha=false, ang='deg', fresh=true, inv=false;
+
+  function setInd(){
+    document.getElementById('indShift').classList.toggle('on', shift);
+    document.getElementById('indAlpha').classList.toggle('on', alpha);
+    document.getElementById('indDeg').classList.toggle('on', ang==='deg');
+    document.getElementById('indRad').classList.toggle('on', ang==='rad');
+    modeBadge.textContent='COMP · '+(ang==='deg'?'DEG':'RAD');
+  }
+  function logKey(k){
+    keys.push(k);
+    if(!document.getElementById('keylog').checked){logEl.innerHTML='';return;}
+    logEl.innerHTML=keys.map((x,i)=>'<span class="tk'+(i===keys.length-1?' latest':'')+'">'+x+'</span>').join('');
+    logEl.scrollTop=logEl.scrollHeight;
+  }
+  function update(){disp.textContent=cur; expr.innerHTML=pending||'&nbsp;'; ansEl.textContent=ans; setInd();}
+  function toRad(x){return ang==='deg'?x*Math.PI/180:x;}
+  function fromRad(x){return ang==='deg'?x*180/Math.PI:x;}
   function applyOp(a,b,o){
     if(o==='+')return a+b; if(o==='−')return a-b; if(o==='×')return a*b; if(o==='÷')return a/b; if(o==='^')return Math.pow(a,b); return b;
   }
-  function press(lab){
-    logKey(lab);
-    if(lab==='C'){cur='0';pending='';op=null;keys=[];update();return;}
-    if(lab==='CE'){cur='0';update();return;}
-    if(lab==='±'){cur=String(-parseFloat(cur));update();return;}
-    if(lab==='π'){cur=String(Math.PI);update();return;}
-    if(lab==='e'){cur=String(Math.E);update();return;}
-    if(lab==='Ans'){cur=String(ans);update();return;}
-    if(lab==='√'){cur=String(Math.sqrt(parseFloat(cur)));update();return;}
-    if(lab==='1/x'){cur=String(1/parseFloat(cur));update();return;}
-    if(lab==='sin'){cur=String(Math.sin(toRad(parseFloat(cur))));update();return;}
-    if(lab==='cos'){cur=String(Math.cos(toRad(parseFloat(cur))));update();return;}
-    if(lab==='tan'){cur=String(Math.tan(toRad(parseFloat(cur))));update();return;}
-    if(['+','−','×','÷','^'].includes(lab)){
-      if(op){const r=applyOp(parseFloat(pending),parseFloat(cur),op); pending=String(r); cur='0';}
-      else {pending=cur; cur='0';}
-      op=lab; update(); return;
-    }
-    if(lab==='='){
-      let r=op?applyOp(parseFloat(pending),parseFloat(cur),op):parseFloat(cur);
-      const line=(pending||'')+(op||'')+cur+' = '+r;
-      const li=document.createElement('li'); li.textContent=line; hist.prepend(li);
-      ans=r; cur=String(r); pending=''; op=null; update(); return;
-    }
-    if(lab==='.'){ if(!cur.includes('.')) cur+='.'; update(); return; }
-    if(/^[0-9]$/.test(lab)){ cur=(cur==='0')?lab:cur+lab; update(); return; }
-    // ignore ( ) for simple mode
+  function num(v){const n=Number(v); return Number.isFinite(n)?n:NaN;}
+  function setCur(v){
+    if(!Number.isFinite(v)){cur='Math ERROR';fresh=true;return;}
+    const s=String(+parseFloat(v.toPrecision(12)));
+    cur=s; fresh=true;
   }
+
+  function press(lab){
+    // normalize aliases
+    if(lab==='DEL2') lab='DEL';
+    if(lab==='AC2') lab='AC';
+    if(lab==='×10ˣ') lab='EXP';
+    if(lab==='*10^') lab='EXP';
+
+    logKey(lab);
+
+    if(lab==='SHIFT'){shift=!shift; alpha=false; update(); return;}
+    if(lab==='ALPHA'){alpha=!alpha; shift=false; update(); return;}
+    if(lab==='ON'||lab==='AC'){cur='0';pending='';op=null;acc=null;shift=false;alpha=false;inv=false;fresh=true;update();return;}
+    if(lab==='DEL'){
+      if(fresh||cur==='Math ERROR'){cur='0';fresh=true;}
+      else if(cur.length<=1){cur='0';fresh=true;}
+      else cur=cur.slice(0,-1);
+      update();return;
+    }
+    if(lab==='MODE'){
+      if(shift){ang='deg';shift=false;}
+      else {ang=(ang==='deg'?'rad':'deg');}
+      update();return;
+    }
+    if(['UP','DOWN','LEFT','RIGHT','Prog','OPTN','VARS','MENU','Frac','S<>D','hyp','RCL','ENG'].includes(lab)){
+      // layout / teaching only — soft feedback
+      pending=(pending||'')+'['+lab+']';
+      shift=false; alpha=false; update(); return;
+    }
+
+    // SHIFT secondary functions
+    if(shift){
+      shift=false;
+      if(lab==='sin'){setCur(fromRad(Math.asin(num(cur))));update();return;}
+      if(lab==='cos'){setCur(fromRad(Math.acos(num(cur))));update();return;}
+      if(lab==='tan'){setCur(fromRad(Math.atan(num(cur))));update();return;}
+      if(lab==='sqrt'||lab==='x^2'){setCur(Math.pow(num(cur),2));update();return;}
+      if(lab==='x^3'){setCur(Math.pow(num(cur),1/3));update();return;}
+      if(lab==='cbrt'){setCur(Math.pow(num(cur),3));update();return;}
+      if(lab==='log'){setCur(Math.pow(10,num(cur)));update();return;}
+      if(lab==='ln'){setCur(Math.exp(num(cur)));update();return;}
+      if(lab==='π'||lab==='EXP'){setCur(Math.PI);update();return;}
+    }
+
+    if(lab==='π'){cur=String(Math.PI);fresh=true;update();return;}
+    if(lab==='Ans'){cur=String(ans);fresh=true;update();return;}
+    if(lab==='sqrt'){setCur(Math.sqrt(num(cur)));update();return;}
+    if(lab==='cbrt'){setCur(Math.cbrt?Math.cbrt(num(cur)):Math.pow(num(cur),1/3));update();return;}
+    if(lab==='x^2'){setCur(Math.pow(num(cur),2));update();return;}
+    if(lab==='x^3'){setCur(Math.pow(num(cur),3));update();return;}
+    if(lab==='log'){setCur(Math.log10?Math.log10(num(cur)):Math.log(num(cur))/Math.LN10);update();return;}
+    if(lab==='ln'){setCur(Math.log(num(cur)));update();return;}
+    if(lab==='sin'){setCur(Math.sin(toRad(num(cur))));update();return;}
+    if(lab==='cos'){setCur(Math.cos(toRad(num(cur))));update();return;}
+    if(lab==='tan'){setCur(Math.tan(toRad(num(cur))));update();return;}
+
+    if(['+','−','×','÷','^'].includes(lab)){
+      if(op!=null && acc!=null && !fresh){acc=applyOp(acc,num(cur),op);}
+      else if(acc==null){acc=num(cur);}
+      op=lab; pending=String(acc)+' '+lab+' '; cur='0'; fresh=true; update(); return;
+    }
+    if(lab==='EXE'||lab==='='){
+      let r=num(cur);
+      if(op!=null && acc!=null){r=applyOp(acc,num(cur),op);}
+      const line=(pending||'')+cur+' = '+r;
+      const li=document.createElement('li'); li.textContent=line; hist.prepend(li);
+      ans=r; setCur(r); pending=''; op=null; acc=null; update(); return;
+    }
+    if(lab==='EXP'){
+      if(fresh||cur==='0'){cur='1e';fresh=false;}
+      else if(!/[eE]/.test(cur)) cur+='e';
+      update();return;
+    }
+    if(lab==='.'){ if(fresh){cur='0.';fresh=false;} else if(!cur.includes('.')) cur+='.'; update(); return; }
+    if(/^[0-9]$/.test(lab)){ cur=(fresh||cur==='0')?lab:cur+lab; fresh=false; update(); return; }
+    // ignore bare ( ) for simple chain calc — still log
+    if(lab==='('||lab===')'){update();return;}
+  }
+
+  document.getElementById('shell').addEventListener('click',e=>{
+    const b=e.target.closest('[data-k]'); if(!b) return;
+    press(b.getAttribute('data-k'));
+  });
+  document.getElementById('clrLog').onclick=()=>{keys=[];logEl.innerHTML='';};
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();press('EXE');}
+    else if(e.key==='Backspace'){e.preventDefault();press('DEL');}
+    else if(e.key==='Escape'){press('AC');}
+    else if(e.key===' '){e.preventDefault();press('SHIFT');}
+    else if(e.key==='*') press('×');
+    else if(e.key==='/') press('÷');
+    else if(e.key==='+') press('+');
+    else if(e.key==='-') press('−');
+    else if(e.key==='^') press('^');
+    else if(e.key==='.') press('.');
+    else if(/^[0-9]$/.test(e.key)) press(e.key);
+  });
   update();
 })();
-
 </script>
 </body>
 </html>

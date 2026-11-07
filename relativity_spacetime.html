@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌌 相對論時空圖（原創）| SHSS物理虛擬實驗室</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+body{background:#f0f9ff;font-family:'Noto Sans TC',sans-serif}
+canvas{background:#0b1220;border-radius:16px;width:100%;touch-action:none}
+</style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+<header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+      </a>
+      <div class="min-w-0">
+        <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🌌 相對論時空圖（Minkowski）</h1>
+        <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab · 原創課堂演示</p>
+      </div>
+    </div>
+    <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+  </div>
+</header>
+<main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+  <div class="bg-violet-50 border border-violet-100 rounded-2xl p-4 mb-5">
+    <p class="text-sm font-bold text-violet-800 mb-1">🎯 學習目標</p>
+    <p class="text-sm text-slate-600">認識 <b>時空圖</b>：橫軸位置 x、縱軸時間 ct；光錐（±45°）、世界線斜率與速率 β=v/c；比較靜止觀測者與運動觀測者的同時性切片（定性）。單位取 c=1。</p>
+  </div>
+  <div class="grid lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3">
+      <canvas id="cv" width="900" height="640"></canvas>
+      <p class="text-xs text-slate-500 mt-2">拖曳圖上的事件點 A／B；黃色虛線＝同時性（於選定觀測者）。</p>
+    </div>
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <label class="block text-sm font-bold mb-2">觀測者速率 β = v/c（沿 +x）</label>
+        <input id="beta" type="range" min="-0.8" max="0.8" step="0.01" value="0" class="w-full accent-violet-600">
+        <div class="flex justify-between text-xs text-slate-500 mt-1"><span>−0.8c</span><span id="betaVal">β = 0.00</span><span>+0.8c</span></div>
+        <label class="flex items-center gap-2 mt-4 text-sm"><input id="showCone" type="checkbox" checked class="accent-violet-600"> 顯示光錐</label>
+        <label class="flex items-center gap-2 mt-2 text-sm"><input id="showSim" type="checkbox" checked class="accent-violet-600"> 顯示同時線</label>
+        <button id="reset" type="button" class="mt-4 w-full py-2 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-500">重設事件</button>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm text-sm space-y-2">
+        <h2 class="font-bold text-slate-700">讀圖提示</h2>
+        <ul class="list-disc pl-5 text-slate-600 space-y-1">
+          <li>光的世界線：斜率 ±1（ct 對 x）</li>
+          <li>|斜率| &gt; 1 → 亞光速質點</li>
+          <li>同時性：對運動觀測者，同時線會傾斜</li>
+          <li>本頁為<b>校本原創</b>教學示意，非複製其他網站程式</li>
+        </ul>
+        <p id="readout" class="mt-3 font-mono text-xs bg-slate-50 rounded-xl p-3 text-slate-700"></p>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+  <div class="max-w-6xl mx-auto px-6 text-center text-sm">&copy; 2026 SHSS物理虛擬實驗室 · 原創 Minkowski 課堂演示</div>
+</footer>
+<script>
+(function(){
+  const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  const betaEl=document.getElementById('beta'), betaVal=document.getElementById('betaVal');
+  const showCone=document.getElementById('showCone'), showSim=document.getElementById('showSim');
+  const readout=document.getElementById('readout');
+  let A={x:-1.2,t:1.0}, B={x:1.5,t:2.2}, drag=null;
+
+  function W(){return cv.clientWidth;} function H(){return cv.clientHeight||cv.height;}
+  function resize(){const r=cv.getBoundingClientRect(); const d=window.devicePixelRatio||1; cv.width=r.width*d; cv.height=(r.width*0.72)*d; cv.style.height=(r.width*0.72)+'px'; ctx.setTransform(d,0,0,d,0,0); draw();}
+  function toPix(x,t){const w=W(),h=H(); const s=Math.min(w,h)/8; return {X:w/2+x*s, Y:h*0.85-t*s};}
+  function toWorld(X,Y){const w=W(),h=H(); const s=Math.min(w,h)/8; return {x:(X-w/2)/s, t:(h*0.85-Y)/s};}
+
+  function draw(){
+    const w=W(),h=H(); const beta=+betaEl.value; betaVal.textContent='β = '+beta.toFixed(2);
+    ctx.clearRect(0,0,w,h);
+    // grid
+    ctx.strokeStyle='#1e293b'; ctx.lineWidth=1;
+    for(let i=-6;i<=6;i++){
+      const a=toPix(i,-1), b=toPix(i,7); ctx.beginPath(); ctx.moveTo(a.X,a.Y); ctx.lineTo(b.X,b.Y); ctx.stroke();
+      const c=toPix(-4,i), d=toPix(4,i); ctx.beginPath(); ctx.moveTo(c.X,c.Y); ctx.lineTo(d.X,d.Y); ctx.stroke();
+    }
+    // axes
+    ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2;
+    let p0=toPix(-3.8,0), p1=toPix(3.8,0); ctx.beginPath(); ctx.moveTo(p0.X,p0.Y); ctx.lineTo(p1.X,p1.Y); ctx.stroke();
+    p0=toPix(0,-0.3); p1=toPix(0,6.5); ctx.beginPath(); ctx.moveTo(p0.X,p0.Y); ctx.lineTo(p1.X,p1.Y); ctx.stroke();
+    ctx.fillStyle='#cbd5e1'; ctx.font='12px sans-serif'; ctx.fillText('x', toPix(3.6,0.15).X, toPix(3.6,0.15).Y);
+    ctx.fillText('ct', toPix(0.15,6.3).X, toPix(0.15,6.3).Y);
+
+    if(showCone.checked){
+      ctx.strokeStyle='#fbbf24'; ctx.setLineDash([6,4]); ctx.lineWidth=1.5;
+      let a=toPix(-3,3), b=toPix(3,3+6); // not used
+      // light lines through origin
+      a=toPix(-3.5,3.5); b=toPix(3.5,3.5); // noop
+      ctx.beginPath(); let L1=toPix(-3.2,3.2), L2=toPix(3.2,3.2); // wrong
+      // ct = +x and ct = -x
+      let q1=toPix(-3.5,3.5), q2=toPix(3.5,3.5);
+      ctx.beginPath(); ctx.moveTo(toPix(-3.5,3.5).X,toPix(-3.5,3.5).Y); ctx.lineTo(toPix(3.5,-3.5).X,toPix(3.5,-3.5).Y); // bad
+      ctx.beginPath();
+      let m1=toPix(-3.2,3.2), m2=toPix(3.2,-3.2);
+      // ct=x
+      ctx.moveTo(toPix(-3.2,-3.2).X,toPix(-3.2,-3.2).Y); ctx.lineTo(toPix(3.2,3.2).X,toPix(3.2,3.2).Y);
+      ctx.moveTo(toPix(-3.2,3.2).X,toPix(-3.2,3.2).Y); ctx.lineTo(toPix(3.2,-3.2).X,toPix(3.2,-3.2).Y);
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#fbbf2488'; ctx.font='11px sans-serif'; ctx.fillText('光錐', toPix(2.2,2.5).X, toPix(2.2,2.5).Y);
+    }
+
+    // worldline of observer: x = β t  (since c=1)
+    ctx.strokeStyle='#38bdf8'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(toPix(beta*(-0.2),-0.2).X,toPix(beta*(-0.2),-0.2).Y); ctx.lineTo(toPix(beta*6.2,6.2).X,toPix(beta*6.2,6.2).Y); ctx.stroke();
+    ctx.fillStyle='#7dd3fc'; ctx.font='11px sans-serif'; ctx.fillText('觀測者世界線', toPix(beta*5.2,5.4).X, toPix(beta*5.2,5.4).Y);
+
+    if(showSim.checked){
+      // simultaneity: t' = γ(t - β x)=const through A → slope dt/dx = β
+      const tA=A.t, xA=A.x;
+      ctx.strokeStyle='#f472b6'; ctx.setLineDash([4,4]); ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(let x=-3.5;x<=3.5;x+=0.2){
+        const t=tA + beta*(x-xA); // lines of const t' have dt = β dx in lab frame for small viz
+        const p=toPix(x,t);
+        if(x===-3.5) ctx.moveTo(p.X,p.Y); else ctx.lineTo(p.X,p.Y);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#f9a8d4'; ctx.fillText('同時線 (過 A)', toPix(2.4,A.t+beta*(2.4-A.x)+0.2).X, toPix(2.4,A.t+beta*(2.4-A.x)+0.2).Y);
+    }
+
+    function drawEvt(P,name,col){
+      const p=toPix(P.x,P.t);
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(p.X,p.Y,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif'; ctx.fillText(name, p.X+10, p.Y-8);
+      // worldline verticalish marker
+      ctx.strokeStyle=col+'66'; ctx.beginPath(); ctx.moveTo(p.X,p.Y); ctx.lineTo(toPix(P.x,0).X,toPix(P.x,0).Y); ctx.stroke();
+    }
+    drawEvt(A,'A','#22c55e'); drawEvt(B,'B','#a78bfa');
+
+    const dx=B.x-A.x, dt=B.t-A.t;
+    const interval=dt*dt - dx*dx;
+    let kind=interval>1e-6?'類時 (時間性)':(interval<-1e-6?'類空 (空間性)':'類光');
+    readout.textContent=`A=(${A.x.toFixed(2)}, ${A.t.toFixed(2)})\nB=(${B.x.toFixed(2)}, ${B.t.toFixed(2)})\nΔx=${dx.toFixed(2)}, Δ(ct)=${dt.toFixed(2)}\n間隔 s²=(ct)²−x²=${interval.toFixed(3)} → ${kind}\nβ=${beta.toFixed(2)}, γ≈${(1/Math.sqrt(1-beta*beta)).toFixed(3)}`;
+  }
+
+  function hit(X,Y){
+    for(const [name,P] of [['A',A],['B',B]]){
+      const p=toPix(P.x,P.t); if((p.X-X)**2+(p.Y-Y)**2 < 14*14) return name;
+    }
+    return null;
+  }
+  function pos(e){const r=cv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {X:t.clientX-r.left,Y:t.clientY-r.top};}
+  cv.addEventListener('pointerdown',e=>{const p=pos(e); drag=hit(p.X,p.Y); cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointermove',e=>{if(!drag)return; const w=toWorld(pos(e).X,pos(e).Y); const P=drag==='A'?A:B; P.x=Math.max(-3.5,Math.min(3.5,w.x)); P.t=Math.max(0.1,Math.min(6.2,w.t)); draw();});
+  cv.addEventListener('pointerup',()=>drag=null);
+  betaEl.oninput=draw; showCone.onchange=draw; showSim.onchange=draw;
+  document.getElementById('reset').onclick=()=>{A={x:-1.2,t:1.0};B={x:1.5,t:2.2};betaEl.value=0;draw();};
+  window.addEventListener('resize',resize); resize();
+})();
+</script>
+</body>
+</html>
