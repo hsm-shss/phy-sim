@@ -2,278 +2,398 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>fx-3650P 課堂模擬器（非官方）| SHSS物理虛擬實驗室</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>fx-3650P 課堂模擬器（非官方）</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-:root{--ink:#1e293b;}
-*{box-sizing:border-box}
-body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff;color:var(--ink)}
-.calc-wrap{max-width:420px;margin:0 auto}
-.shell{
-  position:relative;width:100%;padding:18px 14px 22px;
-  border:3px solid #3f464d;
-  border-radius:28px 28px 46px 46px / 24px 24px 54px 54px;
-  background:linear-gradient(105deg,#9aa1a8 0%,#f0f1f2 7%,#d2d6da 24%,#e1e3e5 50%,#bdc2c7 82%,#f0f1f2 96%,#8e969e 100%);
-  box-shadow:inset 0 2px 2px #fff,inset 0 -5px 8px #6f757b44,0 3px 0 #111820,0 18px 32px -14px #28394e66;
-  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Share+Tech+Mono&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:'Noto Sans TC',system-ui,sans-serif;
+  background:#c8ccd0;
+  background-image:
+    linear-gradient(#b8bcc0 1px,transparent 1px),
+    linear-gradient(90deg,#b8bcc0 1px,transparent 1px);
+  background-size:18px 18px;
+  color:#1e293b;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
 }
-.hw-head{display:flex;justify-content:space-between;align-items:flex-start;padding:0 4px 2px}
-.hw-logo{font-weight:850;font-size:20px;letter-spacing:-1px;color:#292f35;line-height:1}
-.hw-logo em{display:block;font-family:Georgia,serif;font-style:italic;font-size:11px;margin-top:4px;color:#343c45;font-weight:500}
-.hw-model{font-size:11px;font-weight:700;color:#2c343c;letter-spacing:.3px;margin-top:6px}
-.hw-sub{display:flex;justify-content:space-between;color:#5c6972;font-size:7px;letter-spacing:1px;margin:8px 4px 6px;font-weight:700}
-.bezel{padding:7px;border-radius:10px 10px 15px 15px;background:linear-gradient(155deg,#8f969b,#eef0ef 70%,#a5abb0);box-shadow:inset 0 2px 4px #41494c80,0 1px 0 #fff;margin-bottom:12px}
+a.home{
+  position:fixed;top:10px;left:12px;z-index:40;
+  font-size:13px;font-weight:700;color:#1e3a5f;
+  text-decoration:none;background:rgba(255,255,255,.9);
+  border:1px solid #cbd5e1;border-radius:999px;padding:6px 12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+a.home:hover{background:#fff}
+.page{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:56px 12px 28px;gap:14px;
+}
+.pill{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 18px;
+  background:#fff;border-radius:999px;padding:10px 22px;
+  box-shadow:0 4px 16px rgba(0,0,0,.12),0 1px 0 #fff inset;
+  border:1px solid #e5e7eb;font-size:14px;font-weight:600;color:#111827;
+}
+.pill label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.pill input{width:15px;height:15px;accent-color:#2563eb}
+.device-wrap{width:min(100%,360px);filter:drop-shadow(0 22px 28px rgba(15,23,42,.35))}
+.device{
+  position:relative;border-radius:28px;padding:10px 9px 14px;
+  background:linear-gradient(160deg,#3a3f45 0%,#1c1f24 40%,#0f1114 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -2px 4px rgba(0,0,0,.5),
+    0 0 0 1px #0a0c0f;
+}
+.face{
+  border-radius:22px;padding:12px 10px 14px;
+  background:linear-gradient(145deg,#f7f8fa 0%,#e4e6ea 18%,#cfd3d8 55%,#b8bdc4 100%);
+  box-shadow:
+    inset 0 2px 3px #fff,
+    inset 0 -3px 6px rgba(80,90,100,.25),
+    0 1px 0 rgba(255,255,255,.15);
+}
+.brand{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding:0 4px 6px;color:#2a3038;
+}
+.brand .casio{font-weight:900;font-size:15px;letter-spacing:-.5px;line-height:1}
+.brand .casio em{display:block;font:italic 600 10px/1.2 Georgia,serif;margin-top:2px;opacity:.85}
+.brand .right{text-align:right;font-size:9px;font-weight:700;letter-spacing:.4px;opacity:.8}
+.lcd-bezel{
+  margin:2px 2px 12px;padding:6px;border-radius:8px;
+  background:linear-gradient(160deg,#6d747a,#aeb4b8 45%,#8a9096);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.5);
+}
 .lcd{
-  border-radius:5px;border:1px solid #566863;background:#cfdcd4;
-  box-shadow:inset 0 2px 6px #273a3055;min-height:92px;padding:6px 10px 8px;position:relative;
-  font-family:'Courier New',ui-monospace,monospace;color:#1a2e24;
+  position:relative;min-height:78px;border-radius:4px;
+  background:linear-gradient(180deg,#d5dcd4,#c4cec6);
+  box-shadow:inset 0 3px 8px rgba(40,55,45,.35);
+  padding:8px 10px 6px;color:#1a2a20;
+  font-family:'Share Tech Mono','Courier New',monospace;
 }
-.lcd-ind{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:9px;font-weight:800;letter-spacing:.4px;min-height:14px;opacity:.85}
-.lcd-ind span.on{color:#0f2418}
-.lcd-ind span:not(.on){opacity:.22}
-.lcd-expr{font-size:12px;min-height:16px;text-align:left;opacity:.75;word-break:break-all;margin-top:2px}
-.lcd-main{font-size:28px;font-weight:700;text-align:right;letter-spacing:1px;line-height:1.15;margin-top:4px;word-break:break-all}
-.deck{display:grid;gap:5px}
-.row6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
-.row5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-.slot{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
-.leg{height:12px;display:flex;align-items:flex-end;justify-content:space-between;font:700 7.5px/1 Arial,sans-serif;padding:0 1px;pointer-events:none;color:#846631}
-.leg .a{color:#973b46}
-.leg .g{color:#3d6b5c}
+.lcd-top{display:flex;justify-content:space-between;align-items:flex-start;min-height:16px;font-size:11px;font-weight:800;letter-spacing:.5px}
+.lcd-flags{display:flex;gap:8px;opacity:.9}
+.lcd-flags span{opacity:.18}
+.lcd-flags span.on{opacity:1}
+.lcd-d{
+  font-size:11px;font-weight:900;border:1.5px solid #1a2a20;padding:0 4px;line-height:1.15;
+  opacity:0;border-radius:2px;
+}
+.lcd-d.on{opacity:1}
+.lcd-expr{font-size:12px;min-height:14px;opacity:.7;word-break:break-all;margin-top:2px}
+.lcd-main{
+  text-align:right;font-size:34px;font-weight:700;letter-spacing:1px;
+  line-height:1.05;margin-top:4px;word-break:break-all;
+  text-shadow:0 0 0 #1a2a20;
+}
+.topctrl{
+  display:grid;grid-template-columns:1fr 1fr 1.7fr 1fr 1fr;gap:5px;align-items:end;margin-bottom:8px;
+}
+.slot{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
+.leg{
+  height:13px;display:flex;align-items:flex-end;justify-content:space-between;
+  font:700 7.5px/1 Arial,Helvetica,sans-serif;padding:0 1px 1px;pointer-events:none;color:#b8860b;
+}
+.leg .r{color:#c0392b}
+.leg .g{color:#2e7d5b}
+.leg .b{color:#4a6fa5}
 .key{
-  display:flex;align-items:center;justify-content:center;width:100%;min-width:0;height:38px;padding:0 2px;
-  border:1px solid #353a40;border-radius:11px 11px 14px 14px / 8px 8px 14px 14px;
-  background:linear-gradient(160deg,#575d65 0%,#363b43 56%,#2b3139 100%);
-  box-shadow:inset 0 1px 2px #ffffff55,0 2px 1px #1a202bc4,0 3px 3px #6f757b66;
-  color:#f5f6f8;font:600 13px/1 Arial,sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;width:100%;
+  border:0;cursor:pointer;touch-action:manipulation;
+  font-family:Arial,Helvetica,sans-serif;font-weight:700;
+  transition:transform .04s,filter .04s;
 }
-.key:active,.key.is-down{filter:brightness(1.25);transform:translateY(1px);box-shadow:inset 0 1px 3px #151b25}
-.key.sm{font-size:10px;font-weight:700}
-.key.metal{background:linear-gradient(155deg,#aeb2b4,#737b82);color:#202930;border-color:#676d73;border-radius:40% 35% 38% 35%;font-size:9px}
-.key.orange{background:linear-gradient(145deg,#f39b39,#c15b17);border-color:#9a4e23;color:#fff;font-size:12px}
-.key.warn{color:#f1a0a6}
-.key.num{height:42px;font-size:20px;font-weight:500;border-radius:12px 12px 16px 16px;background:linear-gradient(150deg,#333b47,#1c2431)}
-.key.exe{background:linear-gradient(150deg,#3a4350,#1a222e);font-size:14px;font-weight:700}
+.key:active,.key.is-down{transform:translateY(1px);filter:brightness(1.15)}
+.key.oval{
+  height:28px;border-radius:999px;font-size:8.5px;letter-spacing:.2px;
+  color:#1c2228;border:1px solid #6a727a;
+  background:linear-gradient(180deg,#c5cad0 0%,#9aa1a8 55%,#7e868e 100%);
+  box-shadow:inset 0 1px 0 #eef0f2,0 2px 0 #3a4148,0 3px 3px rgba(0,0,0,.25);
+}
+.key.oval .yl{color:#d4a017}
+.key.oval .rd{color:#c0392b}
 .replay{
-  grid-column:3/5;grid-row:1/3;align-self:end;height:98px;border-radius:50%;
-  border:1px solid #747d84;background:radial-gradient(circle at 35% 20%,#b8bcbf,#8d969d 75%);
-  box-shadow:inset 0 1px 2px #f1f3f3,0 2px 2px #4f575c77;position:relative;
+  position:relative;height:72px;border-radius:50%;
+  border:1px solid #6f787f;
+  background:radial-gradient(circle at 35% 25%,#c5c9cd,#8d959c 70%,#6f777e);
+  box-shadow:inset 0 2px 3px #fff,0 2px 2px rgba(0,0,0,.3);
 }
-.replay>i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:7px;font-weight:800;color:#5f6972;pointer-events:none;letter-spacing:.3px}
-.replay .rk{position:absolute;width:34px;height:34px;border:0;background:transparent;box-shadow:none;color:#e6e9eb;font-size:12px;text-shadow:0 1px 2px #37414b;cursor:pointer}
-.replay .rk.u{top:2px;left:calc(50% - 17px)}
-.replay .rk.d{bottom:2px;left:calc(50% - 17px)}
-.replay .rk.l{top:32px;left:2px}
-.replay .rk.r{top:32px;right:2px}
-.ctrl2{display:grid;grid-template-columns:1fr 1.55fr 1fr;gap:5px;margin-bottom:5px;align-items:end}
-.teach{background:#f1f7ff;border:1px solid #b4cde7;border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.teach-keys{display:flex;flex-wrap:wrap;gap:4px;max-height:88px;overflow:auto}
-.tk{display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;border:1px solid #c5d6e8;border-radius:6px;background:#fff;color:#23466b;font:12px/1.2 Arial,sans-serif}
+.replay>i{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font:800 7px/1 Arial,sans-serif;font-style:normal;color:#4f5860;pointer-events:none;letter-spacing:.5px;
+}
+.replay .rk{
+  position:absolute;width:26px;height:26px;border:0;background:transparent;
+  color:#e8ebed;font-size:10px;cursor:pointer;text-shadow:0 1px 1px #333;
+}
+.replay .rk.u{top:2px;left:calc(50% - 13px)}
+.replay .rk.d{bottom:2px;left:calc(50% - 13px)}
+.replay .rk.l{top:23px;left:3px}
+.replay .rk.r{top:23px;right:3px}
+.row2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:5px;margin-bottom:5px}
+.key.orange{
+  height:30px;border-radius:999px;font-size:12px;color:#fff;
+  background:linear-gradient(180deg,#f2a34c,#c45e18);
+  border:1px solid #9a4a18;
+  box-shadow:inset 0 1px 0 rgba(255,220,160,.5),0 2px 0 #6e3410,0 3px 3px rgba(0,0,0,.25);
+}
+.key.blk{
+  height:30px;border-radius:8px;font-size:11px;color:#f4f5f7;
+  background:linear-gradient(180deg,#4a5058 0%,#2a2f36 55%,#1b1f25 100%);
+  border:1px solid #12151a;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 0 #0a0c0f,0 3px 3px rgba(0,0,0,.28);
+}
+.key.blk.sm{font-size:10px}
+.numpad{
+  margin-top:8px;padding:8px 4px 4px;border-radius:14px;
+  background:linear-gradient(180deg,#3d434a 0%,#23272d 100%);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.12);
+}
+.row5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:5px}
+.key.num{
+  height:40px;border-radius:10px;font-size:18px;font-weight:600;color:#f5f6f8;
+  background:linear-gradient(180deg,#4a515a 0%,#2c333c 60%,#1a2028 100%);
+  border:1px solid #0d1014;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 0 #05070a,0 3px 4px rgba(0,0,0,.3);
+}
+.key.num.warn{color:#f0a0a0;font-size:13px;font-weight:800}
+.key.num.op{font-size:17px}
+.key.num.exe{font-size:13px;font-weight:800;letter-spacing:.5px}
+.key.num.sm{font-size:12px;font-weight:700}
+.device.locked .face{filter:grayscale(.35) brightness(.92)}
+.device.locked::after{
+  content:'鎖定畫面';position:absolute;inset:40% 12% auto;z-index:5;
+  text-align:center;font-weight:800;font-size:14px;color:#fff;
+  background:rgba(15,23,42,.72);border-radius:10px;padding:10px 8px;
+  pointer-events:none;
+}
+.teach{
+  width:min(100%,360px);background:rgba(255,255,255,.92);border:1px solid #d1d5db;
+  border-radius:14px;padding:10px 12px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.teach h3{font-size:13px;margin-bottom:6px;color:#1e3a5f}
+.teach-keys{display:flex;flex-wrap:wrap;gap:4px;max-height:72px;overflow:auto}
+.tk{
+  display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;
+  border:1px solid #c5d6e8;border-radius:6px;background:#fff;color:#23466b;font:12px/1.2 Arial,sans-serif;
+}
 .tk.latest{background:#1d62b4;border-color:#1d62b4;color:#fff;font-weight:700}
-.hint{text-align:center;color:#8290a0;font-size:11px;line-height:1.7;margin-top:12px}
-.disc{font-size:11px;color:#64748b;line-height:1.7;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-top:10px}
-@media(max-width:420px){.key.num{height:40px;font-size:18px}.lcd-main{font-size:24px}}
+.hint{width:min(100%,360px);text-align:center;font-size:11px;color:#475569;line-height:1.6}
+.toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+  background:#0f172a;color:#fff;font-size:13px;font-weight:600;
+  padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.disc{width:min(100%,360px);font-size:11px;color:#64748b;line-height:1.6;text-align:center}
+@media(max-width:380px){
+  .lcd-main{font-size:28px}
+  .key.num{height:36px;font-size:16px}
+  .device-wrap{width:min(100%,340px)}
+}
 </style>
 </head>
-<body class="min-h-screen flex flex-col">
-<header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
-    <div class="flex items-center gap-3 min-w-0">
-      <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-      </a>
-      <div class="min-w-0">
-        <h1 class="text-lg md:text-xl font-black tracking-wide truncate">fx-3650P 課堂模擬器（非官方）</h1>
-        <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab · 外觀教學用</p>
-      </div>
-    </div>
-    <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
-  </div>
-</header>
-
-<main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
-  <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5">
-    <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
-    <p class="text-sm text-slate-600">熟悉香港課堂常見 <b>Casio fx-3650P</b> 按鍵佈局（SHIFT／ALPHA／MODE／REPLAY／EXE）；練習 DEG／RAD、Ans、指數、開方與三角函數。本頁為<b>非官方</b>教學外觀模擬，運算引擎為校本原創，非原廠韌體。</p>
+<body>
+<a class="home" href="index.html">← 主頁</a>
+<div class="page">
+  <div class="pill" role="group" aria-label="課堂選項">
+    <label><input type="checkbox" id="optTeach"> 教學模式</label>
+    <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
+    <label><input type="checkbox" id="optSound"> 音效</label>
   </div>
 
-  <div class="grid lg:grid-cols-5 gap-6 items-start">
-    <div class="lg:col-span-3">
-      <div class="teach">
-        <div class="flex flex-wrap items-center gap-2 mb-2 text-sm text-slate-700">
-          <b>教學按鍵紀錄</b>
-          <label class="ml-auto flex items-center gap-1 text-xs"><input id="keylog" type="checkbox" checked class="accent-blue-600"> 顯示</label>
-          <button type="button" id="clrLog" class="text-xs px-2 py-1 rounded border border-slate-200 bg-white">清除紀錄</button>
+  <div id="teachBox" class="teach" hidden>
+    <h3>教學按鍵紀錄 <button type="button" id="clrLog" style="float:right;font-size:11px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer">清除</button></h3>
+    <div id="log" class="teach-keys" aria-live="polite"></div>
+  </div>
+
+  <div class="device-wrap">
+    <div class="device" id="device" aria-label="fx-3650P 課堂模擬器">
+      <div class="face" id="shell">
+        <div class="brand">
+          <div class="casio">CASIO<em>fx-3650P</em></div>
+          <div class="right">S-V.P.A.M.<br>CLASSROOM</div>
         </div>
-        <div id="log" class="teach-keys" aria-live="polite"></div>
-      </div>
 
-      <div class="calc-wrap">
-        <div class="shell" id="shell" aria-label="fx-3650P 外觀模擬">
-          <div class="hw-head">
-            <div>
-              <div class="hw-logo">CASIO<em>fx-3650P</em></div>
-            </div>
-            <div class="hw-model text-right">S-V.P.A.M.<div style="font-size:8px;opacity:.7;margin-top:2px">CLASSROOM SIM</div></div>
-          </div>
-          <div class="hw-sub"><span>NATURAL DISPLAY LOOK</span><span>PROGRAMMABLE</span></div>
-
-          <div class="bezel">
-            <div class="lcd">
-              <div class="lcd-ind">
-                <span id="indShift">SHIFT</span>
-                <span id="indAlpha">ALPHA</span>
-                <span id="indDeg" class="on">DEG</span>
-                <span id="indRad">RAD</span>
-                <span id="indFix">FIX</span>
-                <span id="indSci">SCI</span>
+        <div class="lcd-bezel">
+          <div class="lcd">
+            <div class="lcd-top">
+              <div class="lcd-flags">
+                <span id="indShift">S</span>
+                <span id="indAlpha">A</span>
               </div>
-              <div class="lcd-expr" id="expr">&nbsp;</div>
-              <div class="lcd-main" id="disp">0</div>
+              <span class="lcd-d on" id="indD">D</span>
             </div>
+            <div class="lcd-expr" id="expr">&nbsp;</div>
+            <div class="lcd-main" id="disp">0.</div>
           </div>
+        </div>
 
-          <!-- Row: SHIFT ALPHA REPLAY MODE ON -->
-          <div class="ctrl2">
-            <div class="deck" style="gap:8px">
-              <div class="slot"><div class="leg"><span>SETUP</span></div><button type="button" class="key metal" data-k="SHIFT">SHIFT</button></div>
-              <div class="slot"><div class="leg"><span class="a">A</span></div><button type="button" class="key metal" data-k="ALPHA">ALPHA</button></div>
-            </div>
-            <div class="replay" aria-label="REPLAY">
-              <i>REPLAY</i>
-              <button type="button" class="rk u" data-k="UP" title="上">▲</button>
-              <button type="button" class="rk d" data-k="DOWN" title="下">▼</button>
-              <button type="button" class="rk l" data-k="LEFT" title="左">◀</button>
-              <button type="button" class="rk r" data-k="RIGHT" title="右">▶</button>
-            </div>
-            <div class="deck" style="gap:8px">
-              <div class="slot"><div class="leg"><span>CLR</span></div><button type="button" class="key metal" data-k="MODE">MODE</button></div>
-              <div class="slot"><div class="leg"><span></span></div><button type="button" class="key metal" data-k="ON">ON</button></div>
-            </div>
+        <!-- SHIFT ALPHA REPLAY MODE ON -->
+        <div class="topctrl">
+          <div class="slot">
+            <div class="leg"><span style="color:#d4a017">SHIFT</span></div>
+            <button type="button" class="key oval" data-k="SHIFT"><span class="yl">SHIFT</span></button>
           </div>
+          <div class="slot">
+            <div class="leg"><span class="r">ALPHA</span></div>
+            <button type="button" class="key oval" data-k="ALPHA"><span class="rd">ALPHA</span></button>
+          </div>
+          <div class="replay" aria-label="REPLAY">
+            <i>REPLAY</i>
+            <button type="button" class="rk u" data-k="UP" title="上">▲</button>
+            <button type="button" class="rk d" data-k="DOWN" title="下">▼</button>
+            <button type="button" class="rk l" data-k="LEFT" title="左">◀</button>
+            <button type="button" class="rk r" data-k="RIGHT" title="右">▶</button>
+          </div>
+          <div class="slot">
+            <div class="leg"><span>SETUP</span></div>
+            <button type="button" class="key oval" data-k="MODE">MODE</button>
+          </div>
+          <div class="slot">
+            <div class="leg"><span></span></div>
+            <button type="button" class="key oval" data-k="ON">ON</button>
+          </div>
+        </div>
 
-          <!-- Prog / OPTN / Vars / Menu / left-right already in replay -->
-          <div class="row6" style="margin-bottom:5px">
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key orange" data-k="Prog">Prog</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="OPTN">OPTN</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="VARS">VARS</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="MENU">MENU</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key warn sm" data-k="DEL">DEL</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key warn sm" data-k="AC">AC</button></div>
-          </div>
+        <!-- Prog FMLA -->
+        <div class="row2" style="grid-template-columns:1.2fr 1.2fr 1fr 1fr 1fr 1fr;margin-bottom:7px">
+          <div class="slot"><div class="leg"><span class="b">EXIT</span></div><button type="button" class="key orange" data-k="Prog">Prog</button></div>
+          <div class="slot"><div class="leg"><span></span></div><button type="button" class="key orange" data-k="FMLA">FMLA</button></div>
+          <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+        </div>
 
-          <!-- Function rows -->
-          <div class="row6" style="margin-bottom:5px">
-            <div class="slot"><div class="leg"><span>x²</span><span class="a">r</span></div><button type="button" class="key sm" data-k="x^2">x²</button></div>
-            <div class="slot"><div class="leg"><span>√</span></div><button type="button" class="key sm" data-k="sqrt">√</button></div>
-            <div class="slot"><div class="leg"><span>x³</span></div><button type="button" class="key sm" data-k="x^3">x³</button></div>
-            <div class="slot"><div class="leg"><span>∛</span></div><button type="button" class="key sm" data-k="cbrt">∛</button></div>
-            <div class="slot"><div class="leg"><span>^</span></div><button type="button" class="key sm" data-k="^">^</button></div>
-            <div class="slot"><div class="leg"><span>log</span></div><button type="button" class="key sm" data-k="log">log</button></div>
-          </div>
-          <div class="row6" style="margin-bottom:5px">
-            <div class="slot"><div class="leg"><span>ln</span></div><button type="button" class="key sm" data-k="ln">ln</button></div>
-            <div class="slot"><div class="leg"><span>sin⁻¹</span><span class="a">D</span></div><button type="button" class="key sm" data-k="sin">sin</button></div>
-            <div class="slot"><div class="leg"><span>cos⁻¹</span><span class="a">E</span></div><button type="button" class="key sm" data-k="cos">cos</button></div>
-            <div class="slot"><div class="leg"><span>tan⁻¹</span><span class="a">F</span></div><button type="button" class="key sm" data-k="tan">tan</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="(">(</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k=")">)</button></div>
-          </div>
-          <div class="row6" style="margin-bottom:6px">
-            <div class="slot"><div class="leg"><span>×</span><span class="a">:</span></div><button type="button" class="key sm" data-k="*10^">×10ˣ</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key sm" data-k="Frac">a b/c</button></div>
-            <div class="slot"><div class="leg"><span>←</span></div><button type="button" class="key sm" data-k="S<>D">S⇔D</button></div>
-            <div class="slot"><div class="leg"><span>hyp</span></div><button type="button" class="key sm" data-k="hyp">hyp</button></div>
-            <div class="slot"><div class="leg"><span>RCL</span></div><button type="button" class="key sm" data-k="RCL">RCL</button></div>
-            <div class="slot"><div class="leg"><span>STO</span></div><button type="button" class="key sm" data-k="ENG">ENG</button></div>
-          </div>
+        <!-- Function rows: CalcX / fx-3650P classroom look -->
+        <div class="row2">
+          <div class="slot"><div class="leg"><span>x⁻¹</span><span>d/c</span></div><button type="button" class="key blk sm" data-k="Frac">a b/c</button></div>
+          <div class="slot"><div class="leg"><span>∛</span><span>x³</span></div><button type="button" class="key blk sm" data-k="sqrt">√</button></div>
+          <div class="slot"><div class="leg"><span class="g">DEC</span></div><button type="button" class="key blk sm" data-k="x^2">x²</button></div>
+          <div class="slot"><div class="leg"><span class="g">HEX</span></div><button type="button" class="key blk sm" data-k="^">^</button></div>
+          <div class="slot"><div class="leg"><span>10ˣ</span><span class="g">BIN</span></div><button type="button" class="key blk sm" data-k="log">log</button></div>
+          <div class="slot"><div class="leg"><span>eˣ</span><span class="r">e</span></div><button type="button" class="key blk sm" data-k="ln">ln</button></div>
+        </div>
+        <div class="row2">
+          <div class="slot"><div class="leg"><span>∠</span><span class="r">A</span></div><button type="button" class="key blk sm" data-k="(-)">(−)</button></div>
+          <div class="slot"><div class="leg"><span>←</span><span class="r">B</span></div><button type="button" class="key blk sm" data-k="dms">°′″</button></div>
+          <div class="slot"><div class="leg"><span></span><span class="r">C</span></div><button type="button" class="key blk sm" data-k="hyp">hyp</button></div>
+          <div class="slot"><div class="leg"><span>sin⁻¹</span><span class="r">D</span></div><button type="button" class="key blk sm" data-k="sin">sin</button></div>
+          <div class="slot"><div class="leg"><span>cos⁻¹</span><span class="r">E</span></div><button type="button" class="key blk sm" data-k="cos">cos</button></div>
+          <div class="slot"><div class="leg"><span>tan⁻¹</span><span class="r">F</span></div><button type="button" class="key blk sm" data-k="tan">tan</button></div>
+        </div>
+        <div class="row2" style="margin-bottom:2px">
+          <div class="slot"><div class="leg"><span>STO</span></div><button type="button" class="key blk sm" data-k="RCL">RCL</button></div>
+          <div class="slot"><div class="leg"><span>←</span><span class="r">i</span></div><button type="button" class="key blk sm" data-k="ENG">ENG</button></div>
+          <div class="slot"><div class="leg"><span>%</span></div><button type="button" class="key blk sm" data-k="(">(</button></div>
+          <div class="slot"><div class="leg"><span>Abs</span><span class="r">X</span></div><button type="button" class="key blk sm" data-k=")">)</button></div>
+          <div class="slot"><div class="leg"><span>:</span><span class="r">Y</span></div><button type="button" class="key blk sm" data-k=",">,</button></div>
+          <div class="slot"><div class="leg"><span>M−</span><span class="r">M</span></div><button type="button" class="key blk sm" data-k="M+">M+</button></div>
+        </div>
 
-          <!-- Number pad 5 cols -->
-          <div class="row5" style="margin-bottom:5px">
-            <div class="slot"><div class="leg"><span></span><span class="a">A</span></div><button type="button" class="key num" data-k="7">7</button></div>
-            <div class="slot"><div class="leg"><span></span><span class="a">B</span></div><button type="button" class="key num" data-k="8">8</button></div>
-            <div class="slot"><div class="leg"><span></span><span class="a">C</span></div><button type="button" class="key num" data-k="9">9</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="DEL2" style="font-size:14px;color:#f1a0a6">DEL</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="AC2" style="font-size:14px;color:#f1a0a6">AC</button></div>
+        <!-- Number pad on darker lower section -->
+        <div class="numpad">
+          <div class="row5">
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="7">7</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="8">8</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="9">9</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num warn" data-k="DEL">DEL</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num warn" data-k="AC">AC</button></div>
           </div>
-          <div class="row5" style="margin-bottom:5px">
-            <div class="slot"><div class="leg"><span></span><span class="a">D</span></div><button type="button" class="key num" data-k="4">4</button></div>
-            <div class="slot"><div class="leg"><span></span><span class="a">E</span></div><button type="button" class="key num" data-k="5">5</button></div>
-            <div class="slot"><div class="leg"><span></span><span class="a">F</span></div><button type="button" class="key num" data-k="6">6</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="×" style="font-size:18px">×</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="÷" style="font-size:18px">÷</button></div>
+          <div class="row5">
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="4">4</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="5">5</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="6">6</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="×">×</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="÷">÷</button></div>
           </div>
-          <div class="row5" style="margin-bottom:5px">
+          <div class="row5">
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="1">1</button></div>
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="2">2</button></div>
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="3">3</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="+" style="font-size:18px">+</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="−" style="font-size:18px">−</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="+">+</button></div>
+            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num op" data-k="−">−</button></div>
           </div>
-          <div class="row5">
+          <div class="row5" style="margin-bottom:0">
             <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="0">0</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num" data-k="." style="font-size:22px">.</button></div>
-            <div class="slot"><div class="leg"><span>π</span></div><button type="button" class="key num" data-k="×10ˣ" style="font-size:12px">EXP</button></div>
-            <div class="slot"><div class="leg"><span>Ans</span></div><button type="button" class="key num" data-k="Ans" style="font-size:12px">Ans</button></div>
-            <div class="slot"><div class="leg"><span></span></div><button type="button" class="key num exe" data-k="EXE">EXE</button></div>
+            <div class="slot"><div class="leg"><span>Ran#</span></div><button type="button" class="key num" data-k=".">.</button></div>
+            <div class="slot"><div class="leg"><span>π</span></div><button type="button" class="key num sm" data-k="EXP">EXP</button></div>
+            <div class="slot"><div class="leg"><span>DRG▸</span></div><button type="button" class="key num sm" data-k="Ans">Ans</button></div>
+            <div class="slot"><div class="leg"><span>Re⇔Im</span></div><button type="button" class="key num exe" data-k="EXE">EXE</button></div>
           </div>
         </div>
-        <p class="hint">鍵盤：Enter＝EXE · Backspace＝DEL · Esc＝AC · Space＝SHIFT<br>黃色標籤＝SHIFT 第二功能 · 紅色標籤＝ALPHA</p>
-        <div class="disc">⚠ 非官方模擬器，未獲 Casio／考試機構認證。重要計算請以真機核對。Prog／完整程式語言未實作；本頁聚焦外觀辨識與基礎科學計算。</div>
-      </div>
-    </div>
-
-    <div class="lg:col-span-2">
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h2 class="font-bold text-slate-700 mb-2">MODE／角度</h2>
-        <p class="text-sm text-slate-500 mb-3">按 <b>MODE</b> 切換 DEG／RAD（螢幕上方指示燈會變）。SHIFT→MODE 可重置為 DEG。</p>
-        <div class="flex gap-3 text-sm mb-4">
-          <span class="px-3 py-1 rounded-full bg-slate-100 font-bold" id="modeBadge">COMP · DEG</span>
-        </div>
-        <h2 class="font-bold text-slate-700 mb-2">歷史 / Ans</h2>
-        <p class="text-sm text-slate-500 mb-2">Ans = <b id="ans">0</b></p>
-        <ul id="hist" class="text-sm space-y-1 max-h-72 overflow-auto font-mono text-slate-600"></ul>
-        <h2 class="font-bold text-slate-700 mt-4 mb-2">課堂提示</h2>
-        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-1">
-          <li>SHIFT（黃）再開 sin → arcsin</li>
-          <li>SHIFT √ → 平方；SHIFT x² 亦為平方捷徑</li>
-          <li>Ans 可接續上一題答案</li>
-          <li>教學模式可投影「按鍵紀錄」逐步示範</li>
-        </ul>
       </div>
     </div>
   </div>
-</main>
 
-<footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
-  <div class="max-w-6xl mx-auto px-6 text-center text-sm">
-    &copy; 2026 SHSS物理虛擬實驗室 · fx-3650P 外觀為教學模擬（非官方）· 運算邏輯原創
-  </div>
-</footer>
+  <p class="hint">黃色＝SHIFT　紅色＝ALPHA　MODE＝DEG/RAD　Enter＝EXE</p>
+  <p class="disc">⚠ fx-3650P 課堂模擬器（非官方）。外觀教學用；運算引擎為校本原創，非原廠韌體。</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 (function(){
-  const disp=document.getElementById('disp'), expr=document.getElementById('expr');
-  const hist=document.getElementById('hist'), logEl=document.getElementById('log'), ansEl=document.getElementById('ans');
-  const modeBadge=document.getElementById('modeBadge');
-  let cur='0', pending='', op=null, acc=null, ans=0, keys=[], shift=false, alpha=false, ang='deg', fresh=true, inv=false;
+  const disp=document.getElementById('disp');
+  const expr=document.getElementById('expr');
+  const logEl=document.getElementById('log');
+  const teachBox=document.getElementById('teachBox');
+  const device=document.getElementById('device');
+  const toastEl=document.getElementById('toast');
+  const optTeach=document.getElementById('optTeach');
+  const optLock=document.getElementById('optLock');
+  const optSound=document.getElementById('optSound');
 
+  let cur='0', pending='', op=null, acc=null, ans=0, mem=0;
+  let keys=[], shift=false, alpha=false, ang='deg', fresh=true;
+  let toastTimer=null;
+
+  function fmtDisp(s){
+    if(s==='Math ERROR') return s;
+    if(s===''||s==null) return '0.';
+    if(/[eE]/.test(s) || /[^\d.\-]/.test(s) && s!=='0.') return s;
+    if(s.indexOf('.')>=0) return s;
+    return s+'.';
+  }
   function setInd(){
     document.getElementById('indShift').classList.toggle('on', shift);
     document.getElementById('indAlpha').classList.toggle('on', alpha);
-    document.getElementById('indDeg').classList.toggle('on', ang==='deg');
-    document.getElementById('indRad').classList.toggle('on', ang==='rad');
-    modeBadge.textContent='COMP · '+(ang==='deg'?'DEG':'RAD');
+    document.getElementById('indD').classList.toggle('on', ang==='deg');
+    document.getElementById('indD').textContent = ang==='deg' ? 'D' : 'R';
+  }
+  function update(){
+    disp.textContent=fmtDisp(cur);
+    expr.innerHTML=pending||'&nbsp;';
+    setInd();
+  }
+  function toast(msg){
+    toastEl.textContent=msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2200);
+  }
+  function beep(){
+    if(!optSound.checked) return;
+    try{
+      const ctx=new (window.AudioContext||window.webkitAudioContext)();
+      const o=ctx.createOscillator(); const g=ctx.createGain();
+      o.type='square'; o.frequency.value=880;
+      g.gain.value=0.03;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.05);
+      o.stop(ctx.currentTime+0.06);
+      setTimeout(()=>ctx.close(),120);
+    }catch(e){}
   }
   function logKey(k){
+    if(!optTeach.checked) return;
     keys.push(k);
-    if(!document.getElementById('keylog').checked){logEl.innerHTML='';return;}
-    logEl.innerHTML=keys.map((x,i)=>'<span class="tk'+(i===keys.length-1?' latest':'')+'">'+x+'</span>').join('');
+    logEl.innerHTML=keys.slice(-40).map((x,i,a)=>'<span class="tk'+(i===a.length-1?' latest':'')+'">'+x+'</span>').join('');
     logEl.scrollTop=logEl.scrollHeight;
   }
-  function update(){disp.textContent=cur; expr.innerHTML=pending||'&nbsp;'; ansEl.textContent=ans; setInd();}
   function toRad(x){return ang==='deg'?x*Math.PI/180:x;}
   function fromRad(x){return ang==='deg'?x*180/Math.PI:x;}
   function applyOp(a,b,o){
@@ -282,22 +402,20 @@ body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff
   function num(v){const n=Number(v); return Number.isFinite(n)?n:NaN;}
   function setCur(v){
     if(!Number.isFinite(v)){cur='Math ERROR';fresh=true;return;}
-    const s=String(+parseFloat(v.toPrecision(12)));
+    let s=String(+parseFloat(v.toPrecision(12)));
     cur=s; fresh=true;
   }
 
   function press(lab){
-    // normalize aliases
-    if(lab==='DEL2') lab='DEL';
-    if(lab==='AC2') lab='AC';
-    if(lab==='×10ˣ') lab='EXP';
-    if(lab==='*10^') lab='EXP';
-
+    if(optLock.checked && lab!=='ON'){ beep(); return; }
+    beep();
     logKey(lab);
 
     if(lab==='SHIFT'){shift=!shift; alpha=false; update(); return;}
     if(lab==='ALPHA'){alpha=!alpha; shift=false; update(); return;}
-    if(lab==='ON'||lab==='AC'){cur='0';pending='';op=null;acc=null;shift=false;alpha=false;inv=false;fresh=true;update();return;}
+    if(lab==='ON'||lab==='AC'){
+      cur='0';pending='';op=null;acc=null;shift=false;alpha=false;fresh=true;update();return;
+    }
     if(lab==='DEL'){
       if(fresh||cur==='Math ERROR'){cur='0';fresh=true;}
       else if(cur.length<=1){cur='0';fresh=true;}
@@ -309,30 +427,55 @@ body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff
       else {ang=(ang==='deg'?'rad':'deg');}
       update();return;
     }
-    if(['UP','DOWN','LEFT','RIGHT','Prog','OPTN','VARS','MENU','Frac','S<>D','hyp','RCL','ENG'].includes(lab)){
-      // layout / teaching only — soft feedback
-      pending=(pending||'')+'['+lab+']';
+    if(lab==='Prog'||lab==='FMLA'){
+      shift=false; alpha=false;
+      toast('課堂版：程式編輯稍後開放');
+      update(); return;
+    }
+    if(lab==='Frac'){
+      if(shift){ shift=false; setCur(1/num(cur)); update(); return; } // x⁻¹
+      alpha=false; update(); return;
+    }
+    if(['UP','DOWN','LEFT','RIGHT','hyp','RCL','ENG','dms'].includes(lab)){
+      if(lab==='RCL' && shift){ shift=false; toast('STO：課堂版稍後開放'); update(); return; }
       shift=false; alpha=false; update(); return;
     }
+    if(lab==='M+'){
+      if(shift){ mem-=num(cur); }
+      else { mem+=num(cur); }
+      shift=false; alpha=false; fresh=true; update(); return;
+    }
+    if(lab===','){ shift=false; alpha=false; update(); return; }
 
-    // SHIFT secondary functions
+    // ALPHA constants / vars
+    if(alpha){
+      alpha=false;
+      if(lab==='EXP' || lab==='π'){ cur=String(Math.PI); fresh=true; update(); return; }
+      if(lab==='ln'){ cur=String(Math.E); fresh=true; update(); return; }
+      if(lab==='Ans'){ /* DRG stub via Ans+ALPHA */ ang = ang==='deg'?'rad':(ang==='rad'?'grad':'deg'); if(ang==='grad') ang='deg'; update(); return; }
+      update(); return;
+    }
+
+    // SHIFT secondary
     if(shift){
       shift=false;
       if(lab==='sin'){setCur(fromRad(Math.asin(num(cur))));update();return;}
       if(lab==='cos'){setCur(fromRad(Math.acos(num(cur))));update();return;}
       if(lab==='tan'){setCur(fromRad(Math.atan(num(cur))));update();return;}
-      if(lab==='sqrt'||lab==='x^2'){setCur(Math.pow(num(cur),2));update();return;}
-      if(lab==='x^3'){setCur(Math.pow(num(cur),1/3));update();return;}
-      if(lab==='cbrt'){setCur(Math.pow(num(cur),3));update();return;}
+      if(lab==='sqrt'){setCur(Math.cbrt?Math.cbrt(num(cur)):Math.pow(num(cur),1/3));update();return;} // ∛ / x³
+      if(lab==='x^2'){setCur(Math.pow(num(cur),3));update();return;} // classroom: SHIFT x² → x³
+      if(lab==='Frac'){setCur(1/num(cur));update();return;}
       if(lab==='log'){setCur(Math.pow(10,num(cur)));update();return;}
       if(lab==='ln'){setCur(Math.exp(num(cur)));update();return;}
-      if(lab==='π'||lab==='EXP'){setCur(Math.PI);update();return;}
+      if(lab==='EXP'){setCur(Math.PI);update();return;}
+      if(lab===')'){setCur(Math.abs(num(cur)));update();return;}
+      if(lab==='.'){ setCur(Math.random()); update(); return; }
+      if(lab==='x^-1'){setCur(1/num(cur));update();return;}
     }
 
-    if(lab==='π'){cur=String(Math.PI);fresh=true;update();return;}
+    if(lab==='x^-1'){setCur(1/num(cur));update();return;}
     if(lab==='Ans'){cur=String(ans);fresh=true;update();return;}
     if(lab==='sqrt'){setCur(Math.sqrt(num(cur)));update();return;}
-    if(lab==='cbrt'){setCur(Math.cbrt?Math.cbrt(num(cur)):Math.pow(num(cur),1/3));update();return;}
     if(lab==='x^2'){setCur(Math.pow(num(cur),2));update();return;}
     if(lab==='x^3'){setCur(Math.pow(num(cur),3));update();return;}
     if(lab==='log'){setCur(Math.log10?Math.log10(num(cur)):Math.log(num(cur))/Math.LN10);update();return;}
@@ -340,6 +483,12 @@ body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff
     if(lab==='sin'){setCur(Math.sin(toRad(num(cur))));update();return;}
     if(lab==='cos'){setCur(Math.cos(toRad(num(cur))));update();return;}
     if(lab==='tan'){setCur(Math.tan(toRad(num(cur))));update();return;}
+    if(lab==='(-)'){
+      if(fresh||cur==='0'){cur='-';fresh=false;}
+      else if(cur.charAt(0)==='-') cur=cur.slice(1)||'0';
+      else cur='-'+cur;
+      update();return;
+    }
 
     if(['+','−','×','÷','^'].includes(lab)){
       if(op!=null && acc!=null && !fresh){acc=applyOp(acc,num(cur),op);}
@@ -349,8 +498,6 @@ body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff
     if(lab==='EXE'||lab==='='){
       let r=num(cur);
       if(op!=null && acc!=null){r=applyOp(acc,num(cur),op);}
-      const line=(pending||'')+cur+' = '+r;
-      const li=document.createElement('li'); li.textContent=line; hist.prepend(li);
       ans=r; setCur(r); pending=''; op=null; acc=null; update(); return;
     }
     if(lab==='EXP'){
@@ -360,16 +507,24 @@ body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff
     }
     if(lab==='.'){ if(fresh){cur='0.';fresh=false;} else if(!cur.includes('.')) cur+='.'; update(); return; }
     if(/^[0-9]$/.test(lab)){ cur=(fresh||cur==='0')?lab:cur+lab; fresh=false; update(); return; }
-    // ignore bare ( ) for simple chain calc — still log
-    if(lab==='('||lab===')'){update();return;}
+    if(lab===')'){ update(); return; }
+    if(lab==='('){update();return;}
   }
 
   document.getElementById('shell').addEventListener('click',e=>{
     const b=e.target.closest('[data-k]'); if(!b) return;
     press(b.getAttribute('data-k'));
   });
+  optTeach.addEventListener('change',()=>{
+    teachBox.hidden=!optTeach.checked;
+    if(!optTeach.checked){keys=[];logEl.innerHTML='';}
+  });
+  optLock.addEventListener('change',()=>{
+    device.classList.toggle('locked', optLock.checked);
+  });
   document.getElementById('clrLog').onclick=()=>{keys=[];logEl.innerHTML='';};
   document.addEventListener('keydown',e=>{
+    if(optLock.checked) return;
     if(e.key==='Enter'){e.preventDefault();press('EXE');}
     else if(e.key==='Backspace'){e.preventDefault();press('DEL');}
     else if(e.key==='Escape'){press('AC');}
