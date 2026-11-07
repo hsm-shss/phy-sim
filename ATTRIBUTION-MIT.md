@@ -51,3 +51,12 @@ Copyright (c) 2025 Hong Kong Physics Teachers
 The MIT copyright notice and permission notice are included via this file and `sims/LICENSE-MIT-upstream.txt`.
 
 Pages at the repository root (outside `sims/`) are original SHSS classroom materials unless otherwise noted on the page itself.
+
+
+## Calculator MIT fork (`calcx/`)
+
+- Upstream: [throwingogo-hub/fx-50fh-ii](https://github.com/throwingogo-hub/fx-50fh-ii)
+- Forked commit: `84c53951d58e0ee890eae5fd96f248aefdc8db37`
+- License: MIT — see `calcx/LICENSE` and `calcx/NOTICE`
+- Copyright (c) 2026 throwingogo-hub
+- **Excluded:** `assets/fx-50fh-ii.png` (CASIO product photograph, not under MIT)
