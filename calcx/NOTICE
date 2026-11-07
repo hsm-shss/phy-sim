@@ -1,0 +1,25 @@
+fx-50FH II web — MIT fork for phy-sim (SHSS)
+
+Source: https://github.com/throwingogo-hub/fx-50fh-ii
+Upstream commit: 84c53951d58e0ee890eae5fd96f248aefdc8db37
+Copyright (c) 2026 throwingogo-hub
+License: MIT (see LICENSE in this folder)
+
+This folder is a static-site fork of the upstream MIT source code for GitHub Pages
+at https://hsm-shss.github.io/phy-sim/calcx/
+
+Excluded (not covered by MIT / not copied):
+- assets/fx-50fh-ii.png — CASIO product photograph (explicitly excluded by upstream LICENSE)
+- assets/fx-50fh-ii-generated-green.png — intermediate green-screen cut (not required at runtime)
+
+Included faceplate artwork:
+- assets/fx-50fh-ii-generated.png — AI-generated high-resolution reconstruction from upstream
+- assets/fx-50fh-ii-generated-transparent.png — transparent cutout used by css/style.css
+
+Faceplate artwork permission is separate from the code license. CASIO holds
+trademarks in "CASIO", "fx-50FH II" and "SUPER-FX PLUS". This independent,
+unofficial simulator has no manufacturer or examination-body (HKEAA) endorsement.
+Verify important results against a physical calculator.
+
+Campus mirror lineage reference (not scraped for this fork):
+https://web.chuenyuen.edu.hk/cyc_web/calcx/ — Based on throwingogo-hub/fx-50fh-ii @ 54a25e6
