@@ -10,11 +10,11 @@
         body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
         .card { transition: all 0.3s ease; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.15); }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- 頁首 Header -->
     <header class="bg-slate-900 text-white p-6 shadow-lg sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -35,175 +35,254 @@
         </div>
     </header>
 
-    <!-- 主要內容區 -->
     <main class="flex-grow p-6 md:p-10 max-w-6xl mx-auto w-full">
-        
-        <div class="flex items-center gap-3 mb-8">
-            <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
-            <h2 class="text-xl font-bold text-slate-700">選擇實驗項目 Select Experiment</h2>
+
+        <div class="flex flex-wrap gap-2 mb-8">
+            <a href="#heat" class="text-xs font-bold px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 hover:bg-cyan-200">熱學</a>
+            <a href="#mechanics" class="text-xs font-bold px-3 py-1.5 rounded-full bg-orange-100 text-orange-800 hover:bg-orange-200">力學</a>
+            <a href="#optics" class="text-xs font-bold px-3 py-1.5 rounded-full bg-violet-100 text-violet-800 hover:bg-violet-200">光學</a>
+            <a href="#waves" class="text-xs font-bold px-3 py-1.5 rounded-full bg-sky-100 text-sky-800 hover:bg-sky-200">波動</a>
+            <a href="#em" class="text-xs font-bold px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200">電與磁</a>
+            <a href="#tools" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200">工具</a>
+            <a href="#drill" class="text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 hover:bg-indigo-200">綜合練習</a>
         </div>
 
-        <!-- 實驗卡片網格 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <!-- 熱學 -->
+        <section id="heat" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-cyan-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">熱學 Heat</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="Latent_heat.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-cyan-100 text-cyan-800 text-xs font-bold px-3 py-1 rounded-full">熱學 Heat</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">🧊 冰的熔解比潛熱實驗</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">模擬利用電熱器加熱冰塊的過程，測量並計算冰的熔解比潛熱，包含對照組實驗設置。</p>
+                        <div class="flex items-center text-sm font-bold text-blue-600">進入實驗室 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+            </div>
+        </section>
 
-            <!-- 1. 冰的熔解比潛熱實驗 -->
-            <a href="Latent_heat.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-cyan-100 text-cyan-800 text-xs font-bold px-3 py-1 rounded-full">熱學 Heat</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        <!-- 力學 -->
+        <section id="mechanics" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-orange-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">力學 Mechanics</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="monkey_hunter.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-orange-400 to-amber-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">力學 Mechanics</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors">🐒 猴子獵人：拋射體與自由落體</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">調節發射角與初速，演示瞄准樹上猴子時子彈與自由落體相遇的經典思想實驗。</p>
+                        <div class="flex items-center text-sm font-bold text-orange-600">開始模擬 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">🧊 冰的熔解比潛熱實驗</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        模擬利用電熱器加熱冰塊的過程，測量並計算冰的熔解比潛熱，包含對照組實驗設置。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-blue-600">
-                        進入實驗室 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                </div>
-            </a>
+                </a>
+            </div>
+        </section>
 
-            <!-- 2. HKDSE 物理公式競技場 -->
-            <a href="phy_equation.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-purple-400 to-indigo-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">綜合練習 Exam Drill</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        <!-- 光學 -->
+        <section id="optics" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-violet-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">光學 Optics</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="mirror_comprehensive_lab.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-violet-400 to-purple-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-violet-100 text-violet-800 text-xs font-bold px-3 py-1 rounded-full">光學 Optics</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-violet-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">🪞 平面鏡成像綜合教學</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">探討平面鏡與物體移動時的成像速率關係，包含原理公式探索與課本例題動態解析。</p>
+                        <div class="flex items-center text-sm font-bold text-violet-600">開始探索 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">⚛ HKDSE 物理公式競技場</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        按課題分類的公式練習工具。包含力學、波動、電磁學等核心課題，支援單位檢測與視覺化模擬。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-indigo-600">
-                        開始挑戰 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+                <a href="shortest_plane_mirror.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-fuchsia-400 to-violet-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-violet-100 text-violet-800 text-xs font-bold px-3 py-1 rounded-full">光學 Optics</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-violet-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">🪞 最短平面鏡長度</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">互動光線圖：為何全身鏡長約為眼睛高度一半？可延伸至看到更高物件時的 L = H/2。</p>
+                        <div class="flex items-center text-sm font-bold text-violet-600">開始探索 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                </div>
-            </a>
+                </a>
+                <a href="refraction_lab_simple.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-cyan-400 to-teal-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-violet-100 text-violet-800 text-xs font-bold px-3 py-1 rounded-full">光學 Optics</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-teal-600 transition-colors">🌊 折射與 Snell 定律</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">調節 n₁、n₂ 與入射角，觀察折射、反射與全內反射條件。</p>
+                        <div class="flex items-center text-sm font-bold text-teal-600">開始模擬 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+            </div>
+        </section>
 
-            <!-- 3. HKDSE 物理混合挑戰 -->
-            <a href="formula_mixed.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-rose-400 to-red-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-rose-100 text-rose-800 text-xs font-bold px-3 py-1 rounded-full">進階挑戰 Advanced</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-rose-600 transition-colors">🔥 HKDSE 物理混合挑戰</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        全課題隨機出題！不分單元、隨機變數，測試你對物理公式的熟練度與臨場反應。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-rose-600">
-                        接受挑戰 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                </div>
-            </a>
+        <!-- 波動 -->
+        <section id="waves" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-sky-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">波動 Waves</h2>
+            </div>
+            <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-6 text-slate-500 text-sm">
+                暫未有獨立波動模擬頁面。公式練習可於「綜合練習」中選取波動課題。
+            </div>
+        </section>
 
-            <!-- 4. 智慧多層過濾模擬器 -->
-            <a href="filter.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-emerald-400 to-green-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">應用科學 Applied Sci</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">💧 智慧多層過濾模擬器</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        自訂過濾層數與材質（棉花、沙、石），觀察水流速度與淨化效果，計算成本效益。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-emerald-600">
-                        開始模擬 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                </div>
-            </a>
+        <!-- 電與磁 -->
+        <section id="em" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-yellow-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">電與磁 Electricity &amp; Magnetism</h2>
+            </div>
+            <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-6 text-slate-500 text-sm">
+                暫未有獨立電與磁模擬頁面。公式練習可於「綜合練習」中選取電磁學課題。
+            </div>
+        </section>
 
-            <!-- 5. 實驗通用計時器 -->
-            <a href="timer.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-amber-400 to-orange-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">實用工具 Utility</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+        <!-- 工具 -->
+        <section id="tools" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-amber-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">工具 Tools</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="svg_plot_lab.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-emerald-400 to-green-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">實用工具 Utility</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">📈 課堂座標圖繪製器</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">輸入 (x,y) 數據、繪製散點與最小二乘擬合線，並下載 SVG。</p>
+                        <div class="flex items-center text-sm font-bold text-emerald-600">開啟工具 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors">⏱️ 無人機足球通用計時器</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        專為實驗設計的倒數計時工具。包含最後30秒聲響提示、自訂時間設定及計分功能，輔助課堂活動進行。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-orange-600">
-                        開啟計時器 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+                <a href="vernier_caliper.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-lime-400 to-emerald-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">實驗技能 Lab Skill</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">📏 游標卡尺讀數練習</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">隨機出題練習游標讀數（精度 0.1 mm），即時對答案與計分。</p>
+                        <div class="flex items-center text-sm font-bold text-emerald-600">開始練習 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                </div>
-            </a>
+                </a>
+                <a href="timer.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">實用工具 Utility</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors">⏱️ 無人機足球通用計時器</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">專為實驗／活動設計的倒數計時工具，含聲響提示與計分功能。</p>
+                        <div class="flex items-center text-sm font-bold text-orange-600">開啟計時器 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+                <a href="filter.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-emerald-400 to-green-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">應用科學 Applied Sci</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">💧 智慧多層過濾模擬器</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">自訂過濾層數與材質，觀察水流速度與淨化效果，計算成本效益。</p>
+                        <div class="flex items-center text-sm font-bold text-emerald-600">開始模擬 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+                <a href="binary%20to%20decimal.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-teal-400 to-blue-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full">數字系統 Number System</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-teal-600 transition-colors">🔢 二進制與十進制互換教學</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">互動式動態示範數制轉換，包含位值展開與短除法步驟。</p>
+                        <div class="flex items-center text-sm font-bold text-teal-600">開始學習 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+                <a href="hkid_check_digit_calculator.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-fuchsia-400 to-pink-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold px-3 py-1 rounded-full">資訊科技 IT</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-fuchsia-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-fuchsia-600 transition-colors">🆔 香港身份證檢查碼計算</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">學習身份證號碼結構，並以模除 11 演算法計算或驗證檢查碼。</p>
+                        <div class="flex items-center text-sm font-bold text-fuchsia-600">開始計算 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
+                    </div>
+                </a>
+            </div>
+        </section>
 
-            <!-- 6. 二進制與十進制互換教學 -->
-            <a href="binary to decimal.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-teal-400 to-blue-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full">數字系統 Number System</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        <!-- 綜合練習 -->
+        <section id="drill" class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-1 bg-indigo-500 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-700">綜合練習 Drill</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <a href="phy_equation.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-purple-400 to-indigo-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">綜合練習 Exam Drill</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">⚛ HKDSE 物理公式競技場</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">按課題分類的公式練習工具，支援單位檢測與視覺化模擬。</p>
+                        <div class="flex items-center text-sm font-bold text-indigo-600">開始挑戰 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-teal-600 transition-colors">🔢 二進制與十進制互換教學</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        互動式動態示範數制轉換。包含二進制轉十進制位值展開（第n個位乘2）及十進制轉二進制短除法步驟示範。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-teal-600">
-                        開始學習 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+                <a href="formula_mixed.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
+                    <div class="h-3 bg-gradient-to-r from-rose-400 to-red-500"></div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-3 py-1 rounded-full">進階挑戰 Advanced</span>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-rose-600 transition-colors">🔥 HKDSE 物理混合挑戰</h3>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-2">全課題隨機出題，測試公式熟練度與臨場反應。</p>
+                        <div class="flex items-center text-sm font-bold text-rose-600">接受挑戰 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span></div>
                     </div>
-                </div>
-            </a>
-
-            <!-- 7. 香港身份證檢查碼計算 -->
-            <a href="hkid_check_digit_calculator.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-fuchsia-400 to-pink-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold px-3 py-1 rounded-full">資訊科技 IT</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-fuchsia-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-fuchsia-600 transition-colors">🆔 香港身份證檢查碼計算</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        學習香港身份證號碼的結構，並透過視覺化步驟了解如何運用模除 11 (Modulo 11) 演算法計算或驗證檢查碼。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-fuchsia-600">
-                        開始計算 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- 8. 平面鏡成像綜合教學 -->
-            <a href="mirror_comprehensive_lab.html" class="card bg-white rounded-2xl p-0 border border-slate-200 block overflow-hidden group">
-                <div class="h-3 bg-gradient-to-r from-violet-400 to-purple-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="bg-violet-100 text-violet-800 text-xs font-bold px-3 py-1 rounded-full">光學 Optics</span>
-                        <svg class="w-5 h-5 text-slate-300 group-hover:text-violet-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">🪞 平面鏡成像綜合教學</h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2">
-                        探討平面鏡與物體移動時的成像速率關係，包含原理公式探索與課本例題動態解析。
-                    </p>
-                    <div class="flex items-center text-sm font-bold text-violet-600">
-                        開始探索 <span class="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                </div>
-            </a>
-
-        </div>
+                </a>
+            </div>
+        </section>
 
     </main>
 
-    <!-- 頁尾 -->
     <footer class="bg-slate-900 text-slate-400 py-8 mt-12 border-t border-slate-800">
         <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-sm font-medium">&copy; 2024 SHSS物理虛擬實驗室. All rights reserved.</p>
+            <p class="text-sm font-medium">&copy; 2026 SHSS物理虛擬實驗室. All rights reserved.</p>
             <div class="flex gap-6 text-sm">
-                <span class="hover:text-white cursor-pointer transition-colors">關於我們</span>
-                <span class="hover:text-white cursor-pointer transition-colors">使用說明</span>
-                <span class="hover:text-white cursor-pointer transition-colors">聯絡支援</span>
+                <a href="https://github.com/hsm-shss/phy-sim" class="hover:text-white transition-colors" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://github.com/hsm-shss" class="hover:text-white transition-colors" target="_blank" rel="noopener">學校帳號</a>
             </div>
         </div>
     </footer>

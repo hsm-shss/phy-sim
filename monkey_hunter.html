@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐒 猴子獵人：拋射體與自由落體 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🐒 猴子獵人：拋射體與自由落體</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">探索瞄准樹上猴子初始位置發射時，為何子彈與同時自由落下的猴子會相遇（相同重力加速度）。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">發射參數</h2>
+                    <label class="block text-sm">
+                        <span class="font-medium">發射角 θ：<b id="angV">45</b>°</span>
+                        <input id="ang" type="range" min="10" max="80" step="1" value="45" class="w-full accent-orange-500 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium">初速 v₀：<b id="spdV">25</b> m/s</span>
+                        <input id="spd" type="range" min="8" max="45" step="0.5" value="25" class="w-full accent-orange-500 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium">猴子水平距離 D：<b id="distV">40</b> m</span>
+                        <input id="dist" type="range" min="15" max="60" step="1" value="40" class="w-full accent-orange-500 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium">猴子初始高度 H：<b id="hV">20</b> m</span>
+                        <input id="h0" type="range" min="5" max="35" step="1" value="20" class="w-full accent-orange-500 mt-1">
+                    </label>
+                    <p class="text-xs text-slate-500">假設 g = 9.8 m/s²；子彈射出瞬間猴子同時從靜止自由落下。瞄准猴子初始位置發射。</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btnPlay" class="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">播放 / 暫停</button>
+                        <button id="btnReset" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">重設</button>
+                    </div>
+                    <div id="hitMsg" class="text-sm rounded-xl bg-amber-50 border border-amber-100 p-3 text-amber-900"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm">
+                <canvas id="cv" width="640" height="400" class="w-full rounded-xl bg-sky-50 border border-slate-100"></canvas>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+
+<script>
+(function(){
+  const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  const G=9.8;
+  let playing=false, t=0, raf=null;
+
+  function params(){
+    return {
+      ang: +document.getElementById('ang').value * Math.PI/180,
+      v0: +document.getElementById('spd').value,
+      D: +document.getElementById('dist').value,
+      H: +document.getElementById('h0').value
+    };
+  }
+
+  function syncLabels(){
+    document.getElementById('angV').textContent=document.getElementById('ang').value;
+    document.getElementById('spdV').textContent=document.getElementById('spd').value;
+    document.getElementById('distV').textContent=document.getElementById('dist').value;
+    document.getElementById('hV').textContent=document.getElementById('h0').value;
+  }
+
+  function worldToScreen(x,y,p){
+    const margin=40;
+    const scaleX=(cv.width-2*margin)/Math.max(p.D*1.2,30);
+    const scaleY=(cv.height-2*margin)/Math.max(p.H*1.4,25);
+    const scale=Math.min(scaleX,scaleY);
+    return {sx: margin + x*scale, sy: cv.height - margin - y*scale, scale};
+  }
+
+  function draw(){
+    syncLabels();
+    const p=params();
+    ctx.clearRect(0,0,cv.width,cv.height);
+    // ground
+    ctx.fillStyle='#e2e8f0';
+    ctx.fillRect(0,cv.height-36,cv.width,36);
+
+    // aim line to monkey initial
+    const a0=worldToScreen(0,0,p);
+    const m0=worldToScreen(p.D,p.H,p);
+    ctx.strokeStyle='#94a3b8'; ctx.setLineDash([6,4]); ctx.beginPath();
+    ctx.moveTo(a0.sx,a0.sy); ctx.lineTo(m0.sx,m0.sy); ctx.stroke(); ctx.setLineDash([]);
+
+    // trajectory ghost
+    ctx.strokeStyle='#fdba74'; ctx.lineWidth=2; ctx.beginPath();
+    for(let i=0;i<=80;i++){
+      const tt=i/80* (p.D/(p.v0*Math.cos(p.ang))+1);
+      const x=p.v0*Math.cos(p.ang)*tt;
+      const y=p.v0*Math.sin(p.ang)*tt - 0.5*G*tt*tt;
+      const s=worldToScreen(x,y,p);
+      if(i===0) ctx.moveTo(s.sx,s.sy); else ctx.lineTo(s.sx,s.sy);
+    }
+    ctx.stroke();
+
+    // positions at t
+    const bx=p.v0*Math.cos(p.ang)*t;
+    const by=p.v0*Math.sin(p.ang)*t - 0.5*G*t*t;
+    const my=p.H - 0.5*G*t*t;
+    const bs=worldToScreen(bx,Math.max(by,0),p);
+    const ms=worldToScreen(p.D,Math.max(my,0),p);
+
+    // monkey
+    ctx.fillStyle='#92400e';
+    ctx.beginPath(); ctx.arc(ms.sx, ms.sy, 12, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ms.sx-4, ms.sy-3, 3, 0, Math.PI*2); ctx.arc(ms.sx+4, ms.sy-3, 3, 0, Math.PI*2); ctx.fill();
+
+    // bullet
+    ctx.fillStyle='#dc2626';
+    ctx.beginPath(); ctx.arc(bs.sx, bs.sy, 6, 0, Math.PI*2); ctx.fill();
+
+    // gun
+    ctx.fillStyle='#334155';
+    ctx.fillRect(a0.sx-8, a0.sy-8, 16, 16);
+
+    // hit check: when bullet x ~ D
+    const tHit = p.D / (p.v0 * Math.cos(p.ang));
+    const yB = p.v0*Math.sin(p.ang)*tHit - 0.5*G*tHit*tHit;
+    const yM = p.H - 0.5*G*tHit*tHit;
+    const hit = Math.abs(yB-yM)<0.15 && yB>0;
+    document.getElementById('hitMsg').innerHTML =
+      `瞄准初始位置發射時，子彈與猴子在同一時刻的高度差 Δy ≈ <b>${(yB-yM).toFixed(3)}</b> m。<br>`+
+      (hit? '✅ 理論上會擊中（自由落體加速度相同，相對運動為直線運動）。' : '（數值誤差或參數使子彈未到達前已落地。）') +
+      `<br>t = ${t.toFixed(2)} s`;
+
+    if(playing){
+      t += 0.02;
+      if(t > tHit + 0.8 || by < -1 || my < -1){ playing=false; }
+      else raf=requestAnimationFrame(draw);
+    }
+  }
+
+  ['ang','spd','dist','h0'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',()=>{ t=0; playing=false; draw(); });
+  });
+  document.getElementById('btnPlay').onclick=()=>{
+    playing=!playing;
+    if(playing){ if(t> params().D/(params().v0*Math.cos(params().ang))+0.5) t=0; raf=requestAnimationFrame(draw); }
+  };
+  document.getElementById('btnReset').onclick=()=>{ playing=false; t=0; draw(); };
+  draw();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 折射與 Snell 定律 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🌊 折射與 Snell 定律</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">調節 n₁、n₂ 與入射角，觀察折射角變化、反射線，以及全內反射條件。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">介質與角度</h2>
+                    <label class="block text-sm">
+                        <span class="font-medium">入射介質折射率 n₁：<b id="n1v">1.00</b></span>
+                        <input id="n1" type="range" min="1.00" max="2.40" step="0.01" value="1.00" class="w-full accent-cyan-600 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium">折射介質折射率 n₂：<b id="n2v">1.33</b></span>
+                        <input id="n2" type="range" min="1.00" max="2.40" step="0.01" value="1.33" class="w-full accent-cyan-600 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium">入射角 θ₁：<b id="a1v">35</b>°</span>
+                        <input id="a1" type="range" min="0" max="89" step="1" value="35" class="w-full accent-cyan-600 mt-1">
+                    </label>
+                    <div class="rounded-xl bg-cyan-50 border border-cyan-100 p-3 text-sm space-y-1">
+                        <p>Snell 定律：<b>n₁ sin θ₁ = n₂ sin θ₂</b></p>
+                        <p>折射角 θ₂ = <b id="a2out">—</b></p>
+                        <p id="tirNote" class="text-rose-700 font-medium"></p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <button data-preset="1,1.33,40" class="preset px-3 py-1.5 rounded-lg bg-slate-100 font-bold">空氣→水</button>
+                        <button data-preset="1.33,1,40" class="preset px-3 py-1.5 rounded-lg bg-slate-100 font-bold">水→空氣</button>
+                        <button data-preset="1,1.50,30" class="preset px-3 py-1.5 rounded-lg bg-slate-100 font-bold">空氣→玻璃</button>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <svg id="refSvg" viewBox="0 0 520 420" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+
+<script>
+(function(){
+  const svg=document.getElementById('refSvg');
+  const CX=260, CY=210, LEN=160;
+
+  function deg(r){return r*180/Math.PI;}
+  function rad(d){return d*Math.PI/180;}
+
+  function draw(){
+    const n1=+document.getElementById('n1').value;
+    const n2=+document.getElementById('n2').value;
+    const th1=+document.getElementById('a1').value;
+    document.getElementById('n1v').textContent=n1.toFixed(2);
+    document.getElementById('n2v').textContent=n2.toFixed(2);
+    document.getElementById('a1v').textContent=th1;
+
+    const s = n1*Math.sin(rad(th1))/n2;
+    let th2=null, tir=false;
+    if(Math.abs(s)>1){ tir=true; document.getElementById('a2out').textContent='（全反射）'; document.getElementById('tirNote').textContent='sin θ₁ > n₂/n₁ → 全內反射，無折射線。'; }
+    else { th2=deg(Math.asin(s)); document.getElementById('a2out').textContent=th2.toFixed(1)+'°'; document.getElementById('tirNote').textContent=''; }
+
+    // angles from normal (vertical). Incident from top-left typically.
+    // Interface is horizontal through CY. Normal is vertical.
+    // Incident ray in medium 1 (top): angle from normal = th1, coming from upper side.
+    const iAng = rad(th1);
+    const ix1 = CX - LEN*Math.sin(iAng);
+    const iy1 = CY - LEN*Math.cos(iAng);
+    // reflected
+    const rx1 = CX + LEN*Math.sin(iAng);
+    const ry1 = CY - LEN*Math.cos(iAng);
+
+    let refr='';
+    if(!tir && th2!==null){
+      const rAng=rad(th2);
+      const fx = CX + LEN*Math.sin(rAng);
+      const fy = CY + LEN*Math.cos(rAng);
+      refr=`<line x1="${CX}" y1="${CY}" x2="${fx}" y2="${fy}" stroke="#0891b2" stroke-width="3" marker-end="url(#arrowC)"/>
+        <text x="${fx+8}" y="${fy}" fill="#0e7490" font-size="13" font-weight="700">折射 θ₂</text>`;
+    } else {
+      // show only reflection stronger
+    }
+
+    svg.innerHTML=`
+      <defs>
+        <marker id="arrowR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#dc2626"/></marker>
+        <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+        <marker id="arrowC" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0891b2"/></marker>
+      </defs>
+      <rect width="520" height="210" fill="#e0f2fe"/>
+      <rect y="210" width="520" height="210" fill="#cffafe"/>
+      <text x="20" y="30" fill="#0369a1" font-size="14" font-weight="700">n₁ = ${n1.toFixed(2)}</text>
+      <text x="20" y="400" fill="#0e7490" font-size="14" font-weight="700">n₂ = ${n2.toFixed(2)}</text>
+      <line x1="40" y1="${CY}" x2="480" y2="${CY}" stroke="#0f172a" stroke-width="2"/>
+      <line x1="${CX}" y1="40" x2="${CX}" y2="380" stroke="#94a3b8" stroke-dasharray="6 4" stroke-width="1.5"/>
+      <text x="${CX+6}" y="55" fill="#64748b" font-size="12">法線</text>
+      <line x1="${ix1}" y1="${iy1}" x2="${CX}" y2="${CY}" stroke="#dc2626" stroke-width="3" marker-end="url(#arrowR)"/>
+      <text x="${ix1-10}" y="${iy1-8}" fill="#b91c1c" font-size="13" font-weight="700">入射 θ₁</text>
+      <line x1="${CX}" y1="${CY}" x2="${rx1}" y2="${ry1}" stroke="#64748b" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowB)"/>
+      <text x="${rx1+4}" y="${ry1-6}" fill="#475569" font-size="12">反射</text>
+      ${refr}
+      <circle cx="${CX}" cy="${CY}" r="4" fill="#0f172a"/>
+    `;
+  }
+
+  ['n1','n2','a1'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  document.querySelectorAll('.preset').forEach(btn=>{
+    btn.onclick=()=>{
+      const [a,b,c]=btn.dataset.preset.split(',').map(Number);
+      document.getElementById('n1').value=a;
+      document.getElementById('n2').value=b;
+      document.getElementById('a1').value=c;
+      draw();
+    };
+  });
+  draw();
+})();
+</script>
+
+</body>
+</html>

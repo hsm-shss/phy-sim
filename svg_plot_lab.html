@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 課堂座標圖繪製器 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">📈 課堂座標圖繪製器</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">輸入實驗數據點，繪製散點圖並求最小二乘最佳擬合直線；可下載 SVG 供筆記或報告使用。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h2 class="font-bold text-slate-700">資料點 (x, y)</h2>
+                    <p class="text-xs text-slate-500">每行一點，用逗號或空白分隔。例如：1, 2.5</p>
+                    <textarea id="pts" rows="8" class="w-full border border-slate-200 rounded-xl p-3 text-sm font-mono focus:ring-2 focus:ring-blue-400 outline-none">0, 1
+1, 2.1
+2, 2.9
+3, 4.2
+4, 5.0
+5, 5.8</textarea>
+                    <label class="block text-sm">
+                        <span class="font-medium text-slate-600">X 軸標籤</span>
+                        <input id="xLabel" type="text" value="x" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium text-slate-600">Y 軸標籤</span>
+                        <input id="yLabel" type="text" value="y" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-medium">
+                        <input id="fitLine" type="checkbox" checked class="accent-blue-600"> 顯示最小二乘最佳擬合直線
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btnPlot" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-700">繪圖</button>
+                        <button id="btnDl" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500">下載 SVG</button>
+                    </div>
+                    <div id="fitOut" class="text-sm rounded-xl bg-slate-50 border border-slate-100 p-3 text-slate-600"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm overflow-auto">
+                <div id="plotWrap" class="w-full"></div>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+
+<script>
+(function(){
+  const W=560, H=420, PAD=56;
+
+  function parsePts(text){
+    const pts=[];
+    text.split(/\n+/).forEach(line=>{
+      line=line.trim(); if(!line) return;
+      const m=line.split(/[,，\s]+/).filter(Boolean);
+      if(m.length>=2){
+        const x=parseFloat(m[0]), y=parseFloat(m[1]);
+        if(!isNaN(x)&&!isNaN(y)) pts.push({x,y});
+      }
+    });
+    return pts;
+  }
+
+  function leastSquares(pts){
+    const n=pts.length;
+    if(n<2) return null;
+    let sx=0,sy=0,sxx=0,sxy=0;
+    pts.forEach(p=>{sx+=p.x;sy+=p.y;sxx+=p.x*p.x;sxy+=p.x*p.y;});
+    const den=n*sxx-sx*sx;
+    if(Math.abs(den)<1e-12) return null;
+    const m=(n*sxy-sx*sy)/den;
+    const b=(sy-m*sx)/n;
+    return {m,b};
+  }
+
+  function render(){
+    const pts=parsePts(document.getElementById('pts').value);
+    const xl=document.getElementById('xLabel').value||'x';
+    const yl=document.getElementById('yLabel').value||'y';
+    const doFit=document.getElementById('fitLine').checked;
+    const fitOut=document.getElementById('fitOut');
+    if(pts.length===0){ fitOut.textContent='請輸入至少一個資料點。'; document.getElementById('plotWrap').innerHTML=''; return; }
+
+    let xmin=Math.min(...pts.map(p=>p.x)), xmax=Math.max(...pts.map(p=>p.x));
+    let ymin=Math.min(...pts.map(p=>p.y)), ymax=Math.max(...pts.map(p=>p.y));
+    if(xmin===xmax){xmin-=1;xmax+=1;}
+    if(ymin===ymax){ymin-=1;ymax+=1;}
+    const dx=(xmax-xmin)*0.1, dy=(ymax-ymin)*0.1;
+    xmin-=dx; xmax+=dx; ymin-=dy; ymax+=dy;
+
+    const x2px=x=> PAD + (x-xmin)/(xmax-xmin)*(W-2*PAD);
+    const y2px=y=> H-PAD - (y-ymin)/(ymax-ymin)*(H-2*PAD);
+
+    let fit=null;
+    if(doFit){
+      fit=leastSquares(pts);
+      if(fit) fitOut.innerHTML=`最佳擬合：<b>y = ${fit.m.toFixed(4)} x + ${fit.b.toFixed(4)}</b>（n=${pts.length}）`;
+      else fitOut.textContent='無法擬合（可能所有 x 相同）。';
+    } else fitOut.textContent=`已繪製 ${pts.length} 個點。`;
+
+    let grid='';
+    for(let i=0;i<=5;i++){
+      const xx=PAD+i*(W-2*PAD)/5, yy=PAD+i*(H-2*PAD)/5;
+      grid+=`<line x1="${xx}" y1="${PAD}" x2="${xx}" y2="${H-PAD}" stroke="#e2e8f0"/><line x1="${PAD}" y1="${yy}" x2="${W-PAD}" y2="${yy}" stroke="#e2e8f0"/>`;
+    }
+
+    let dots=pts.map(p=>`<circle cx="${x2px(p.x)}" cy="${y2px(p.y)}" r="5" fill="#2563eb" stroke="#1e3a8a" stroke-width="1"/>`).join('');
+    let line='';
+    if(fit){
+      const x0=xmin, x1=xmax, y0=fit.m*x0+fit.b, y1=fit.m*x1+fit.b;
+      line=`<line x1="${x2px(x0)}" y1="${y2px(y0)}" x2="${x2px(x1)}" y2="${y2px(y1)}" stroke="#dc2626" stroke-width="2.5"/>`;
+    }
+
+    const svg=`<svg id="plotSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:560px;background:#fff">
+      <rect width="${W}" height="${H}" fill="#ffffff"/>
+      ${grid}
+      <line x1="${PAD}" y1="${H-PAD}" x2="${W-PAD}" y2="${H-PAD}" stroke="#334155" stroke-width="2"/>
+      <line x1="${PAD}" y1="${PAD}" x2="${PAD}" y2="${H-PAD}" stroke="#334155" stroke-width="2"/>
+      <text x="${W/2}" y="${H-16}" text-anchor="middle" fill="#475569" font-size="14" font-family="Noto Sans TC,sans-serif">${xl}</text>
+      <text x="18" y="${H/2}" text-anchor="middle" fill="#475569" font-size="14" font-family="Noto Sans TC,sans-serif" transform="rotate(-90 18 ${H/2})">${yl}</text>
+      <text x="${PAD}" y="${H-PAD+18}" fill="#94a3b8" font-size="11">${xmin.toFixed(2)}</text>
+      <text x="${W-PAD}" y="${H-PAD+18}" text-anchor="end" fill="#94a3b8" font-size="11">${xmax.toFixed(2)}</text>
+      <text x="${PAD-6}" y="${H-PAD}" text-anchor="end" fill="#94a3b8" font-size="11">${ymin.toFixed(2)}</text>
+      <text x="${PAD-6}" y="${PAD+4}" text-anchor="end" fill="#94a3b8" font-size="11">${ymax.toFixed(2)}</text>
+      ${line}${dots}
+    </svg>`;
+    document.getElementById('plotWrap').innerHTML=svg;
+  }
+
+  document.getElementById('btnPlot').onclick=render;
+  document.getElementById('btnDl').onclick=()=>{
+    render();
+    const svg=document.getElementById('plotSvg');
+    if(!svg) return;
+    const blob=new Blob([svg.outerHTML],{type:'image/svg+xml'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='shss-plot.svg';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  render();
+})();
+</script>
+
+</body>
+</html>

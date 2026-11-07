@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪞 最短平面鏡長度 | SHSS物理虛擬實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { background-color: #f0f9ff; font-family: 'Noto Sans TC', sans-serif; }
+
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white p-4 md:p-5 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="bg-blue-600 p-2 rounded-xl shadow-blue-500/40 shadow-lg shrink-0 hover:bg-blue-500 transition" title="返回主頁">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </a>
+                <div class="min-w-0">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide truncate">🪞 最短平面鏡長度</h1>
+                    <p class="text-slate-400 text-xs font-medium tracking-wider">SHSS Physics Lab</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-sm font-bold text-blue-300 hover:text-white whitespace-nowrap">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
+            <p class="text-sm font-bold text-blue-800 mb-1">🎯 學習目標</p>
+            <p class="text-sm text-slate-600">理解為何「看到自己全身」所需最短平面鏡長度約為眼睛高度的一半；並推廣至看到更高物件時 L = H/2。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h2 class="font-bold text-slate-700">參數設定</h2>
+                    <label class="block text-sm">
+                        <span class="font-medium text-slate-600">眼睛高度 E (m)：<b id="eVal">1.60</b></span>
+                        <input id="eyeH" type="range" min="1.2" max="2.0" step="0.01" value="1.60" class="w-full accent-violet-600 mt-1">
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium text-slate-600">腳底高度（地面＝0）：固定 0</span>
+                    </label>
+                    <label class="block text-sm">
+                        <span class="font-medium text-slate-600">頭頂／物件頂高度 H (m)：<b id="hVal">1.70</b></span>
+                        <input id="topH" type="range" min="1.3" max="2.2" step="0.01" value="1.70" class="w-full accent-violet-600 mt-1">
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                        <input id="useHigh" type="checkbox" class="accent-violet-600" checked>
+                        顯示高於眼睛的物件頂（帽子／手舉物）
+                    </label>
+                    <div class="rounded-xl bg-violet-50 border border-violet-100 p-3 text-sm">
+                        <p>全身可見所需最短鏡長 L</p>
+                        <p class="text-2xl font-black text-violet-700 mt-1"><span id="Lout">0.85</span> m</p>
+                        <p class="text-xs text-slate-500 mt-2" id="formulaHint">經典結果：只看自己全身時 L ≈ E/2（腳底到眼睛一半）。</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btnStep" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-700">逐步揭示光線</button>
+                        <button id="btnReset" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold hover:bg-slate-200">重設步驟</button>
+                    </div>
+                    <p class="text-xs text-slate-500" id="stepMsg">步驟 0：調節參數觀察鏡長。</p>
+                </div>
+            </div>
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <svg id="mirrorSvg" viewBox="0 0 520 420" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="520" height="420" fill="#f8fafc"/>
+                    <!-- wall / floor -->
+                    <line x1="40" y1="380" x2="480" y2="380" stroke="#94a3b8" stroke-width="2"/>
+                    <text x="40" y="400" fill="#64748b" font-size="12">地面</text>
+                    <!-- mirror wall x=260 -->
+                    <rect id="mirrorRect" x="252" y="80" width="16" height="200" fill="#e0e7ff" stroke="#6366f1" stroke-width="2" rx="2"/>
+                    <text x="270" y="70" fill="#4f46e5" font-size="13" font-weight="700">平面鏡</text>
+                    <!-- person -->
+                    <g id="personG"></g>
+                    <!-- rays -->
+                    <g id="raysG"></g>
+                    <!-- labels -->
+                    <g id="labelG"></g>
+                </svg>
+            </div>
+        </div>
+
+    </main>
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-10 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 SHSS物理虛擬實驗室 · 原創課堂互動教材
+        </div>
+    </footer>
+
+<script>
+(function(){
+  const eyeH = document.getElementById('eyeH');
+  const topH = document.getElementById('topH');
+  const useHigh = document.getElementById('useHigh');
+  const eVal = document.getElementById('eVal');
+  const hVal = document.getElementById('hVal');
+  const Lout = document.getElementById('Lout');
+  const formulaHint = document.getElementById('formulaHint');
+  const stepMsg = document.getElementById('stepMsg');
+  const mirrorRect = document.getElementById('mirrorRect');
+  const personG = document.getElementById('personG');
+  const raysG = document.getElementById('raysG');
+  const labelG = document.getElementById('labelG');
+  let step = 0;
+
+  // SVG coords: y increases downward. Ground at y=380. Scale: 1m = 160px, person at x=120
+  const GROUND = 380, SCALE = 160, PX = 120, MX = 260;
+
+  function yOf(h){ return GROUND - h * SCALE; }
+
+  function compute(){
+    const E = parseFloat(eyeH.value);
+    let H = parseFloat(topH.value);
+    if (!useHigh.checked) H = E;
+    if (H < E) { H = E; topH.value = E.toFixed(2); }
+    eVal.textContent = E.toFixed(2);
+    hVal.textContent = H.toFixed(2);
+
+    // Shortest mirror to see from feet (0) to top H, eye at E.
+    // Image of feet at -0 reflected... Using similar triangles / image method:
+    // Mirror segment from mid(eye, feet image) ... classic: bottom of mirror at E/2 from ground for feet,
+    // top of mirror at (E+H)/2 from ground for top of head/object.
+    // Length L = top - bottom = (E+H)/2 - E/2 = H/2.
+    // When H=E (self only), L=E/2.
+    const L = H / 2;
+    const mirrorBottom = E / 2;          // height from ground
+    const mirrorTop = (E + H) / 2;       // height from ground
+    Lout.textContent = L.toFixed(3);
+    if (Math.abs(H - E) < 0.001) {
+      formulaHint.textContent = '只看自己全身：L = E/2 = ' + (E/2).toFixed(3) + ' m（與身高無關，只視乎眼睛高度）。';
+    } else {
+      formulaHint.textContent = '要看到高度 H 的頂點：L = H/2 = ' + L.toFixed(3) + ' m；鏡底在 E/2，鏡頂在 (E+H)/2。';
+    }
+
+    // Draw person
+    const yEye = yOf(E), yTop = yOf(H), yFeet = GROUND;
+    personG.innerHTML = `
+      <line x1="${PX}" y1="${yFeet}" x2="${PX}" y2="${yTop}" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="${PX}" cy="${yEye}" r="7" fill="#f59e0b" stroke="#0f172a" stroke-width="2"/>
+      <text x="${PX-50}" y="${yEye+4}" fill="#b45309" font-size="12" font-weight="700">眼</text>
+      <circle cx="${PX}" cy="${yFeet-4}" r="5" fill="#64748b"/>
+      <text x="${PX-50}" y="${yFeet}" fill="#64748b" font-size="12">腳</text>
+      ${useHigh.checked && H>E+0.01 ? `<circle cx="${PX}" cy="${yTop}" r="5" fill="#a855f7"/><text x="${PX-55}" y="${yTop+4}" fill="#7e22ce" font-size="12">頂</text>` : ''}
+    `;
+
+    // Mirror rect
+    const yMTop = yOf(mirrorTop), yMBot = yOf(mirrorBottom);
+    mirrorRect.setAttribute('y', yMTop);
+    mirrorRect.setAttribute('height', Math.max(4, yMBot - yMTop));
+
+    // Virtual images (behind mirror, mirrored x)
+    const ix = MX + (MX - PX);
+    labelG.innerHTML = `
+      <line x1="${MX}" y1="40" x2="${MX}" y2="400" stroke="#c7d2fe" stroke-dasharray="4 4"/>
+      <circle cx="${ix}" cy="${yEye}" r="5" fill="#fde68a" opacity="0.7"/>
+      <circle cx="${ix}" cy="${yFeet}" r="4" fill="#cbd5e1" opacity="0.7"/>
+      ${useHigh.checked ? `<circle cx="${ix}" cy="${yTop}" r="4" fill="#e9d5ff" opacity="0.7"/>` : ''}
+      <text x="${ix+10}" y="${yEye}" fill="#94a3b8" font-size="11">虛像</text>
+      <text x="40" y="30" fill="#475569" font-size="12">L = ${L.toFixed(3)} m</text>
+    `;
+
+    // Rays based on step
+    raysG.innerHTML = '';
+    const msgs = [
+      '步驟 0：調節參數觀察鏡長 L = H/2。',
+      '步驟 1：由腳底到眼睛的虛像——光線經鏡底反射入眼。',
+      '步驟 2：由頭頂／物件頂到眼睛的虛像——光線經鏡頂反射入眼。',
+      '步驟 3：兩段反射點之間的鏡面長度即為最短鏡長 L。'
+    ];
+    stepMsg.textContent = msgs[Math.min(step, 3)];
+
+    if (step >= 1) {
+      // ray feet -> mirror bottom -> eye  (and dashed to image)
+      const myB = yOf(mirrorBottom);
+      raysG.innerHTML += `
+        <line x1="${PX}" y1="${yFeet}" x2="${MX}" y2="${myB}" stroke="#ef4444" stroke-width="2"/>
+        <line x1="${MX}" y1="${myB}" x2="${PX}" y2="${yEye}" stroke="#ef4444" stroke-width="2"/>
+        <line x1="${MX}" y1="${myB}" x2="${ix}" y2="${yFeet}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+      `;
+    }
+    if (step >= 2) {
+      const myT = yOf(mirrorTop);
+      raysG.innerHTML += `
+        <line x1="${PX}" y1="${yTop}" x2="${MX}" y2="${myT}" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="${MX}" y1="${myT}" x2="${PX}" y2="${yEye}" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="${MX}" y1="${myT}" x2="${ix}" y2="${yTop}" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+      `;
+    }
+    if (step >= 3) {
+      raysG.innerHTML += `
+        <rect x="${MX-10}" y="${yOf(mirrorTop)}" width="20" height="${yOf(mirrorBottom)-yOf(mirrorTop)}" fill="#6366f1" opacity="0.25" rx="2"/>
+        <text x="${MX+22}" y="${(yOf(mirrorTop)+yOf(mirrorBottom))/2}" fill="#4f46e5" font-size="13" font-weight="700">最短 L</text>
+      `;
+    }
+  }
+
+  eyeH.addEventListener('input', compute);
+  topH.addEventListener('input', compute);
+  useHigh.addEventListener('change', compute);
+  document.getElementById('btnStep').onclick = () => { step = Math.min(3, step+1); compute(); };
+  document.getElementById('btnReset').onclick = () => { step = 0; compute(); };
+  compute();
+})();
+</script>
+
+</body>
+</html>
