@@ -1,698 +1,1237 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HKDSE Physics Ultimate Mixed Challenge (Calc Mode)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Roboto+Mono:wght@500&display=swap');
-        
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #0f172a; color: #f1f5f9; touch-action: manipulation; }
-        
-        /* Physics Font Styles */
-        .paper-font { font-family: 'Times New Roman', Times, serif; }
-        .var { font-style: italic; }
-        .sci-exp { font-size: 0.7em; vertical-align: super; line-height: 0; }
-
-        /* Animations */
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .blur-reveal { filter: blur(8px); user-select: none; transition: all 0.4s ease; transform: scale(0.98); opacity: 0.5; }
-        .blur-reveal.revealed { filter: blur(0); user-select: auto; transform: scale(1); opacity: 1; }
-
-        /* Calculator Button Styles */
-        .calc-btn {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            color: white;
-            font-size: 1.25rem;
-            font-weight: bold;
-            border-radius: 0.75rem;
-            padding: 1rem 0;
-            transition: all 0.1s;
-            box-shadow: 0 4px 0 #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
-        .calc-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #0f172a;
-        }
-        .calc-btn-primary { background-color: #334155; }
-        .calc-btn-action { background-color: #4f46e5; border-color: #4338ca; box-shadow: 0 4px 0 #312e81; }
-        .calc-btn-action:active { box-shadow: 0 0 0 #312e81; }
-        .calc-btn-danger { background-color: #991b1b; border-color: #7f1d1d; box-shadow: 0 4px 0 #450a0a; }
-        .calc-btn-danger:active { box-shadow: 0 0 0 #450a0a; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>綜合亂鬥 Mixed Raid · HKDSE Physics</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap');
+body { font-family: 'Noto Sans TC', sans-serif; background:#f8fafc; }
+.paper-font { font-family: 'Times New Roman', Times, serif; }
+.hide-scrollbar::-webkit-scrollbar { display:none; }
+.hide-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+.calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.5rem; }
+.calc-btn { height:3rem; font-size:1.1rem; font-weight:700; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; user-select:none; font-family:'Roboto Mono',monospace; }
+@media(min-width:768px){ .calc-btn{ height:3.5rem; font-size:1.25rem; } }
+.btn-num { background:#fff; color:#1e293b; border:1px solid #cbd5e1; }
+.btn-action { background:#e2e8f0; color:#1e293b; border:1px solid #cbd5e1; }
+.btn-enter { background:#2563eb; color:#fff; border:1px solid #1d4ed8; }
+.type-chip { border:2px solid #e2e8f0; background:#fff; }
+.type-chip.on { border-color:#4f46e5; background:#eef2ff; color:#3730a3; }
+.mc-btn { min-height:3.25rem; text-align:left; }
+.modal-backdrop { background:rgba(0,0,0,.45); backdrop-filter:blur(2px); }
+</style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
+<body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- Start Screen Modal -->
-    <div id="startScreen" class="fixed inset-0 bg-slate-900 z-[60] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
-        <div class="max-w-md w-full bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center">
-            <div class="mb-6">
-                <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                </div>
-                <h1 class="text-3xl font-bold text-white mb-2">HKDSE 物理計算機</h1>
-                <p class="text-slate-400 text-sm">Calculator Mode</p>
-            </div>
-
-            <div class="space-y-4">
-                <div class="text-left">
-                    <label class="block text-slate-500 text-xs font-bold uppercase mb-2 ml-1">玩家名稱 Player Name</label>
-                    <input type="text" id="playerNameInput" class="w-full p-4 bg-slate-900 border border-slate-600 rounded-xl text-white font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition placeholder-slate-600" placeholder="輸入你的名字..." onkeydown="if(event.key==='Enter') startGameSession()">
-                </div>
-                <button onclick="startGameSession()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-indigo-500/20 active:scale-95 transform">
-                    開始挑戰 Start Game
-                </button>
-            </div>
-            <div id="startError" class="text-red-400 text-sm mt-4 hidden font-bold">請輸入名稱！</div>
-        </div>
+<header class="bg-slate-900 text-white p-3 shadow-md sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto flex justify-between items-center gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="index.html" class="text-slate-300 hover:text-white text-sm whitespace-nowrap">← 主頁</a>
+      <h1 class="text-base md:text-lg font-bold truncate">綜合亂鬥 <span class="text-slate-400 font-normal text-sm hidden sm:inline">Mixed Raid</span></h1>
     </div>
-
-    <!-- Game Header -->
-    <header class="bg-slate-800 border-b border-slate-700 p-3 sticky top-0 z-50 shadow-lg">
-        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="bg-indigo-600 p-1.5 rounded-lg">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-white tracking-wide">Physics Arena <span class="text-indigo-400 text-xs align-top">CALC</span></h1>
-                    <p class="text-[10px] text-slate-400" id="currentPlayerDisplay">Player: --</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="window.uploadData()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/50 px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-600 hover:text-white transition text-xs flex items-center gap-2">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    Upload
-                </button>
-
-                <div class="flex gap-4">
-                    <div class="text-center"><span class="text-[10px] text-slate-500 uppercase font-bold">Score</span><div id="scoreDisplay" class="text-xl font-bold text-indigo-400 font-mono leading-none">0</div></div>
-                    <div class="text-center"><span class="text-[10px] text-slate-500 uppercase font-bold">Lives</span><div id="livesDisplay" class="text-xl font-bold text-red-500 leading-none tracking-widest">❤️❤️❤️</div></div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow p-2 md:p-6 max-w-5xl mx-auto w-full flex flex-col gap-4">
-        
-        <!-- Formula & Topic Display -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 flex flex-col justify-center items-center shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Topic</span>
-                <span id="topicBadge" class="text-indigo-300 font-bold text-lg md:text-xl">LOADING...</span>
-            </div>
-            
-            <div class="md:col-span-2 bg-slate-800 rounded-xl p-3 border border-slate-700 relative overflow-hidden group cursor-pointer shadow-lg hover:border-indigo-500/50 transition-colors" onclick="toggleFormula()">
-                <div class="absolute top-2 right-2 z-10"><span class="bg-slate-700/80 text-slate-400 text-[10px] px-2 py-0.5 rounded uppercase tracking-wider">Tap to Reveal</span></div>
-                <div class="flex flex-col items-center justify-center min-h-[60px]">
-                    <div id="latexContainer" class="blur-reveal transition-all duration-500">
-                        <div id="formulaDisplay" class="text-xl md:text-2xl text-slate-200 paper-font italic text-center"></div>
-                    </div>
-                    <div id="revealOverlay" class="absolute inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] transition-opacity duration-300">
-                        <div class="bg-indigo-600 rounded-full p-2 shadow-lg transform group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 5 8.268 7.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Question Panel -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4 flex flex-col shadow-lg flex-grow relative overflow-hidden">
-            
-            <div class="flex-grow z-10 mb-4">
-                <div class="flex items-center justify-center min-h-[100px] mb-4">
-                    <div id="qText" class="text-lg md:text-xl leading-relaxed paper-font text-slate-200 text-center w-full fade-in">
-                        Initializing...
-                    </div>
-                </div>
-
-                <!-- Calculator Interface -->
-                <div class="max-w-md mx-auto">
-                    <!-- Display Screen -->
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-600 mb-4 shadow-inner relative">
-                        <div class="text-xs text-slate-500 absolute top-2 left-3 font-bold uppercase">Input</div>
-                        <div class="text-xs text-slate-500 absolute top-2 right-3 font-bold paper-font" id="unitLabel">--</div>
-                        <div id="calcDisplay" class="text-right text-3xl font-mono text-emerald-400 mt-2 min-h-[2.5rem] overflow-x-auto whitespace-nowrap tracking-wider"></div>
-                        <div class="h-0.5 w-full bg-slate-800 mt-1"></div>
-                    </div>
-
-                    <!-- Keypad -->
-                    <div class="grid grid-cols-4 gap-2 md:gap-3">
-                        <button onclick="calcInput('7')" class="calc-btn calc-btn-primary">7</button>
-                        <button onclick="calcInput('8')" class="calc-btn calc-btn-primary">8</button>
-                        <button onclick="calcInput('9')" class="calc-btn calc-btn-primary">9</button>
-                        <button onclick="calcAction('DEL')" class="calc-btn calc-btn-danger text-base">⌫</button>
-
-                        <button onclick="calcInput('4')" class="calc-btn calc-btn-primary">4</button>
-                        <button onclick="calcInput('5')" class="calc-btn calc-btn-primary">5</button>
-                        <button onclick="calcInput('6')" class="calc-btn calc-btn-primary">6</button>
-                        <button onclick="calcAction('AC')" class="calc-btn calc-btn-danger text-base">AC</button>
-
-                        <button onclick="calcInput('1')" class="calc-btn calc-btn-primary">1</button>
-                        <button onclick="calcInput('2')" class="calc-btn calc-btn-primary">2</button>
-                        <button onclick="calcInput('3')" class="calc-btn calc-btn-primary">3</button>
-                        <button onclick="calcInput('e')" class="calc-btn font-mono text-indigo-300">EXP</button>
-
-                        <button onclick="calcInput('-')" class="calc-btn font-mono">-</button>
-                        <button onclick="calcInput('0')" class="calc-btn calc-btn-primary">0</button>
-                        <button onclick="calcInput('.')" class="calc-btn font-mono">.</button>
-                        <button onclick="checkAnswer()" id="checkBtn" class="calc-btn calc-btn-action bg-indigo-600 border-indigo-500">GO</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="z-10">
-                <div id="feedback" class="text-center font-bold text-sm min-h-[20px] transition-all rounded-lg p-2"></div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Game Over Modal -->
-    <div id="gameOverModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-600 max-w-md w-full text-center shadow-2xl">
-            <div class="text-6xl mb-4 animate-bounce">💀</div>
-            <h2 class="text-3xl font-bold text-white mb-2">Game Over</h2>
-            <p class="text-slate-400 mb-6">本次得分 Final Score</p>
-            <div id="finalScore" class="text-6xl font-bold text-indigo-400 font-mono mb-8 text-shadow">0</div>
-            
-            <button onclick="showStartScreen()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition border border-slate-600">
-                返回主頁 Main Menu
-            </button>
-        </div>
+    <div id="hud" class="hidden flex flex-wrap items-center gap-2 text-xs md:text-sm font-mono">
+      <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">⏱ <span id="timeLeft">--</span></span>
+      <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">分數 <span id="scoreVal" class="text-yellow-400 font-bold">0</span></span>
+      <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">連擊 <span id="comboVal" class="text-orange-400 font-bold">0</span></span>
     </div>
+  </div>
+</header>
 
-    <!-- Firebase Integration -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  
-        const firebaseConfig = {
-           apiKey: "AIzaSyBEH9UZ7dfCb93kPxuncjWCTG3Qq6mJPFg",
-           authDomain: "phy-sim.firebaseapp.com",
-           projectId: "phy-sim",
-           storageBucket: "phy-sim.firebasestorage.app",
-           messagingSenderId: "802969131704",
-           appId: "1:802969131704:web:97e8c6a3f0af0776d1b24d",
-           measurementId: "G-RCWNRGR1CS"
-        };
+<main class="flex-grow p-3 md:p-6 max-w-5xl mx-auto w-full">
+  <section id="startScreen" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
+    <h2 class="text-2xl font-bold mb-2">跨課題 × 多題型亂鬥</h2>
+    <p class="text-slate-500 mb-6 text-sm leading-relaxed">隨機混合：選公式、解未知數、單位、概念、計算。計算題約佔三至四成，唔會成日净係計數。</p>
+    <div class="text-xs font-bold text-slate-400 uppercase mb-2">模式</div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <button onclick="startRaid({minutes:3})" class="p-4 rounded-xl border-2 border-slate-200 hover:border-fuchsia-400 hover:bg-fuchsia-50 font-bold">3 分鐘</button>
+      <button onclick="startRaid({minutes:5})" class="p-4 rounded-xl border-2 border-slate-200 hover:border-fuchsia-400 hover:bg-fuchsia-50 font-bold">5 分鐘</button>
+      <button onclick="startRaid({minutes:10})" class="p-4 rounded-xl border-2 border-slate-200 hover:border-fuchsia-400 hover:bg-fuchsia-50 font-bold">10 分鐘</button>
+      <button onclick="startRaid({sprint:15})" class="p-4 rounded-xl border-2 border-indigo-200 bg-indigo-50 hover:border-indigo-400 font-bold text-indigo-800">15 題衝刺</button>
+    </div>
+    <div class="flex flex-wrap gap-2 text-xs text-slate-500">
+      5
+    </div>
+    <ul class="text-sm text-slate-600 space-y-1 list-disc pl-5">
+      <li>選公式 Pick formula</li>
+      <li>解未知數 Solve variable</li>
+      <li>單位 Unit check</li>
+      <li>概念 Concept</li>
+      <li>計算 Calc（約 30–40%）</li>
+    </ul>
+  </section>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-  
-        window.uploadData = async function() {
-          const scoreEl = document.getElementById('scoreDisplay');
-          const score = scoreEl ? scoreEl.innerText : "0";
-          const playerNameInput = document.getElementById('playerNameInput');
-          const playerName = (playerNameInput && playerNameInput.value) ? playerNameInput.value : "Unknown";
-  
-          try {
-            const docRef = await addDoc(collection(db, "experiments"), {
-              score: Number(score),
-              gameMode: "mixed_calc_mode",
-              playerName: playerName,
-              timestamp: serverTimestamp()
-            });
-            alert("數據上傳成功！\nRecord ID: " + docRef.id);
-          } catch (e) {
-            console.error("Error adding document: ", e);
-            alert("上傳失敗，請檢查網路。");
-          }
+  <section id="playScreen" class="hidden flex flex-col gap-4">
+    <div id="accByType" class="flex flex-wrap gap-2 text-xs"></div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 md:p-5 shadow-sm flex flex-col gap-4">
+      <div class="flex flex-wrap gap-2 items-center justify-between">
+        <div class="flex gap-2">
+          <span id="typeBadge" class="text-xs font-bold px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800">—</span>
+          <span id="topicBadge" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-600">—</span>
+          <span id="qProgress" class="text-xs font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-500"></span>
+        </div>
+        <button onclick="skipQuestion()" class="text-sm text-slate-500 hover:text-slate-800 px-2 py-1">跳過</button>
+      </div>
+      <div id="promptLine" class="text-sm text-slate-500"></div>
+      <div id="qArea" class="paper-font text-lg md:text-xl leading-relaxed min-h-[5rem]"></div>
+      <div id="answerArea"></div>
+      <div id="feedback" class="rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm min-h-[3rem] text-slate-500"></div>
+      <button id="nextBtn" onclick="afterFeedbackNext()" class="hidden self-start bg-slate-900 text-white font-bold px-4 py-2 rounded-lg">下一題</button>
+    </div>
+  </section>
+
+  <section id="endScreen" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
+    <h2 class="text-2xl font-bold mb-2">本局結束</h2>
+    <p class="text-4xl font-mono font-bold text-fuchsia-600 mb-4"><span id="finalScore">0</span> <span class="text-lg text-slate-400">分</span></p>
+    <p id="weakType" class="text-slate-600 mb-4"></p>
+    <div id="endBreakdown" class="flex flex-wrap gap-2 mb-6 text-sm"></div>
+    <div class="flex flex-wrap gap-3">
+      <button onclick="retrySame()" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold px-5 py-3 rounded-xl">再來一局</button>
+      <button onclick="backToStart()" class="bg-slate-100 hover:bg-slate-200 font-bold px-5 py-3 rounded-xl">返回選單</button>
+    </div>
+  </section>
+</main>
+
+<script>
+
+/* ===== Shared multi-type drill engine (HKDSE Physics) ===== */
+const C = {
+  g: 9.81, c: 3e8, G: 6.67e-11, R: 8.31, NA: 6.02e23,
+  epsilon0: 8.85e-12, mu0: 4e-7 * Math.PI,
+  ice_lf: 3.34e5, water_lv: 2.26e6, I0: 1e-12
+};
+
+const TOPIC_META = {
+  heat:     { zh: '熱學', en: 'Heat' },
+  mechanics:{ zh: '力學', en: 'Mech' },
+  waves:    { zh: '波動', en: 'Waves' },
+  em:       { zh: '電磁', en: 'E&M' },
+  atomic:   { zh: '原子', en: 'Atomic' },
+  medical:  { zh: '醫學', en: 'Med' },
+  energy:   { zh: '能源', en: 'Energy' }
+};
+
+const TYPE_META = {
+  pick_formula: { zh: '選公式', en: 'Pick formula', color: 'violet' },
+  solve_variable: { zh: '解未知數', en: 'Solve unknown', color: 'sky' },
+  unit_check: { zh: '單位', en: 'Units', color: 'amber' },
+  concept: { zh: '概念', en: 'Concept', color: 'emerald' },
+  calc: { zh: '計算', en: 'Calc', color: 'blue' }
+};
+
+function rand(min, max, dec) {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(dec));
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function fmt(n) {
+  if (n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e4 || abs < 1e-2) {
+    const exp = Math.floor(Math.log10(abs));
+    const mant = n / Math.pow(10, exp);
+    return mant.toPrecision(3).replace(/\.?0+$/, '') + '×10<sup>' + exp + '</sup>';
+  }
+  if (Number.isInteger(n)) return String(n);
+  return parseFloat(n.toPrecision(4)).toString();
+}
+function nearlyEqual(a, b, tol) {
+  tol = tol == null ? 0.015 : tol;
+  if (!isFinite(a) || !isFinite(b)) return false;
+  if (Math.abs(b) < 1e-12) return Math.abs(a) < 1e-9;
+  if (Number.isInteger(b) && Math.abs(b) < 1e6) return Math.abs(a - b) < 0.5;
+  return Math.abs(a - b) / Math.abs(b) <= tol;
+}
+function parseCalcInput(s) {
+  if (!s || !String(s).trim()) return NaN;
+  let t = String(s).trim().replace(/×/g, '*').replace(/\s+/g, '');
+  // scientific: 3.2EXP-5 or 3.2e-5
+  t = t.replace(/EXP/gi, 'e');
+  if (!/^-?\d*\.?\d+(e[+-]?\d+)?$/i.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) {
+    // allow simple 1.5e-3 style only
+    if (!/^-?\d*\.?\d+e[+-]?\d+$/i.test(t)) return NaN;
+  }
+  return parseFloat(t);
+}
+
+/** Formula catalog: declarative + generators for solve/calc */
+const FORMULAS = [
+  // ---- HEAT ----
+  {
+    id:'h1', topic:'heat', label:'比熱容量', html:'Q = mc&Delta;T',
+    symbols:{ 'Q':'熱量 (J)', 'm':'質量 (kg)', 'c':'比熱容量 (J kg⁻¹ °C⁻¹)', '&Delta;T':'溫差 (°C)' },
+    situation:'加熱質量為 m 的物體，比熱容量為 c，溫度上升 &Delta;T，求所需熱量 Q。',
+    distractors:['Q = C&Delta;T','Q = ml<sub>f</sub>','P = mc&Delta;T','Q = Pt'],
+    concepts:[
+      { q:'同一質量水，溫升加倍，所需熱量如何變？', options:['加倍','減半','不變','變四倍'], answer:0, explain:'Q = mcΔT，ΔT 加倍則 Q 加倍。' },
+      { q:'比熱容量 c 較大的物質，加熱同樣溫升時需要的能量？', options:['較多','較少','相同','與質量無關'], answer:0, explain:'c 大表示升溫需更多能量。' }
+    ],
+    unitQs:[
+      { q:'Q = mcΔT 中，Q 的 SI 單位是？', options:['J','W','N','Pa'], answer:0, explain:'熱量／能量單位是焦耳 J。' },
+      { q:'比熱容量 c 的單位是？', options:['J kg⁻¹ °C⁻¹','J °C⁻¹','W kg⁻¹','J s⁻¹'], answer:0, explain:'c = Q/(mΔT)，單位 J kg⁻¹ °C⁻¹。' }
+    ],
+    gen(){
+      const m=rand(0.5,5,1), dt=rand(10,40,0), c=4200, Q=m*c*dt;
+      return {
+        values:{ Q, m, c, 'ΔT':dt },
+        units:{ Q:'J', m:'kg', c:'J kg⁻¹ °C⁻¹', 'ΔT':'°C' },
+        names:{ Q:'熱量', m:'質量', c:'比熱容量', 'ΔT':'溫差' },
+        askable:['Q','m','ΔT'],
+        hint:'c = 4200 J kg⁻¹ °C⁻¹（水）',
+        explainAsk(k){
+          if(k==='Q') return '用 Q = mcΔT 直接代入。';
+          if(k==='m') return '由 Q = mcΔT 得 m = Q/(cΔT)。';
+          return '由 Q = mcΔT 得 ΔT = Q/(mc)。';
         }
-    </script>
-
-    <script>
-        // --- Constants & Helpers ---
-        const C = { 
-            g: 9.81, c: 3.00e8, R: 8.31, NA: 6.02e23, k: 1.38e-23, 
-            G: 6.67e-11, me: 9.11e-31, e: 1.60e-19, epsilon0: 8.85e-12,
-            mu0: 4 * Math.PI * 1e-7, water_c: 4200, ice_lf: 3.34e5, water_lv: 2.26e6,
-            I0: 1e-12, solar: 1360
-        };
-
-        function unitSup(str) {
-            const map = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻','+':'⁺' };
-            return str.replace(/[-+0-9]/g, char => map[char] || char);
+      };
+    }
+  },
+  {
+    id:'h2', topic:'heat', label:'熱容量', html:'Q = C&Delta;T',
+    symbols:{ 'Q':'熱量 (J)', 'C':'熱容量 (J °C⁻¹)', '&Delta;T':'溫差 (°C)' },
+    situation:'某物體熱容量為 C，溫度改變 &Delta;T，求吸熱／放熱量 Q。',
+    distractors:['Q = mc&Delta;T','Q = ml<sub>v</sub>','C = Q/m','P = IV'],
+    concepts:[
+      { q:'熱容量 C 與比熱容量 c 的關係是？', options:['C = mc','C = c/m','C = Q/m','無關'], answer:0, explain:'熱容量 C = mc。' }
+    ],
+    unitQs:[
+      { q:'熱容量 C 的單位是？', options:['J °C⁻¹','J kg⁻¹ °C⁻¹','W','J'], answer:0, explain:'C = Q/ΔT，單位 J °C⁻¹。' }
+    ],
+    gen(){
+      const Cap=rand(200,800,0), dt=rand(5,20,0), Q=Cap*dt;
+      return {
+        values:{ Q, C:Cap, 'ΔT':dt },
+        units:{ Q:'J', C:'J °C⁻¹', 'ΔT':'°C' },
+        names:{ Q:'熱量', C:'熱容量', 'ΔT':'溫差' },
+        askable:['Q','C','ΔT'],
+        explainAsk(k){ return k==='Q'?'Q = CΔT。':(k==='C'?'C = Q/ΔT。':'ΔT = Q/C。'); }
+      };
+    }
+  },
+  {
+    id:'h3', topic:'heat', label:'熔解潛熱', html:'Q = ml<sub>f</sub>',
+    symbols:{ 'Q':'熱量 (J)', 'm':'質量 (kg)', 'l<sub>f</sub>':'熔解比潛熱 (J kg⁻¹)' },
+    situation:'質量 m 的冰在 0°C 完全熔成水，求所需潛熱。',
+    distractors:['Q = mc&Delta;T','Q = ml<sub>v</sub>','Q = C&Delta;T','P = Fv'],
+    concepts:[
+      { q:'冰熔解時溫度如何變化？', options:['保持 0°C','上升','下降','先升後降'], answer:0, explain:'相變時溫度不變，能量用於破壞鍵。' }
+    ],
+    unitQs:[
+      { q:'比潛熱 l<sub>f</sub> 的單位是？', options:['J kg⁻¹','J','J °C⁻¹','W kg⁻¹'], answer:0, explain:'l = Q/m，單位 J kg⁻¹。' }
+    ],
+    gen(){
+      const m=rand(0.1,1,2), lf=C.ice_lf, Q=m*lf;
+      return {
+        values:{ Q, m, 'l_f':lf },
+        units:{ Q:'J', m:'kg', 'l_f':'J kg⁻¹' },
+        names:{ Q:'熱量', m:'質量', 'l_f':'熔解比潛熱' },
+        askable:['Q','m'],
+        hint:'l<sub>f</sub>（冰）= 3.34×10<sup>5</sup> J kg⁻¹',
+        explainAsk(k){ return k==='Q'?'Q = ml<sub>f</sub>。':'m = Q/l<sub>f</sub>。'; }
+      };
+    }
+  },
+  {
+    id:'h5', topic:'heat', label:'理想氣體定律', html:'pV = nRT',
+    symbols:{ 'p':'壓強 (Pa)', 'V':'體積 (m³)', 'n':'摩爾數 (mol)', 'T':'溫度 (K)', 'R':'氣體常數' },
+    situation:'一定量理想氣體，已知壓強、體積、摩爾數，求絕對溫度。',
+    distractors:['pV = ⅓Nmc̄²','PV<sup>γ</sup> = const','Q = nCΔT','F = pa'],
+    concepts:[
+      { q:'理想氣體絕對溫度加倍、體積不變，壓強如何？', options:['加倍','減半','不變','變四倍'], answer:0, explain:'p ∝ T（V、n 固定）。' }
+    ],
+    unitQs:[
+      { q:'pV = nRT 中，p 的 SI 單位是？', options:['Pa','atm','N','J'], answer:0, explain:'壓強 SI 單位是帕斯卡 Pa = N m⁻²。' }
+    ],
+    gen(){
+      const n=rand(1,3,1), T=rand(300,400,0), V=rand(0.02,0.05,3), p=(n*C.R*T)/V;
+      return {
+        values:{ p, V, n, T },
+        units:{ p:'Pa', V:'m³', n:'mol', T:'K' },
+        names:{ p:'壓強', V:'體積', n:'摩爾數', T:'溫度' },
+        askable:['p','V','n','T'],
+        explainAsk(){ return '用 pV = nRT 解出目標未知數。'; }
+      };
+    }
+  },
+  // ---- MECHANICS ----
+  {
+    id:'m1', topic:'mechanics', label:'勻加速 v=u+at', html:'v = u + at',
+    symbols:{ 'v':'末速 (m s⁻¹)', 'u':'初速 (m s⁻¹)', 'a':'加速度 (m s⁻²)', 't':'時間 (s)' },
+    situation:'物體以初速 u、恆定加速度 a 運動時間 t，求末速 v。',
+    distractors:['v² = u² + 2as','s = ut + ½at²','F = ma','p = mv'],
+    concepts:[
+      { q:'加速度方向與速度相反時，速率通常會？', options:['減小','增大','不變','無法判斷'], answer:0, explain:'減速運動：a 與 v 反向。' }
+    ],
+    unitQs:[
+      { q:'加速度 a 的 SI 單位是？', options:['m s⁻²','m s⁻¹','N','J'], answer:0, explain:'a = Δv/Δt → m s⁻²。' }
+    ],
+    gen(){
+      const u=rand(0,10,0), a=rand(2,5,0), t=rand(2,6,0), v=u+a*t;
+      return {
+        values:{ v, u, a, t },
+        units:{ v:'m s⁻¹', u:'m s⁻¹', a:'m s⁻²', t:'s' },
+        names:{ v:'末速', u:'初速', a:'加速度', t:'時間' },
+        askable:['v','u','a','t'],
+        explainAsk(k){
+          const map={v:'v = u + at',u:'u = v − at',a:'a = (v−u)/t',t:'t = (v−u)/a'};
+          return map[k];
         }
-
-        function toSci(num, precision = 2) {
-            if (num === 0) return "0";
-            let str = num.toExponential(precision); 
-            let [mantissa, exponent] = str.split('e');
-            let expInt = parseInt(exponent);
-            if (expInt === 0) return parseFloat(mantissa).toFixed(precision);
-            return `${mantissa} × 10<sup class="sci-exp">${expInt}</sup>`;
+      };
+    }
+  },
+  {
+    id:'m5', topic:'mechanics', label:'牛頓第二定律', html:'F = ma',
+    symbols:{ 'F':'淨力 (N)', 'm':'質量 (kg)', 'a':'加速度 (m s⁻²)' },
+    situation:'質量 m 的物體受淨力 F，求加速度。',
+    distractors:['F = mv','F = Δp/Δt','W = Fs','P = Fv'],
+    concepts:[
+      { q:'同一淨力作用下，質量加倍，加速度？', options:['減半','加倍','不變','變四倍'], answer:0, explain:'a = F/m，m 加倍則 a 減半。' },
+      { q:'牛頓第二定律中的 F 是指？', options:['淨力／合力','任何單一力','摩擦力','重力'], answer:0, explain:'F 代表作用於物體的淨力。' }
+    ],
+    unitQs:[
+      { q:'力的 SI 單位牛頓 (N) 等於？', options:['kg m s⁻²','kg m s⁻¹','J s','W'], answer:0, explain:'1 N = 1 kg m s⁻²。' }
+    ],
+    gen(){
+      const m=rand(2,20,0), a=rand(1,5,1), F=m*a;
+      return {
+        values:{ F, m, a },
+        units:{ F:'N', m:'kg', a:'m s⁻²' },
+        names:{ F:'淨力', m:'質量', a:'加速度' },
+        askable:['F','m','a'],
+        explainAsk(k){ return k==='F'?'F = ma':(k==='m'?'m = F/a':'a = F/m'); }
+      };
+    }
+  },
+  {
+    id:'m6', topic:'mechanics', label:'動量', html:'p = mv',
+    symbols:{ 'p':'動量 (kg m s⁻¹)', 'm':'質量 (kg)', 'v':'速度 (m s⁻¹)' },
+    situation:'質量 m、速率 v 的物體，求動量大小。',
+    distractors:['p = ½mv²','F = ma','I = FΔt','E<sub>k</sub> = p²/2m'],
+    concepts:[
+      { q:'動量是矢量還是標量？', options:['矢量','標量','兩者皆可','無意義'], answer:0, explain:'動量 p = mv，方向與速度相同。' }
+    ],
+    unitQs:[
+      { q:'動量單位 kg m s⁻¹ 亦等同？', options:['N s','N','J','W'], answer:0, explain:'衝量 = 動量變，單位 N s = kg m s⁻¹。' }
+    ],
+    gen(){
+      const m=rand(1,10,0), v=rand(2,20,0), p=m*v;
+      return {
+        values:{ p, m, v },
+        units:{ p:'kg m s⁻¹', m:'kg', v:'m s⁻¹' },
+        names:{ p:'動量', m:'質量', v:'速度' },
+        askable:['p','m','v'],
+        explainAsk(k){ return k==='p'?'p = mv':(k==='m'?'m = p/v':'v = p/m'); }
+      };
+    }
+  },
+  {
+    id:'m10', topic:'mechanics', label:'動能', html:'E<sub>k</sub> = ½mv<sup>2</sup>',
+    symbols:{ 'E<sub>k</sub>':'動能 (J)', 'm':'質量 (kg)', 'v':'速率 (m s⁻¹)' },
+    situation:'質量 m 以速率 v 運動，求動能。',
+    distractors:['E<sub>p</sub> = mgh','p = mv','W = Fs','P = Fv'],
+    concepts:[
+      { q:'速率加倍，動能變成？', options:['4 倍','2 倍','½','不變'], answer:0, explain:'E<sub>k</sub> ∝ v²。' }
+    ],
+    unitQs:[
+      { q:'動能的 SI 單位是？', options:['J','N','W','kg m s⁻¹'], answer:0, explain:'能量單位是焦耳 J。' }
+    ],
+    gen(){
+      const m=rand(1,5,0), v=rand(4,20,0), Ek=0.5*m*v*v;
+      return {
+        values:{ 'E_k':Ek, m, v },
+        units:{ 'E_k':'J', m:'kg', v:'m s⁻¹' },
+        names:{ 'E_k':'動能', m:'質量', v:'速率' },
+        askable:['E_k','m','v'],
+        explainAsk(k){
+          if(k==='E_k') return 'E<sub>k</sub> = ½mv²';
+          if(k==='m') return 'm = 2E<sub>k</sub>/v²';
+          return 'v = √(2E<sub>k</sub>/m)';
         }
+      };
+    }
+  },
+  {
+    id:'m11', topic:'mechanics', label:'重力勢能', html:'E<sub>p</sub> = mgh',
+    symbols:{ 'E<sub>p</sub>':'勢能 (J)', 'm':'質量 (kg)', 'g':'重力加速度', 'h':'高度 (m)' },
+    situation:'質量 m 升至高度 h，求相對地面的重力勢能。',
+    distractors:['E<sub>k</sub> = ½mv²','U = −GMm/r','W = Fs','P = mgh/t'],
+    concepts:[
+      { q:'高度加倍（近地面），重力勢能？', options:['加倍','減半','變四倍','不變'], answer:0, explain:'E<sub>p</sub> = mgh，h 加倍則 E<sub>p</sub> 加倍。' }
+    ],
+    unitQs:[
+      { q:'g 常取 9.81，單位是？', options:['m s⁻²','N','J kg⁻¹','兩者 m s⁻² 或 N kg⁻¹'], answer:3, explain:'g 可寫作 m s⁻² 或 N kg⁻¹。' }
+    ],
+    gen(){
+      const m=rand(2,20,0), h=rand(5,50,0), Ep=m*C.g*h;
+      return {
+        values:{ 'E_p':Ep, m, h },
+        units:{ 'E_p':'J', m:'kg', h:'m' },
+        names:{ 'E_p':'重力勢能', m:'質量', h:'高度' },
+        askable:['E_p','m','h'],
+        hint:'g = 9.81 m s⁻²',
+        explainAsk(k){ return k==='E_p'?'E<sub>p</sub> = mgh':(k==='m'?'m = E<sub>p</sub>/(gh)':'h = E<sub>p</sub>/(mg)'); }
+      };
+    }
+  },
+  {
+    id:'m14', topic:'mechanics', label:'向心力', html:'F = mv<sup>2</sup>/r',
+    symbols:{ 'F':'向心力 (N)', 'm':'質量 (kg)', 'v':'速率 (m s⁻¹)', 'r':'半徑 (m)' },
+    situation:'質量 m 以速率 v 作半徑 r 的勻速圓周運動，求向心力。',
+    distractors:['F = ma','F = GMm/r²','a = v/t','F = BIl'],
+    concepts:[
+      { q:'勻速圓周運動中，速率不變，加速度是否為零？', options:['否，有向心加速度','是，a = 0','只有切向加速度','無法判斷'], answer:0, explain:'方向不斷改變 → 有向心加速度 a = v²/r。' }
+    ],
+    unitQs:[
+      { q:'向心力單位是？', options:['N','m s⁻²','J','rad s⁻¹'], answer:0, explain:'力的單位是牛頓 N。' }
+    ],
+    gen(){
+      const m=rand(1,5,0), v=rand(2,10,0), r=rand(1,5,1), F=m*v*v/r;
+      return {
+        values:{ F, m, v, r },
+        units:{ F:'N', m:'kg', v:'m s⁻¹', r:'m' },
+        names:{ F:'向心力', m:'質量', v:'速率', r:'半徑' },
+        askable:['F','m','v','r'],
+        explainAsk(){ return '用 F = mv²/r 解未知數。'; }
+      };
+    }
+  },
+  // ---- WAVES ----
+  {
+    id:'w1', topic:'waves', label:'波速', html:'v = f&lambda;',
+    symbols:{ 'v':'波速 (m s⁻¹)', 'f':'頻率 (Hz)', '&lambda;':'波長 (m)' },
+    situation:'頻率 f、波長 λ 的波，求波速。',
+    distractors:['v = f/T','f = 1/λ','c = nλ','Δy = λD/a'],
+    concepts:[
+      { q:'波由深水傳入淺水，頻率通常？', options:['不變','變大','變小','變為零'], answer:0, explain:'波源決定頻率，介質改變時 f 不變。' }
+    ],
+    unitQs:[
+      { q:'頻率 f 的 SI 單位是？', options:['Hz','m','s','dB'], answer:0, explain:'1 Hz = 1 s⁻¹。' }
+    ],
+    gen(){
+      const f=rand(50,400,0), l=rand(0.5,3,1), v=f*l;
+      return {
+        values:{ v, f, 'λ':l },
+        units:{ v:'m s⁻¹', f:'Hz', 'λ':'m' },
+        names:{ v:'波速', f:'頻率', 'λ':'波長' },
+        askable:['v','f','λ'],
+        explainAsk(k){ return k==='v'?'v = fλ':(k==='f'?'f = v/λ':'λ = v/f'); }
+      };
+    }
+  },
+  {
+    id:'w2', topic:'waves', label:'週期與頻率', html:'f = 1/T',
+    symbols:{ 'f':'頻率 (Hz)', 'T':'週期 (s)' },
+    situation:'週期為 T 的振動，求頻率。',
+    distractors:['T = 2π√(l/g)','v = fλ','ω = 2πf','T = f'],
+    concepts:[
+      { q:'週期加倍，頻率？', options:['減半','加倍','不變','變四倍'], answer:0, explain:'f = 1/T。' }
+    ],
+    unitQs:[
+      { q:'週期 T 的單位是？', options:['s','Hz','m','rad'], answer:0, explain:'週期是時間，單位秒。' }
+    ],
+    gen(){
+      const T=rand(0.01,0.5,2), f=1/T;
+      return {
+        values:{ f, T },
+        units:{ f:'Hz', T:'s' },
+        names:{ f:'頻率', T:'週期' },
+        askable:['f','T'],
+        explainAsk(k){ return k==='f'?'f = 1/T':'T = 1/f'; }
+      };
+    }
+  },
+  {
+    id:'w5', topic:'waves', label:'透鏡公式', html:'1/f = 1/u + 1/v',
+    symbols:{ 'f':'焦距 (m)', 'u':'物距 (m)', 'v':'像距 (m)' },
+    situation:'薄凸透鏡焦距 f，物距 u，求像距 v。',
+    distractors:['m = v/u','n = c/v','Δy = λD/a','P = 1/f'],
+    concepts:[
+      { q:'實物經凸透鏡成實像時，物距與像距通常？', options:['同側異側（異側）','同側','皆在焦點內','無法判斷'], answer:0, explain:'實像與實物分居透鏡兩側。' }
+    ],
+    unitQs:[
+      { q:'焦距 f 的單位是？', options:['m','D（屈光度）亦可','Hz','兩者 m 或換算 D'], answer:3, explain:'焦距用米；光焦度 P = 1/f 用屈光度。' }
+    ],
+    gen(){
+      const u=rand(0.15,0.4,2), f=rand(0.08,0.12,2);
+      const v = 1/(1/f - 1/u);
+      return {
+        values:{ f, u, v },
+        units:{ f:'m', u:'m', v:'m' },
+        names:{ f:'焦距', u:'物距', v:'像距' },
+        askable:['f','u','v'],
+        explainAsk(){ return '用 1/f = 1/u + 1/v（符號慣例依課本）。'; }
+      };
+    }
+  },
+  {
+    id:'w3', topic:'waves', label:'折射率', html:'n = c/v',
+    symbols:{ 'n':'折射率', 'c':'真空光速', 'v':'介質光速' },
+    situation:'光在某介質速率為 v，求絕對折射率。',
+    distractors:['n₁sinθ₁ = n₂sinθ₂','v = fλ','c = fλ','n = sin i / sin r'],
+    concepts:[
+      { q:'折射率 n > 1 表示介質中光速？', options:['小於真空光速','大於真空光速','等於真空光速','為零'], answer:0, explain:'n = c/v > 1 ⇒ v < c。' }
+    ],
+    unitQs:[
+      { q:'絕對折射率 n 的單位是？', options:['無單位','m s⁻¹','Hz','rad'], answer:0, explain:'n 是比值，無單位。' }
+    ],
+    gen(){
+      const v=rand(1.5e8,2.5e8,0), n=C.c/v;
+      return {
+        values:{ n, v },
+        units:{ n:'', v:'m s⁻¹' },
+        names:{ n:'折射率', v:'介質光速' },
+        askable:['n','v'],
+        hint:'c = 3.00×10<sup>8</sup> m s⁻¹',
+        explainAsk(k){ return k==='n'?'n = c/v':'v = c/n'; }
+      };
+    }
+  },
+  // ---- EM ----
+  {
+    id:'e4', topic:'em', label:'歐姆定律', html:'V = IR',
+    symbols:{ 'V':'電壓 (V)', 'I':'電流 (A)', 'R':'電阻 (Ω)' },
+    situation:'電阻 R 通過電流 I，求兩端電壓。',
+    distractors:['P = IV','R = ρl/A','E = V/d','Q = It'],
+    concepts:[
+      { q:'歐姆定律適用於？', options:['歐姆導體（I∝V）','任何元件','只適用超導體','只適用電容'], answer:0, explain:'線性歐姆導體才有 V = IR。' }
+    ],
+    unitQs:[
+      { q:'電阻的 SI 單位是？', options:['Ω','V','A','W'], answer:0, explain:'歐姆 Ω = V/A。' }
+    ],
+    gen(){
+      const I=rand(0.5,5,1), R=rand(2,50,0), V=I*R;
+      return {
+        values:{ V, I, R },
+        units:{ V:'V', I:'A', R:'Ω' },
+        names:{ V:'電壓', I:'電流', R:'電阻' },
+        askable:['V','I','R'],
+        explainAsk(k){ return k==='V'?'V = IR':(k==='I'?'I = V/R':'R = V/I'); }
+      };
+    }
+  },
+  {
+    id:'e6', topic:'em', label:'電功率', html:'P = V<sup>2</sup>/R',
+    symbols:{ 'P':'功率 (W)', 'V':'電壓 (V)', 'R':'電阻 (Ω)' },
+    situation:'電阻 R 接上電壓 V，求消耗電功率。',
+    distractors:['P = IV','P = I²R','V = IR','E = Pt'],
+    concepts:[
+      { q:'相同電壓下，電阻減半，功率？', options:['加倍','減半','不變','變四倍'], answer:0, explain:'P = V²/R，R 減半則 P 加倍。' }
+    ],
+    unitQs:[
+      { q:'電功率單位瓦特 (W) 等於？', options:['J s⁻¹','N m','V A 亦可','前兩者／V·A'], answer:3, explain:'1 W = 1 J s⁻¹ = 1 V·A。' }
+    ],
+    gen(){
+      const V=rand(6,24,0), R=rand(2,20,0), P=(V*V)/R;
+      return {
+        values:{ P, V, R },
+        units:{ P:'W', V:'V', R:'Ω' },
+        names:{ P:'功率', V:'電壓', R:'電阻' },
+        askable:['P','V','R'],
+        explainAsk(){ return '可用 P = V²/R（或 P = IV、P = I²R）。'; }
+      };
+    }
+  },
+  {
+    id:'e3', topic:'em', label:'勻強電場', html:'E = V/d',
+    symbols:{ 'E':'電場 (V m⁻¹)', 'V':'電勢差 (V)', 'd':'板距 (m)' },
+    situation:'平行板間距 d、電勢差 V，求勻強電場大小。',
+    distractors:['E = Q/(4πε₀r²)','F = qE','V = IR','C = Q/V'],
+    concepts:[
+      { q:'平行板間距加大、電壓不變，電場？', options:['減小','增大','不變','反向'], answer:0, explain:'E = V/d，d 增大則 E 減小。' }
+    ],
+    unitQs:[
+      { q:'電場強度單位 V m⁻¹ 等同？', options:['N C⁻¹','T','Wb','Ω'], answer:0, explain:'1 V m⁻¹ = 1 N C⁻¹。' }
+    ],
+    gen(){
+      const V=rand(50,200,0), d=rand(0.02,0.1,2), E=V/d;
+      return {
+        values:{ E, V, d },
+        units:{ E:'V m⁻¹', V:'V', d:'m' },
+        names:{ E:'電場', V:'電勢差', d:'板距' },
+        askable:['E','V','d'],
+        explainAsk(k){ return k==='E'?'E = V/d':(k==='V'?'V = Ed':'d = V/E'); }
+      };
+    }
+  },
+  {
+    id:'e13', topic:'em', label:'變壓器', html:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>',
+    symbols:{ 'V<sub>s</sub>':'副線圈電壓', 'V<sub>p</sub>':'原線圈電壓', 'N<sub>s</sub>':'副匝數', 'N<sub>p</sub>':'原匝數' },
+    situation:'理想變壓器，已知原／副匝數與原電壓，求副電壓。',
+    distractors:['P<sub>s</sub> = P<sub>p</sub>','V = IR','ε = NΔΦ/Δt','I<sub>s</sub>/I<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>'],
+    concepts:[
+      { q:'理想變壓器降壓時，副線圈電流相對原線圈？', options:['較大','較小','相同','為零'], answer:0, explain:'功率近似守恒：V↓ 則 I↑。' }
+    ],
+    unitQs:[
+      { q:'匝數 N 的單位是？', options:['無（整數匝）','H','V','Wb'], answer:0, explain:'匝數是無單位的計數。' }
+    ],
+    gen(){
+      const Vp=220, Np=rand(500,2000,0), Ns=rand(50,200,0), Vs=Vp*(Ns/Np);
+      return {
+        values:{ 'V_s':Vs, 'V_p':Vp, 'N_s':Ns, 'N_p':Np },
+        units:{ 'V_s':'V', 'V_p':'V', 'N_s':'', 'N_p':'' },
+        names:{ 'V_s':'副電壓', 'V_p':'原電壓', 'N_s':'副匝數', 'N_p':'原匝數' },
+        askable:['V_s','N_s','N_p'],
+        explainAsk(){ return 'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>'; }
+      };
+    }
+  },
+  {
+    id:'e8', topic:'em', label:'電流磁力', html:'F = BIl sin&theta;',
+    symbols:{ 'F':'磁力 (N)', 'B':'磁感應強度 (T)', 'I':'電流 (A)', 'l':'長度 (m)' },
+    situation:'直導線垂直磁場，求所受磁力（θ = 90°）。',
+    distractors:['F = BQv','F = qE','ε = Bℓv','B = μ₀I/2πr'],
+    concepts:[
+      { q:'電流與磁場平行時，磁力大小？', options:['零','最大','等於 BIl','無法判斷'], answer:0, explain:'sin0° = 0，F = 0。' }
+    ],
+    unitQs:[
+      { q:'磁感應強度 B 的 SI 單位是？', options:['T (特斯拉)','Wb','V','A m⁻¹'], answer:0, explain:'1 T = 1 N A⁻¹ m⁻¹。' }
+    ],
+    gen(){
+      const B=rand(0.1,1,1), I=rand(1,5,0), l=rand(0.2,1,1), F=B*I*l;
+      return {
+        values:{ F, B, I, l },
+        units:{ F:'N', B:'T', I:'A', l:'m' },
+        names:{ F:'磁力', B:'磁場', I:'電流', l:'長度' },
+        askable:['F','B','I','l'],
+        hint:'θ = 90°（sinθ = 1）',
+        explainAsk(){ return 'F = BIl（垂直時）。'; }
+      };
+    }
+  },
+  // ---- ATOMIC ----
+  {
+    id:'a1', topic:'atomic', label:'放射活度', html:'A = kN',
+    symbols:{ 'A':'活度 (Bq)', 'k':'衰變常數 (s⁻¹)', 'N':'未衰變核數' },
+    situation:'衰變常數 k、原子核數 N，求活度。',
+    distractors:['N = N₀e<sup>-kt</sup>','k = ln2 / t<sub>½</sub>','ΔE = Δmc²','A = A₀/2'],
+    concepts:[
+      { q:'活度 A 的物理意義是？', options:['每秒衰變數','剩餘核總數','半衰期','結合能'], answer:0, explain:'A = 每單位時間衰變的核數目。' }
+    ],
+    unitQs:[
+      { q:'活度單位貝克勒爾 (Bq) 等於？', options:['s⁻¹','Ci','eV','J'], answer:0, explain:'1 Bq = 1 衰變／秒。' }
+    ],
+    gen(){
+      const k=rand(0.01,0.2,2), N=rand(1000,20000,0), A=k*N;
+      return {
+        values:{ A, k, N },
+        units:{ A:'Bq', k:'s⁻¹', N:'' },
+        names:{ A:'活度', k:'衰變常數', N:'核數' },
+        askable:['A','k','N'],
+        explainAsk(k2){ return k2==='A'?'A = kN':(k2==='k'?'k = A/N':'N = A/k'); }
+      };
+    }
+  },
+  {
+    id:'a2', topic:'atomic', label:'半衰期', html:'k = ln2 / t<sub>1/2</sub>',
+    symbols:{ 'k':'衰變常數', 't<sub>1/2</sub>':'半衰期 (s)' },
+    situation:'已知半衰期，求衰變常數。',
+    distractors:['A = kN','N = N₀e<sup>-kt</sup>','E = hf','λ = h/p'],
+    concepts:[
+      { q:'經過兩個半衰期，剩餘核約為原來的？', options:['¼','½','⅛','不變'], answer:0, explain:'每次半衰期剩一半：½ × ½ = ¼。' }
+    ],
+    unitQs:[
+      { q:'半衰期的單位是？', options:['時間（s、年等）','Bq','eV','無單位'], answer:0, explain:'半衰期是時間量。' }
+    ],
+    gen(){
+      const th=rand(10,200,0), k=Math.LN2/th;
+      return {
+        values:{ k, 't_half':th },
+        units:{ k:'s⁻¹', 't_half':'s' },
+        names:{ k:'衰變常數', 't_half':'半衰期' },
+        askable:['k','t_half'],
+        explainAsk(x){ return x==='k'?'k = ln2 / t<sub>½</sub>':'t<sub>½</sub> = ln2 / k'; }
+      };
+    }
+  },
+  {
+    id:'a4', topic:'atomic', label:'質能關係', html:'&Delta;E = &Delta;mc<sup>2</sup>',
+    symbols:{ '&Delta;E':'能量 (J)', '&Delta;m':'質量虧損 (kg)', 'c':'光速' },
+    situation:'質量虧損 Δm，求對應釋放能量。',
+    distractors:['E = hf','E<sub>k</sub> = ½mv²','E = mcΔT','p = h/λ'],
+    concepts:[
+      { q:'核反應釋放能量時，產物總質量相對反應物？', options:['較小','較大','相同','無法判斷'], answer:0, explain:'質量虧損轉為能量。' }
+    ],
+    unitQs:[
+      { q:'ΔE = Δmc² 中能量常用單位還有？', options:['eV / MeV','只得 J','只得 W','N'], answer:0, explain:'核物理常用 eV、MeV。' }
+    ],
+    gen(){
+      const dm=rand(1e-30,5e-29,0), E=dm*C.c*C.c;
+      return {
+        values:{ 'ΔE':E, 'Δm':dm },
+        units:{ 'ΔE':'J', 'Δm':'kg' },
+        names:{ 'ΔE':'能量', 'Δm':'質量虧損' },
+        askable:['ΔE','Δm'],
+        hint:'c = 3.00×10<sup>8</sup> m s⁻¹',
+        explainAsk(k){ return k==='ΔE'?'ΔE = Δmc²':'Δm = ΔE/c²'; }
+      };
+    }
+  },
+  // ---- MEDICAL ----
+  {
+    id:'med3', topic:'medical', label:'聲阻抗', html:'Z = &rho;c',
+    symbols:{ 'Z':'聲阻抗', '&rho;':'密度', 'c':'聲速' },
+    situation:'介質密度 ρ、聲速 c，求聲阻抗。',
+    distractors:['L = 10 log(I/I₀)','α = ((Z₂−Z₁)/(Z₂+Z₁))²','I = I₀e<sup>−μx</sup>','v = fλ'],
+    concepts:[
+      { q:'兩介質聲阻抗差愈大，超聲波界面反射通常？', options:['愈強','愈弱','不變','為零'], answer:0, explain:'阻抗差大 → 反射係數大。' }
+    ],
+    unitQs:[
+      { q:'聲阻抗 Z 的單位是？', options:['kg m⁻² s⁻¹','Pa','dB','Hz'], answer:0, explain:'Z = ρc → kg m⁻² s⁻¹。' }
+    ],
+    gen(){
+      const rho=rand(800,1200,0), c=rand(1400,1600,0), Z=rho*c;
+      return {
+        values:{ Z, 'ρ':rho, c },
+        units:{ Z:'kg m⁻² s⁻¹', 'ρ':'kg m⁻³', c:'m s⁻¹' },
+        names:{ Z:'聲阻抗', 'ρ':'密度', c:'聲速' },
+        askable:['Z','ρ','c'],
+        explainAsk(k){ return k==='Z'?'Z = ρc':(k==='ρ'?'ρ = Z/c':'c = Z/ρ'); }
+      };
+    }
+  },
+  {
+    id:'med2', topic:'medical', label:'聲強級', html:'L = 10 log(I/I<sub>0</sub>)',
+    symbols:{ 'L':'聲強級 (dB)', 'I':'聲強', 'I<sub>0</sub>':'參考聲強' },
+    situation:'聲強為 I，求聲強級（I₀ = 10⁻¹² W m⁻²）。',
+    distractors:['Z = ρc','θ ≈ 1.22λ/d','I = P/A','L = I/I₀'],
+    concepts:[
+      { q:'聲強變為 10 倍，聲強級增加？', options:['10 dB','2 dB','20 dB','不變'], answer:0, explain:'L = 10 log(I/I₀)，I×10 → +10 dB。' }
+    ],
+    unitQs:[
+      { q:'聲強級常用單位是？', options:['dB','W m⁻²','Pa','Hz'], answer:0, explain:'聲強級用分貝 dB。' }
+    ],
+    gen(){
+      const I=Math.pow(10, rand(-8,-4,0)), L=10*Math.log10(I/C.I0);
+      return {
+        values:{ L, I },
+        units:{ L:'dB', I:'W m⁻²' },
+        names:{ L:'聲強級', I:'聲強' },
+        askable:['L'],
+        hint:'I₀ = 10<sup>−12</sup> W m⁻²',
+        explainAsk(){ return 'L = 10 log₁₀(I/I₀)'; }
+      };
+    }
+  },
+  {
+    id:'med1', topic:'medical', label:'瑞利判據', html:'&theta; &approx; 1.22&lambda;/d',
+    symbols:{ '&theta;':'最小分辨角 (rad)', '&lambda;':'波長', 'd':'孔徑' },
+    situation:'圓孔直徑 d、光波長 λ，估算最小分辨角。',
+    distractors:['Δy = λD/a','d sinθ = nλ','n = c/v','Z = ρc'],
+    concepts:[
+      { q:'孔徑加大，理論最小分辨角？', options:['變小（更易分辨）','變大','不變','與波長無關'], answer:0, explain:'θ ∝ 1/d，孔徑大解析力佳。' }
+    ],
+    unitQs:[
+      { q:'θ 以弧度表示時單位是？', options:['rad（無因次比）','度 only','m','Hz'], answer:0, explain:'平面角 SI 單位是弧度。' }
+    ],
+    gen(){
+      const lam=rand(4e-7,7e-7,0), d=rand(0.01,0.1,2), th=1.22*lam/d;
+      return {
+        values:{ 'θ':th, 'λ':lam, d },
+        units:{ 'θ':'rad', 'λ':'m', d:'m' },
+        names:{ 'θ':'最小分辨角', 'λ':'波長', d:'孔徑' },
+        askable:['θ','d'],
+        explainAsk(){ return 'θ ≈ 1.22λ/d'; }
+      };
+    }
+  },
+  // ---- ENERGY ----
+  {
+    id:'en6', topic:'energy', label:'能源效益', html:'Eff = E<sub>out</sub>/E<sub>in</sub>',
+    symbols:{ 'Eff':'效率', 'E<sub>out</sub>':'有用輸出', 'E<sub>in</sub>':'輸入能量' },
+    situation:'輸入能量 E<sub>in</sub>、有用輸出 E<sub>out</sub>，求效率（可用 %）。',
+    distractors:['COP = Q<sub>c</sub>/P','P = ½ηρAv³','U = κ/d','Q/t = κAΔT/d'],
+    concepts:[
+      { q:'實際熱機效率可能大於 100% 嗎？', options:['否','是','只在核反應','只在太陽能'], answer:0, explain:'能量守恒：有用輸出 ≤ 輸入。' }
+    ],
+    unitQs:[
+      { q:'效率可以是？', options:['無單位比值或 %','J','W','N'], answer:0, explain:'效率是無單位比值，常以百分率表示。' }
+    ],
+    gen(){
+      const inp=rand(500,2000,0), out=rand(200,inp*0.9,0), eff=(out/inp)*100;
+      return {
+        values:{ Eff:eff, 'E_out':out, 'E_in':inp },
+        units:{ Eff:'%', 'E_out':'J', 'E_in':'J' },
+        names:{ Eff:'效率', 'E_out':'輸出能量', 'E_in':'輸入能量' },
+        askable:['Eff','E_out','E_in'],
+        explainAsk(){ return 'Eff = E<sub>out</sub>/E<sub>in</sub>（×100%）。'; }
+      };
+    }
+  },
+  {
+    id:'en4', topic:'energy', label:'U-值', html:'U = &kappa;/d',
+    symbols:{ 'U':'U-值', '&kappa;':'熱導率', 'd':'厚度' },
+    situation:'物料熱導率 κ、厚度 d，求 U-值。',
+    distractors:['Q/t = κAΔT/d','COP = Q/P','P = σAT⁴','R = d/κ'],
+    concepts:[
+      { q:'牆的 U-值愈小，隔熱通常？', options:['愈好','愈差','無關','反而導熱更快'], answer:0, explain:'U 小表示單位溫差熱流失少。' }
+    ],
+    unitQs:[
+      { q:'U-值單位是？', options:['W m⁻² K⁻¹','W m⁻¹ K⁻¹','J','°C'], answer:0, explain:'U = κ/d → W m⁻² K⁻¹。' }
+    ],
+    gen(){
+      const k=rand(0.2,1.2,2), d=rand(0.05,0.3,2), U=k/d;
+      return {
+        values:{ U, 'κ':k, d },
+        units:{ U:'W m⁻² K⁻¹', 'κ':'W m⁻¹ K⁻¹', d:'m' },
+        names:{ U:'U-值', 'κ':'熱導率', d:'厚度' },
+        askable:['U','κ','d'],
+        explainAsk(x){ return x==='U'?'U = κ/d':(x==='κ'?'κ = Ud':'d = κ/U'); }
+      };
+    }
+  },
+  {
+    id:'en1', topic:'energy', label:'風力功率', html:'P = ½&eta;&rho;Av<sup>3</sup>',
+    symbols:{ 'P':'功率', '&eta;':'效率', '&rho;':'空氣密度', 'A':'掃風面積', 'v':'風速' },
+    situation:'風機效率 η、掃風面積 A、風速 v，估算輸出功率。',
+    distractors:['P = Fv','P = IV','E<sub>k</sub> = ½mv²','P = σAT⁴'],
+    concepts:[
+      { q:'風速加倍，理想風能功率約變？', options:['8 倍','2 倍','4 倍','不變'], answer:0, explain:'P ∝ v³。' }
+    ],
+    unitQs:[
+      { q:'功率 P 的 SI 單位是？', options:['W','J','N','Pa'], answer:0, explain:'功率單位瓦特 W。' }
+    ],
+    gen(){
+      const eta=rand(0.3,0.5,2), A=rand(50,200,0), v=rand(6,14,0), rho=1.2, P=0.5*eta*rho*A*Math.pow(v,3);
+      return {
+        values:{ P, 'η':eta, A, v, 'ρ':rho },
+        units:{ P:'W', 'η':'', A:'m²', v:'m s⁻¹', 'ρ':'kg m⁻³' },
+        names:{ P:'功率', 'η':'效率', A:'面積', v:'風速', 'ρ':'密度' },
+        askable:['P','A','v'],
+        hint:'ρ ≈ 1.2 kg m⁻³',
+        explainAsk(){ return 'P = ½ηρAv³'; }
+      };
+    }
+  },
+  {
+    id:'en5', topic:'energy', label:'製冷系數 COP', html:'COP = Q<sub>c</sub>/P',
+    symbols:{ 'COP':'製冷系數', 'Q<sub>c</sub>':'製冷率 (W)', 'P':'輸入功率 (W)' },
+    situation:'冷氣機製冷率 Q<sub>c</sub>、耗電功率 P，求 COP。',
+    distractors:['Eff = E<sub>out</sub>/E<sub>in</sub>','P = IV','Q = mcΔT','U = κ/d'],
+    concepts:[
+      { q:'COP 可以大於 1 嗎？', options:['可以','不可以','只等於 1','只小於 1'], answer:0, explain:'熱泵／冷氣搬運熱量，COP 常 > 1。' }
+    ],
+    unitQs:[
+      { q:'COP 的單位是？', options:['無單位','W','J','°C'], answer:0, explain:'COP 是功率比值，無單位。' }
+    ],
+    gen(){
+      const Qc=rand(2000,5000,0), P=rand(800,1500,0), COP=Qc/P;
+      return {
+        values:{ COP, 'Q_c':Qc, P },
+        units:{ COP:'', 'Q_c':'W', P:'W' },
+        names:{ COP:'COP', 'Q_c':'製冷率', P:'輸入功率' },
+        askable:['COP','Q_c','P'],
+        explainAsk(){ return 'COP = Q<sub>c</sub>/P'; }
+      };
+    }
+  }
+];
 
-        function fmt(n) {
-            let abs = Math.abs(n);
-            if (abs === 0) return "0";
-            if (abs >= 0.001 && abs <= 9999) return parseFloat(n.toPrecision(4)).toString(); 
-            return toSci(n);
-        }
+function formulasByTopic(topic) {
+  return FORMULAS.filter(f => f.topic === topic);
+}
+function allTopics() { return Object.keys(TOPIC_META); }
 
-        function rand(min, max, dec) { 
-            return parseFloat((Math.random()*(max-min)+min).toFixed(dec)); 
-        }
+function buildPickFormula(f) {
+  const correct = f.html;
+  const opts = shuffle([correct, ...shuffle(f.distractors).slice(0, 3)]);
+  return {
+    type: 'pick_formula',
+    topic: f.topic,
+    formulaId: f.id,
+    prompt: '下列情境應選哪一條公式？',
+    situation: f.situation,
+    options: opts,
+    answerIndex: opts.indexOf(correct),
+    explain: '正確公式：' + f.label + ' → ' + f.html.replace(/<[^>]+>/g, '') + '。'
+  };
+}
 
-        // --- The Formula Database with CHINESE DESCRIPTIONS ---
-        const formulaDB = {
-            heat: [
-                { id:'h1', label:'比熱容量', html:'Q = mc&Delta;T', gen:()=>{ 
-                    const m=rand(0.5, 5, 1); const dt=rand(10, 40, 0); const c=4200; const Q = m * c * dt;
-                    const vars = { 'Q':Q, 'm':m, '&Delta;T':dt };
-                    const names = { 'Q':'能量', 'm':'質量', '&Delta;T':'溫差' };
-                    const units = { 'Q':'J', 'm':'kg', '&Delta;T':'°C' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。<br><span class="text-sm text-slate-400">(<i>c</i> = 4200 J kg${unitSup('-1')} °C${unitSup('-1')})</span>`, a: vars[choice] };
-                }},
-                { id:'h5', label:'氣體定律', html:'pV = nRT', gen:()=>{ 
-                    const n=rand(1, 3, 1); const T=rand(300, 400, 0); const V=rand(0.02, 0.05, 3);
-                    const p = (n * C.R * T) / V;
-                    const vars = { 'p':p, 'V':V, 'n':n, 'T':T };
-                    const names = { 'p':'壓強', 'V':'體積', 'n':'摩爾數', 'T':'溫度' };
-                    const units = { 'p':'Pa', 'V':'m³', 'n':'mol', 'T':'K' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }}
-            ],
-            mechanics: [
-                { id:'m1', label:'運動方程', html:'v = u + at', gen:()=>{ 
-                    const u=rand(0, 10, 0); const a=rand(2, 5, 0); const t=rand(2, 6, 0); const v = u+a*t;
-                    const vars = { 'v':v, 'u':u, 'a':a, 't':t };
-                    const names = { 'v':'末速度', 'u':'初速度', 'a':'加速度', 't':'時間' };
-                    const units = { 'v':'m s⁻¹', 'u':'m s⁻¹', 'a':'m s⁻²', 't':'s' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'m5', label:'牛頓第二定律', html:'F = ma', gen:()=>{ 
-                    const m=50; const a=2; const F=m*a;
-                    const vars = { 'F':F, 'm':m, 'a':a };
-                    const names = { 'F':'淨力', 'm':'質量', 'a':'加速度' };
-                    const units = { 'F':'N', 'm':'kg', 'a':'m s⁻²' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'m6', label:'動量', html:'p = mv', gen:()=>{ 
-                    const m=2; const v=10; const p=m*v;
-                    const vars = { 'p':p, 'm':m, 'v':v };
-                    const names = { 'p':'動量', 'm':'質量', 'v':'速度' };
-                    const units = { 'p':'kg m s⁻¹', 'm':'kg', 'v':'m s⁻¹' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'m11', label:'重力勢能', html:'E<sub>p</sub> = mgh', gen:()=>{ 
-                    const m=10; const h=50; const Ep = m*C.g*h;
-                    const vars = { 'E<sub>p</sub>':Ep, 'm':m, 'h':h };
-                    const names = { 'E<sub>p</sub>':'重力勢能', 'm':'質量', 'h':'高度' };
-                    const units = { 'E<sub>p</sub>':'J', 'm':'kg', 'h':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'m15', label:'萬有引力', html:'F = GMm/r²', gen:()=>{ 
-                    const M=6e24; const m=1000; const r=7e6; const F=(C.G*M*m)/(r*r);
-                    const vars = { 'F':F, 'm':m, 'r':r };
-                    const names = { 'F':'引力', 'm':'衛星質量', 'r':'軌道半徑' };
-                    const units = { 'F':'N', 'm':'kg', 'r':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = `行星質量 <i>M</i> = ${fmt(M)} kg，`;
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }}
-            ],
-            waves: [
-                { id:'w1', label:'波速方程', html:'v = f&lambda;', gen:()=>{ 
-                    const f=200; const l=1.5; const v=f*l;
-                    const vars = { 'v':v, 'f':f, '&lambda;':l };
-                    const names = { 'v':'波速', 'f':'頻率', '&lambda;':'波長' };
-                    const units = { 'v':'m s⁻¹', 'f':'Hz', '&lambda;':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} ${k==='&lambda;'?'':'<i>'}${k}${k==='&lambda;'?'':'</i>'} = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} ${choice==='&lambda;'?'':'<i>'}${choice}${choice==='&lambda;'?'':'</i>'}。`, a: vars[choice] };
-                }},
-                { id:'w5', label:'透鏡公式', html:'1/f = 1/u + 1/v', gen:()=>{ 
-                    const u=0.2; const f=0.1; const v = 1/(1/f - 1/u);
-                    const vars = { 'f':f, 'u':u, 'v':v };
-                    const names = { 'f':'焦距', 'u':'物距', 'v':'像距' };
-                    const units = { 'f':'m', 'u':'m', 'v':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }}
-            ],
-            em: [
-                { id:'e1', label:'庫侖定律', html:'F = Q<sub>1</sub>Q<sub>2</sub> / 4&pi;&epsilon;<sub>0</sub>r<sup>2</sup>', gen:()=>{ 
-                    const Q=1e-6; const r=0.1; const F=(Q*Q)/(4*Math.PI*C.epsilon0*r*r);
-                    const vars = { 'F':F, 'Q':Q, 'r':r };
-                    const names = { 'F':'靜電力', 'Q':'電荷量', 'r':'距離' };
-                    const units = { 'F':'N', 'Q':'C', 'r':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + ` (假設兩電荷相等)。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'e4', label:'歐姆定律', html:'V = IR', gen:()=>{ 
-                    const I=2; const R=10; const V=I*R;
-                    const vars = { 'V':V, 'I':I, 'R':R };
-                    const names = { 'V':'電壓', 'I':'電流', 'R':'電阻' };
-                    const units = { 'V':'V', 'I':'A', 'R':'Ω' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'e6', label:'電功率', html:'P = V²/R', gen:()=>{ 
-                    const V=12; const R=6; const P=(V*V)/R;
-                    const vars = { 'P':P, 'V':V, 'R':R };
-                    const names = { 'P':'電功率', 'V':'電壓', 'R':'電阻' };
-                    const units = { 'P':'W', 'V':'V', 'R':'Ω' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'e13', label:'變壓器', html:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>', gen:()=>{ 
-                    const Vp=220; const Np=1000; const Ns=50; const Vs=Vp*(Ns/Np);
-                    const vars = { 'V<sub>s</sub>':Vs, 'V<sub>p</sub>':Vp, 'N<sub>s</sub>':Ns, 'N<sub>p</sub>':Np };
-                    const names = { 'V<sub>s</sub>':'副線圈電壓', 'V<sub>p</sub>':'原線圈電壓', 'N<sub>s</sub>':'副線圈匝數', 'N<sub>p</sub>':'原線圈匝數' };
-                    const units = { 'V<sub>s</sub>':'V', 'V<sub>p</sub>':'V', 'N<sub>s</sub>':'', 'N<sub>p</sub>':'' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }}
-            ],
-            atomic: [
-                { id:'a1', label:'放射強度', html:'A = kN', gen:()=>{ 
-                    const k=0.05; const N=10000; const A=k*N;
-                    const vars = { 'A':A, 'k':k, 'N':N };
-                    const names = { 'A':'放射強度', 'k':'衰變常數', 'N':'原子核數目' };
-                    const units = { 'A':'Bq', 'k':'s⁻¹', 'N':'' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }},
-                { id:'a4', label:'質能關係', html:'&Delta;E = &Delta;mc<sup>2</sup>', gen:()=>{ 
-                    const dm=1.66e-27; const E=dm*C.c*C.c;
-                    const choice = Math.random()<0.5 ? '&Delta;E':'&Delta;m';
-                    if(choice==='&Delta;E') return { unit:'J', q:`質量虧損 &Delta;<i>m</i> = ${fmt(dm)} kg。<br>求釋放能量 &Delta;<i>E</i>。`, a:E };
-                    return { unit:'kg', q:`釋放能量 &Delta;<i>E</i> = ${fmt(E)} J。<br>求質量虧損 &Delta;<i>m</i>。`, a:dm };
-                }}
-            ],
-            medical: [
-                { id:'med1', label:'瑞利判據', html:'&theta; &approx; 1.22&lambda; / d', gen:()=>{ 
-                    const l=5e-7; const d=0.002; const theta=1.22*l/d;
-                    const vars = { '&theta;':theta, '&lambda;':l, 'd':d };
-                    const names = { '&theta;':'分辨角', '&lambda;':'波長', 'd':'孔徑' };
-                    const units = { '&theta;':'rad', '&lambda;':'m', 'd':'m' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} ${k==='&lambda;'?'':'<i>'}${k}${k==='&lambda;'?'':'</i>'} = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} ${choice==='&lambda;'?'':'<i>'}${choice}${choice==='&lambda;'?'':'</i>'}。`, a: vars[choice] };
-                }},
-                { id:'med2', label:'聲強級', html:'L = 10 log(I/I<sub>0</sub>)', gen:()=>{ 
-                    const I=1e-6; const L=10*Math.log10(I/C.I0);
-                    const choice = Math.random()<0.5 ? 'L':'I';
-                    if(choice==='L') return { unit:'dB', q:`聲強 <i>I</i> = ${fmt(I)} W m${unitSup('-2')}。<br>求聲強級 <i>L</i>。`, a:L };
-                    return { unit:'W m⁻²', q:`聲強級 <i>L</i> = ${fmt(L)} dB。<br>求聲強 <i>I</i>。`, a:I };
-                }}
-            ],
-            energy: [
-                { id:'en1', label:'風力功率', html:'P = &frac{1}{2}&eta;&rho;Av<sup>3</sup>', gen:()=>{ 
-                    const eta=0.4; const A=100; const v=10; const rho=1.2; const P=0.5*eta*rho*A*Math.pow(v,3);
-                    const vars = { 'P':P, '&eta;':eta, 'A':A, 'v':v, '&rho;':rho };
-                    const names = { 'P':'功率', '&eta;':'效率', 'A':'面積', 'v':'風速', '&rho;':'空氣密度' };
-                    const units = { 'P':'W', '&eta;':'', 'A':'m²', 'v':'m s⁻¹', '&rho;':'kg m⁻³' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} ${k.includes('&')?'':'<i>'}${k}${k.includes('&')?'':'</i>'} = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} ${choice.includes('&')?'':'<i>'}${choice}${choice.includes('&')?'':'</i>'}。`, a: vars[choice] };
-                }},
-                { id:'en6', label:'能源效益', html:'Eff = E<sub>out</sub> / E<sub>in</sub>', gen:()=>{ 
-                    const out=800; const inp=1000; const eff=(out/inp)*100;
-                    const vars = { 'Eff':eff, 'E<sub>out</sub>':out, 'E<sub>in</sub>':inp };
-                    const names = { 'Eff':'效率', 'E<sub>out</sub>':'輸出能量', 'E<sub>in</sub>':'輸入能量' };
-                    const units = { 'Eff':'%', 'E<sub>out</sub>':'J', 'E<sub>in</sub>':'J' };
-                    
-                    const keys = Object.keys(vars);
-                    const choice = keys[Math.floor(Math.random()*keys.length)];
-                    
-                    let qStr = "";
-                    keys.forEach(k => { if(k !== choice) qStr += `${names[k]} <i>${k}</i> = ${fmt(vars[k])} ${units[k]}，`; });
-                    return { unit: units[choice], q: qStr.slice(0,-1) + `。<br>求 ${names[choice]} <i>${choice}</i>。`, a: vars[choice] };
-                }}
-            ]
-        };
+function buildSolveOrCalc(f, asCalc) {
+  const g = f.gen();
+  const ask = pick(g.askable);
+  const givenKeys = Object.keys(g.values).filter(k => k !== ask);
+  let qHtml = givenKeys.map(k => {
+    const nm = g.names[k] || k;
+    const un = g.units[k] ? ' ' + g.units[k] : '';
+    return nm + ' <i>' + k + '</i> = ' + fmt(g.values[k]) + un;
+  }).join('，') + '。<br>求 <b>' + (g.names[ask] || ask) + '</b> <i>' + ask + '</i>。';
+  if (g.hint) qHtml += '<br><span class="text-sm text-slate-500">(' + g.hint + ')</span>';
+  const explain = (g.explainAsk && g.explainAsk(ask)) || ('代入 ' + f.html);
+  return {
+    type: asCalc ? 'calc' : 'solve_variable',
+    topic: f.topic,
+    formulaId: f.id,
+    formulaHtml: f.html,
+    formulaLabel: f.label,
+    prompt: asCalc ? '計算題：求數值（注意單位）' : '解未知數：同一公式，未知數會改變',
+    qHtml,
+    numericAnswer: g.values[ask],
+    unit: g.units[ask] || '',
+    explain: explain + '　答案約 ' + fmt(g.values[ask]) + (g.units[ask] ? ' ' + g.units[ask] : '') + '。'
+  };
+}
 
-        // --- Game Logic ---
-        let gameState = { score: 0, lives: 3, playerName: "Player", isPlaying: false };
-        let curTopic = 'mechanics';
-        let curData = {};
-        let isRevealed = false;
-        let calcString = ""; // Stores the calculator input string
+function buildUnitCheck(f) {
+  if (f.unitQs && f.unitQs.length) {
+    const u = pick(f.unitQs);
+    // 30% chance: compute then pick unit (numeric+unit)
+    if (Math.random() < 0.35) {
+      const g = f.gen();
+      const ask = pick(g.askable);
+      const correctUnit = g.units[ask] || '（無單位）';
+      const pool = ['J','N','W','Pa','V','A','Ω','m s⁻¹','kg','s','Hz','T','Bq','m','°C','K','（無單位）','kg m s⁻¹','V m⁻¹','W m⁻² K⁻¹'];
+      const wrongs = shuffle(pool.filter(x => x !== correctUnit)).slice(0, 3);
+      const opts = shuffle([correctUnit, ...wrongs]);
+      const givenKeys = Object.keys(g.values).filter(k => k !== ask);
+      const qHtml = givenKeys.map(k => (g.names[k]||k) + ' = ' + fmt(g.values[k]) + (g.units[k]?' '+g.units[k]:'')).join('，')
+        + '。求 <i>' + ask + '</i> 的<strong>正確 SI 單位</strong>。';
+      return {
+        type: 'unit_check',
+        topic: f.topic,
+        formulaId: f.id,
+        prompt: '單位檢查',
+        qHtml,
+        options: opts,
+        answerIndex: opts.indexOf(correctUnit),
+        explain: '由 ' + f.label + '，' + (g.names[ask]||ask) + ' 單位為 ' + correctUnit + '。數值約 ' + fmt(g.values[ask]) + '。'
+      };
+    }
+    const opts = u.options.slice();
+    return {
+      type: 'unit_check',
+      topic: f.topic,
+      formulaId: f.id,
+      prompt: '單位／換算',
+      qHtml: u.q,
+      options: opts,
+      answerIndex: u.answer,
+      explain: u.explain
+    };
+  }
+  // fallback
+  return buildPickFormula(f);
+}
 
-        const topicNames = {
-            heat: "熱學 Heat",
-            mechanics: "力學 Mechanics",
-            waves: "波動 Waves",
-            em: "電磁 E&M",
-            atomic: "原子 Atomic",
-            medical: "醫學 Medical",
-            energy: "能源 Energy"
-        };
+function buildConcept(f) {
+  if (f.concepts && f.concepts.length) {
+    const c = pick(f.concepts);
+    if (c.options) {
+      return {
+        type: 'concept',
+        topic: f.topic,
+        formulaId: f.id,
+        prompt: '概念題',
+        qHtml: c.q,
+        options: c.options.slice(),
+        answerIndex: c.answer,
+        explain: c.explain
+      };
+    }
+  }
+  // generic T/F from situation
+  const tfCorrect = Math.random() < 0.5;
+  const statements = [
+    { s: f.label + ' 可用於：' + f.situation.replace(/求.+$/, '相關計算。'), ok: true },
+    { s: '使用 ' + f.label + ' 時，不必理會單位是否一致。', ok: false },
+    { s: f.html.replace(/<[^>]+>/g,'') + ' 是 HKDSE 常見關係式之一。', ok: true }
+  ];
+  const st = pick(statements);
+  const options = ['正確 True', '錯誤 False'];
+  const answerIndex = st.ok ? 0 : 1;
+  return {
+    type: 'concept',
+    topic: f.topic,
+    formulaId: f.id,
+    prompt: '判斷對錯',
+    qHtml: st.s,
+    options,
+    answerIndex,
+    explain: st.ok ? '敍述符合該公式的課堂用法。' : '物理公式必須配合正確單位與適用條件。'
+  };
+}
 
-        function startGameSession() {
-            const input = document.getElementById('playerNameInput');
-            const name = input.value.trim();
-            if(!name) { document.getElementById('startError').classList.remove('hidden'); return; }
-            
-            gameState.playerName = name;
-            gameState.score = 0;
-            gameState.lives = 3;
-            gameState.isPlaying = true;
+/** Weighted type pick for mixed raid: calc ~35% */
+function pickType(allowed) {
+  const types = allowed && allowed.length ? allowed.slice() : ['pick_formula','solve_variable','unit_check','concept','calc'];
+  if (types.length === 1) return types[0];
+  // weight map
+  const weights = { pick_formula: 1, solve_variable: 1.2, unit_check: 1, concept: 1, calc: 0.9 };
+  // In mixed, nudge calc to ~35% when all enabled
+  if (types.includes('calc') && types.length >= 4) {
+    weights.calc = 2.4;
+    weights.solve_variable = 1.15;
+    weights.pick_formula = 1.05;
+  }
+  let total = 0;
+  const bag = types.map(t => { const w = weights[t] || 1; total += w; return { t, w }; });
+  let r = Math.random() * total;
+  for (const b of bag) { r -= b.w; if (r <= 0) return b.t; }
+  return types[0];
+}
 
-            document.getElementById('currentPlayerDisplay').innerText = `Player: ${gameState.playerName}`;
-            document.getElementById('startScreen').classList.add('hidden');
-            
-            updateHUD();
-            nextRound();
-        }
+function generateQuestion(opts) {
+  opts = opts || {};
+  const topics = opts.topics || allTopics();
+  const types = opts.types || Object.keys(TYPE_META);
+  const topic = pick(topics);
+  let pool = formulasByTopic(topic);
+  if (!pool.length) pool = FORMULAS;
+  const f = pick(pool);
+  const type = pickType(types);
+  if (type === 'pick_formula') return buildPickFormula(f);
+  if (type === 'solve_variable') return buildSolveOrCalc(f, false);
+  if (type === 'unit_check') return buildUnitCheck(f);
+  if (type === 'concept') return buildConcept(f);
+  return buildSolveOrCalc(f, true);
+}
 
-        function showStartScreen() {
-            document.getElementById('gameOverModal').classList.add('hidden');
-            document.getElementById('startScreen').classList.remove('hidden');
-        }
 
-        function updateHUD() {
-            document.getElementById('scoreDisplay').innerText = gameState.score;
-            let hearts = "";
-            for(let i=0; i<gameState.lives; i++) hearts += "❤️";
-            document.getElementById('livesDisplay').innerText = hearts;
-        }
+let raid = null;
+let currentQ = null;
+let answered = false;
+let calcBuffer = '';
+let timerId = null;
+let lastMode = { minutes: 5 };
 
-        function gameOver() {
-            gameState.isPlaying = false;
-            document.getElementById('finalScore').innerText = gameState.score;
-            document.getElementById('gameOverModal').classList.remove('hidden');
-        }
+function show(id) {
+  ['startScreen','playScreen','endScreen'].forEach(x => {
+    document.getElementById(x).classList.toggle('hidden', x !== id);
+  });
+  document.getElementById('hud').classList.toggle('hidden', id !== 'playScreen');
+}
 
-        function toggleFormula(force) {
-            const c = document.getElementById('latexContainer');
-            const o = document.getElementById('revealOverlay');
-            if (force !== undefined) isRevealed = force; else isRevealed = !isRevealed;
-            
-            if (isRevealed) {
-                c.classList.add('revealed');
-                o.classList.add('opacity-0', 'pointer-events-none');
-            } else {
-                c.classList.remove('revealed');
-                o.classList.remove('opacity-0', 'pointer-events-none');
-            }
-        }
+function startRaid(mode) {
+  lastMode = mode;
+  const types = ['pick_formula','solve_variable','unit_check','concept','calc'];
+  raid = {
+    mode,
+    score: 0,
+    combo: 0,
+    asked: 0,
+    correct: 0,
+    stats: Object.fromEntries(types.map(t => [t, {ok:0,n:0}])),
+    endsAt: mode.minutes ? Date.now() + mode.minutes * 60 * 1000 : null,
+    sprintLeft: mode.sprint || null,
+    alive: true
+  };
+  show('playScreen');
+  updateHud();
+  if (timerId) clearInterval(timerId);
+  if (raid.endsAt) {
+    timerId = setInterval(() => {
+      if (Date.now() >= raid.endsAt) { endRaid(); return; }
+      updateHud();
+    }, 200);
+  }
+  nextRaidQuestion();
+}
 
-        // --- Calculator Logic ---
-        function updateCalcDisplay() {
-            const disp = document.getElementById('calcDisplay');
-            if (calcString === "") {
-                disp.innerText = "";
-                disp.classList.add("min-h-[2.5rem]"); // Keep height
-            } else {
-                disp.innerText = calcString;
-            }
-        }
+function updateHud() {
+  if (!raid) return;
+  document.getElementById('scoreVal').textContent = raid.score;
+  document.getElementById('comboVal').textContent = raid.combo;
+  if (raid.endsAt) {
+    const s = Math.max(0, Math.ceil((raid.endsAt - Date.now())/1000));
+    const m = Math.floor(s/60), r = s%60;
+    document.getElementById('timeLeft').textContent = m + ':' + String(r).padStart(2,'0');
+  } else {
+    document.getElementById('timeLeft').textContent = 'Q ' + raid.asked + '/' + lastMode.sprint;
+  }
+  document.getElementById('accByType').innerHTML = Object.keys(TYPE_META).map(t => {
+    const s = raid.stats[t];
+    const pct = s.n ? Math.round(100*s.ok/s.n) : '—';
+    return '<span class="bg-white border border-slate-200 px-2 py-1 rounded">'+TYPE_META[t].zh+' '+pct+(s.n?'%':'')+'</span>';
+  }).join('');
+}
 
-        function calcInput(char) {
-            if (!document.getElementById('checkBtn').disabled) {
-                calcString += char;
-                updateCalcDisplay();
-            }
-        }
+function nextRaidQuestion() {
+  if (!raid || !raid.alive) return;
+  if (raid.sprintLeft != null && raid.asked >= lastMode.sprint) { endRaid(); return; }
+  answered = false;
+  calcBuffer = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  document.getElementById('feedback').className = 'rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm min-h-[3rem] text-slate-500';
+  document.getElementById('feedback').textContent = '';
+  currentQ = generateQuestion({ types: ['pick_formula','solve_variable','unit_check','concept','calc'] });
+  // lightly enforce calc ratio ~35%: if too many calc in recent — engine weights already handle
+  raid.asked++;
+  document.getElementById('qProgress').textContent = raid.sprintLeft != null
+    ? ('第 ' + raid.asked + ' / ' + lastMode.sprint + ' 題')
+    : ('第 ' + raid.asked + ' 題');
+  renderRaidQ();
+  updateHud();
+}
 
-        function calcAction(action) {
-            if (document.getElementById('checkBtn').disabled) return;
-            
-            if (action === 'AC') {
-                calcString = "";
-            } else if (action === 'DEL') {
-                calcString = calcString.slice(0, -1);
-            }
-            updateCalcDisplay();
-        }
+function renderRaidQ() {
+  const q = currentQ;
+  document.getElementById('typeBadge').textContent = TYPE_META[q.type].zh;
+  document.getElementById('topicBadge').textContent = TOPIC_META[q.topic].zh;
+  document.getElementById('promptLine').textContent = q.prompt || '';
+  let html = '';
+  if (q.situation) html += '<p class="mb-3 text-slate-700">'+q.situation+'</p>';
+  if (q.formulaHtml && (q.type==='solve_variable'||q.type==='calc')) {
+    html += '<div class="mb-2 text-base text-slate-500">公式：<span class="paper-font text-slate-800 text-xl">'+q.formulaHtml+'</span></div>';
+  }
+  if (q.qHtml) html += '<div>'+q.qHtml+'</div>';
+  document.getElementById('qArea').innerHTML = html;
+  const area = document.getElementById('answerArea');
+  if (q.options) {
+    area.innerHTML = '<div class="grid gap-2">' + q.options.map((opt,i) =>
+      '<button class="mc-btn w-full px-4 py-3 rounded-xl border-2 border-slate-200 bg-white hover:border-fuchsia-400 hover:bg-fuchsia-50 font-medium paper-font text-base md:text-lg" onclick="submitMC('+i+')">'+
+      '<span class="text-fuchsia-500 font-bold mr-2">'+String.fromCharCode(65+i)+'.</span> '+opt+'</button>'
+    ).join('') + '</div>';
+  } else {
+    area.innerHTML = `
+      <div class="bg-slate-100 rounded-xl border border-slate-200 p-3 md:p-4 max-w-md">
+        <div class="mb-3 relative">
+          <input id="calcDisplay" class="w-full p-3 text-right text-2xl bg-white border border-slate-300 rounded-lg font-mono" placeholder="0" readonly>
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold bg-slate-50 px-1 border rounded">${q.unit||'—'}</span>
+        </div>
+        <div class="calc-grid">
+          <button class="calc-btn btn-num" onclick="calcInput('7')">7</button>
+          <button class="calc-btn btn-num" onclick="calcInput('8')">8</button>
+          <button class="calc-btn btn-num" onclick="calcInput('9')">9</button>
+          <button class="calc-btn btn-action text-red-600" onclick="calcAction('DEL')">DEL</button>
+          <button class="calc-btn btn-num" onclick="calcInput('4')">4</button>
+          <button class="calc-btn btn-num" onclick="calcInput('5')">5</button>
+          <button class="calc-btn btn-num" onclick="calcInput('6')">6</button>
+          <button class="calc-btn btn-action text-red-600" onclick="calcAction('AC')">AC</button>
+          <button class="calc-btn btn-num" onclick="calcInput('1')">1</button>
+          <button class="calc-btn btn-num" onclick="calcInput('2')">2</button>
+          <button class="calc-btn btn-num" onclick="calcInput('3')">3</button>
+          <button class="calc-btn btn-action text-sm" onclick="calcInput('EXP')">EXP</button>
+          <button class="calc-btn btn-num" onclick="calcInput('0')">0</button>
+          <button class="calc-btn btn-num" onclick="calcInput('.')">.</button>
+          <button class="calc-btn btn-num" onclick="calcInput('-')">(-)</button>
+          <button class="calc-btn btn-enter" onclick="submitCalc()">EXE</button>
+        </div>
+      </div>`;
+  }
+}
 
-        function nextRound() {
-            // 1. Pick Random Topic
-            const topics = Object.keys(formulaDB);
-            curTopic = topics[Math.floor(Math.random() * topics.length)];
-            
-            // 2. Pick Random Question
-            const questions = formulaDB[curTopic];
-            const item = questions[Math.floor(Math.random() * questions.length)];
+function calcInput(ch) {
+  if (answered) return;
+  if (ch==='EXP') calcBuffer += 'e';
+  else if (ch==='-' && (calcBuffer===''||/e$/i.test(calcBuffer))) calcBuffer += '-';
+  else calcBuffer += ch;
+  const el = document.getElementById('calcDisplay');
+  if (el) el.value = calcBuffer;
+}
+function calcAction(a) {
+  if (answered) return;
+  if (a==='AC') calcBuffer='';
+  if (a==='DEL') calcBuffer=calcBuffer.slice(0,-1);
+  const el = document.getElementById('calcDisplay');
+  if (el) el.value = calcBuffer;
+}
 
-            // 3. Reset UI
-            isRevealed = false;
-            toggleFormula(false);
-            document.getElementById('feedback').innerHTML = '';
-            document.getElementById('feedback').className = "text-center font-bold text-sm min-h-[20px] transition-all rounded-lg p-2";
-            document.getElementById('checkBtn').disabled = false;
-            document.getElementById('checkBtn').classList.remove('opacity-50', 'cursor-not-allowed');
-            document.getElementById('topicBadge').innerText = topicNames[curTopic];
-            
-            // Reset Calculator
-            calcString = "";
-            updateCalcDisplay();
+function applyScore(ok) {
+  raid.stats[currentQ.type].n++;
+  if (ok) {
+    raid.stats[currentQ.type].ok++;
+    raid.correct++;
+    raid.combo++;
+    const bonus = Math.min(5, raid.combo);
+    raid.score += 10 + bonus * 2 + (currentQ.type === 'calc' ? 2 : 0);
+  } else {
+    raid.combo = 0;
+  }
+  updateHud();
+}
 
-            // 4. Render Formula
-            document.getElementById('formulaDisplay').innerHTML = item.html;
+function showFb(ok) {
+  answered = true;
+  const fb = document.getElementById('feedback');
+  fb.className = 'rounded-lg border p-3 text-sm min-h-[3rem] ' + (ok
+    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+    : 'border-rose-200 bg-rose-50 text-rose-800');
+  let extra = '';
+  if (!ok && currentQ.numericAnswer != null) {
+    extra = '<br>正確約 <b>' + fmt(currentQ.numericAnswer) + '</b>' + (currentQ.unit?' '+currentQ.unit:'');
+  }
+  if (!ok && currentQ.options) {
+    extra = '<br>正確選項：<b>' + String.fromCharCode(65+currentQ.answerIndex) + '. ' + currentQ.options[currentQ.answerIndex] + '</b>';
+  }
+  fb.innerHTML = (ok?'✓ 正確！':'✗ 唔啱。') + ' ' + (currentQ.explain||'') + extra;
+  document.getElementById('nextBtn').classList.remove('hidden');
+}
 
-            // 5. Generate Data
-            curData = item.gen();
-            document.getElementById('unitLabel').innerHTML = curData.unit || "--";
+function submitMC(i) {
+  if (answered || !raid.alive) return;
+  const ok = i === currentQ.answerIndex;
+  document.querySelectorAll('.mc-btn').forEach((b,idx) => {
+    b.disabled = true;
+    if (idx === currentQ.answerIndex) b.classList.add('border-emerald-500','bg-emerald-50');
+    else if (idx===i && !ok) b.classList.add('border-rose-400','bg-rose-50');
+  });
+  applyScore(ok);
+  showFb(ok);
+}
 
-            const q = document.getElementById('qText');
-            q.style.opacity = 0;
-            setTimeout(() => {
-                q.innerHTML = curData.q;
-                q.style.opacity = 1;
-            }, 100);
-        }
+function submitCalc() {
+  if (answered || !raid.alive) return;
+  const ok = nearlyEqual(parseCalcInput(calcBuffer), currentQ.numericAnswer);
+  applyScore(ok);
+  showFb(ok);
+}
 
-        function checkAnswer() {
-            if (!document.getElementById('checkBtn').disabled) {
-                // Parse calcString
-                let val = parseFloat(calcString);
-                
-                // Handle empty or invalid input
-                if (calcString === "" || isNaN(val)) {
-                    // Flash the display to indicate error
-                    const disp = document.getElementById('calcDisplay');
-                    disp.classList.add('text-red-500');
-                    setTimeout(() => disp.classList.remove('text-red-500'), 200);
-                    return;
-                }
+function skipQuestion() {
+  if (!raid.alive) return;
+  if (!answered) {
+    raid.stats[currentQ.type].n++;
+    raid.combo = 0;
+  }
+  afterFeedbackNext();
+}
 
-                const correct = curData.a;
-                // Tolerance: 1.5% or absolute small value
-                const tol = Math.abs(correct) < 1e-15 ? 1e-15 : Math.abs(correct * 0.015);
-                const isCorrect = Math.abs(val - correct) <= tol;
-                
-                const fb = document.getElementById('feedback');
-                document.getElementById('checkBtn').disabled = true;
-                document.getElementById('checkBtn').classList.add('opacity-50', 'cursor-not-allowed');
+function afterFeedbackNext() {
+  if (!raid.alive) return;
+  if (raid.endsAt && Date.now() >= raid.endsAt) { endRaid(); return; }
+  if (raid.sprintLeft != null && raid.asked >= lastMode.sprint) { endRaid(); return; }
+  nextRaidQuestion();
+}
 
-                if (isCorrect) {
-                    gameState.score += 10;
-                    fb.innerHTML = "✅ 正確！ Correct! (+10)";
-                    fb.className = "text-center font-bold text-sm min-h-[20px] transition-all rounded-lg p-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/50";
-                    updateHUD();
-                    setTimeout(nextRound, 1500);
-                } else {
-                    gameState.lives--;
-                    fb.innerHTML = `❌ 錯誤。答案 Answer: ${fmt(correct)}`;
-                    fb.className = "text-center font-bold text-sm min-h-[20px] transition-all rounded-lg p-2 bg-red-500/20 text-red-300 border border-red-500/50";
-                    updateHUD();
-                    if (gameState.lives <= 0) setTimeout(gameOver, 2500);
-                    else setTimeout(nextRound, 3000);
-                }
-            }
-        }
-    </script>
+function endRaid() {
+  if (!raid) return;
+  raid.alive = false;
+  if (timerId) { clearInterval(timerId); timerId = null; }
+  document.getElementById('finalScore').textContent = raid.score;
+  let weak = null, weakRate = 2;
+  Object.keys(TYPE_META).forEach(t => {
+    const s = raid.stats[t];
+    if (s.n >= 1) {
+      const r = s.ok / s.n;
+      if (r < weakRate) { weakRate = r; weak = t; }
+    }
+  });
+  document.getElementById('weakType').textContent = weak
+    ? ('最弱題型：' + TYPE_META[weak].zh + '（正確率 ' + Math.round(weakRate*100) + '%）——建議返課題操練專練呢類。')
+    : '題目太少，未能判斷弱項。';
+  document.getElementById('endBreakdown').innerHTML = Object.keys(TYPE_META).map(t => {
+    const s = raid.stats[t];
+    return '<span class="bg-slate-100 px-3 py-1 rounded-full">'+TYPE_META[t].zh+': '+s.ok+'/'+s.n+'</span>';
+  }).join('');
+  show('endScreen');
+}
+
+function retrySame() { startRaid(lastMode); }
+function backToStart() {
+  if (timerId) clearInterval(timerId);
+  raid = null;
+  show('startScreen');
+}
+
+show('startScreen');
+
+
+</script>
 </body>
 </html>
