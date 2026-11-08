@@ -285,7 +285,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
-    <span class="build-tag">P1 v1 · VPAM／Norm／CONST2010／LCD</span>
+    <span class="build-tag">BASE v2 · BIN↔DEC 轉換</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -434,7 +434,7 @@ a.home:hover{background:#fff}
     <div id="panelBody"></div>
   </div>
 
-  <p class="hint">P1 v1 · VPAM／Norm／CONST2010／LCD　｜　EXE 後上行保留表達式　｜　MODE／SETUP／CONST／CLR＝LCD 數字選單　｜　SHIFT+FMLA＝LOOK　｜　CMPLX 下 ENG＝i</p>
+  <p class="hint">BASE v2 · BIN↔DEC 轉換　｜　EXE 後上行保留表達式　｜　MODE／SETUP／CONST／CLR＝LCD 數字選單　｜　SHIFT+FMLA＝LOOK　｜　CMPLX 下 ENG＝i</p>
   <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方・非考試批准）。依說明書課堂重製：MODE／SETUP／FMLA／CONST；Prog＝按鍵巨集（≠ Casio BASIC）。BASE LOGIC／統計／複數為課堂可用子集。無 Casio／HKEAA 商標背書。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -1679,15 +1679,47 @@ a.home:hover{background:#fff}
     if(k==='contrast'){ toast('Contrast：課堂 stub'); return; }
     hidePanel(); update();
   }
+  // Integer currently shown / typed in BASE, interpreted in the active radix.
+  // Used by DEC/HEX/BIN/OCT convert keys (bare or SHIFT), matching CalcX.
+  function valueForBaseConvert(){
+    if(fresh && Number.isFinite(ans)) return (Math.trunc(ans)|0);
+    if(line && String(line).trim()){
+      const norm=String(line).trim().replace(/−/g,'-');
+      const bare=norm.match(/^(-?)([0-9A-Fa-f]+)$/);
+      if(bare){
+        const alphabet='0123456789ABCDEF';
+        const allowed=alphabet.slice(0, baseRadix);
+        const body=bare[2].toUpperCase();
+        if([...body].every(ch=>allowed.includes(ch))){
+          let v=parseInt(body, baseRadix);
+          if(bare[1]==='-') v=-v;
+          if(Number.isFinite(v)) return (v|0);
+        }
+      }
+    }
+    if(typeof result==='string'){
+      const m=String(result).trim().match(/^(-?[0-9A-Fa-f]+)([dHbo])$/);
+      if(m){
+        const rad={d:10,H:16,b:2,o:8}[m[2]];
+        let v=parseInt(m[1], rad);
+        if(Number.isFinite(v)) return (v|0);
+      }
+      if(result==='Math ERROR') return Number.isFinite(ans)?(ans|0):NaN;
+    }
+    if(Number.isFinite(ans)) return (Math.trunc(ans)|0);
+    return NaN;
+  }
   function setBaseRadix(r){
     if(calcMode!=='base'){ toast('請先 MODE→BASE'); return false; }
-    const v=currentValue();
+    const v=valueForBaseConvert();
     baseRadix=r;
     const name={10:'DEC',16:'HEX',2:'BIN',8:'OCT'}[r];
-    // convert current value (as decimal) into base display
+    // convert current integer into the newly selected radix (Casio / CalcX)
     if(Number.isFinite(v)){
       const n=Math.trunc(v)|0;
       ans=n; result=fmtBase(n); cursor=line?line.length:0; fresh=true;
+    } else {
+      result=fmtBase(0); ans=0; fresh=true;
     }
     toast('BASE '+name);
     update();
@@ -1732,7 +1764,14 @@ a.home:hover{background:#fff}
     const norm=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
     const bare=norm.match(/^(-?)([0-9A-Fa-f]+)$/);
     if(bare){
-      let v=parseInt(bare[2], baseRadix);
+      const alphabet='0123456789ABCDEF';
+      const allowed=alphabet.slice(0, baseRadix);
+      const body=bare[2].toUpperCase();
+      // reject digits illegal in the active radix (JS parseInt would truncate)
+      if(![...body].every(ch=>allowed.includes(ch))){
+        result='Math ERROR'; errorAt=0; fresh=true; update(); return;
+      }
+      let v=parseInt(body, baseRadix);
       if(!Number.isFinite(v)){ result='Math ERROR'; errorAt=0; fresh=true; update(); return; }
       if(bare[1]==='-') v=-v;
       ans=v; result=fmtBase(v); history.push({line:src,result:v}); cursor=line.length; fresh=true; update();
@@ -2302,10 +2341,10 @@ a.home:hover{background:#fff}
     if(lab==='sin'){ insertTrig('sin', false); return; }
     if(lab==='cos'){ insertTrig('cos', false); return; }
     if(lab==='tan'){ insertTrig('tan', false); return; }
-    if(lab==='log'){ insertPrefixFn('log('); return; }
-    if(lab==='ln'){ insertPrefixFn('ln('); return; }
+    if(lab==='log'){ if(calcMode==='base'){ setBaseRadix(2); return; } insertPrefixFn('log('); return; }
+    if(lab==='ln'){ if(calcMode==='base'){ setBaseRadix(8); return; } insertPrefixFn('ln('); return; }
     if(lab==='sqrt'){ insertPrefixFn('sqrt('); return; }
-    if(lab==='x^2'){ insertPostfix('^2'); return; }
+    if(lab==='x^2'){ if(calcMode==='base'){ setBaseRadix(10); return; } insertPostfix('^2'); return; }
     if(lab==='x^3'){ insertPostfix('^3'); return; }
     if(lab==='x^-1'){ insertPostfix('^(-1)'); return; }
 
@@ -2316,6 +2355,7 @@ a.home:hover{background:#fff}
       update(); return;
     }
 
+    if(lab==='^' && calcMode==='base'){ setBaseRadix(16); return; }
     if(['+','−','×','÷','^'].includes(lab)){
       const sym={'+':'+','−':'-','×':'*','÷':'/','^':'^'}[lab];
       if(fresh){ line='Ans'; cursor=3; fresh=false; }
@@ -2349,6 +2389,10 @@ a.home:hover{background:#fff}
       update(); return;
     }
     if(/^[0-9]$/.test(lab)){
+      if(calcMode==='base'){
+        const d=+lab;
+        if(d>=baseRadix){ toast(({2:'BIN 只接受 0／1',8:'OCT 只接受 0–7',10:'DEC',16:'HEX'})[baseRadix]||'非法位數'); update(); return; }
+      }
       if(fresh){ line=''; cursor=0; fresh=false; }
       insertText(lab); 
       // live preview
