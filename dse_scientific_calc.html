@@ -285,7 +285,7 @@ a.home:hover{background:#fff}
     <label><input type="checkbox" id="optTeach"> 教學模式</label>
     <label><input type="checkbox" id="optLock"> 鎖定畫面</label>
     <label><input type="checkbox" id="optSound"> 音效</label>
-    <span class="build-tag">BASE v2 · BIN↔DEC 轉換</span>
+    <span class="build-tag">BASE v3 · 預設 DEC</span>
   </div>
 
   <div id="teachBox" class="teach" hidden>
@@ -434,7 +434,7 @@ a.home:hover{background:#fff}
     <div id="panelBody"></div>
   </div>
 
-  <p class="hint">BASE v2 · BIN↔DEC 轉換　｜　EXE 後上行保留表達式　｜　MODE／SETUP／CONST／CLR＝LCD 數字選單　｜　SHIFT+FMLA＝LOOK　｜　CMPLX 下 ENG＝i</p>
+  <p class="hint">BASE v3 · MODE→3 直接入 DEC（記住上次）　｜　x²／^／log／ln 轉進制　｜　EXE 上行保留　｜　MODE／SETUP／CONST／CLR＝LCD 選單　｜　SHIFT+FMLA＝LOOK　｜　CMPLX 下 ENG＝i</p>
   <p class="disc">⚠ fx-50FH II 課堂模擬器（非官方・非考試批准）。依說明書課堂重製：MODE／SETUP／FMLA／CONST；Prog＝按鍵巨集（≠ Casio BASIC）。BASE LOGIC／統計／複數為課堂可用子集。無 Casio／HKEAA 商標背書。</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -1612,9 +1612,10 @@ a.home:hover{background:#fff}
     update();
   }
   function openBaseMenu(){
+    // Optional helper only (teach / legacy). MODE→3 no longer requires this picker.
     uiMode='basepick';
     const cur=modeLabel();
-    const html = `<div class="meta">BASE-N　目前：<b>${cur}</b>　按 1–4 或下方按鈕選進制</div>` +
+    const html = `<div class="meta">BASE-N　目前：<b>${cur}</b>　按 1–4 或下方按鈕選進制（可選）</div>` +
       [
         [10,'1:DEC 十進制'],
         [16,'2:HEX 十六進制'],
@@ -1624,7 +1625,7 @@ a.home:hover{background:#fff}
       `<button type="button" class="pbtn" data-pexit="1">EXIT（保持 BASE-N）</button>`;
     if(optTeach.checked) showPanel('BASE-N（教學）', html);
     else if(panel) panel.hidden=true;
-    toast('BASE-N：LCD 選 1–4', 3600);
+    toast('BASE-N：可選 1–4（亦可用 x²／log／^／ln）', 3600);
     update();
   }
   function selectCalcMode(m){
@@ -1638,8 +1639,29 @@ a.home:hover{background:#fff}
       return;
     }
     if(m==='base'){
-      baseRadix=10;
-      openBaseMenu();
+      // Casio/CalcX: MODE→3 lands directly in a radix (DEC default; remember last).
+      // No second 1–4 radix menu — switch with x²/^/log/ln (or SHIFT).
+      if(![10,16,2,8].includes(baseRadix)) baseRadix=10;
+      const name={10:'DEC',16:'HEX',2:'BIN',8:'OCT'}[baseRadix];
+      line=''; cursor=0;
+      if(Number.isFinite(ans)){ const n=Math.trunc(ans)|0; ans=n; result=fmtBase(n); }
+      else { ans=0; result=fmtBase(0); }
+      fresh=true;
+      toast('BASE-N '+name+'　x²／^／log／ln 轉 DEC／HEX／BIN／OCT', 4000);
+      hidePanel();
+      if(optTeach.checked){
+        const cur=modeLabel();
+        const html = `<div class="meta">BASE-N　目前：<b>${cur}</b>　已可輸入；亦可按鍵或下方轉進制</div>` +
+          [
+            [10,'DEC 十進制（x²）'],
+            [16,'HEX 十六進制（^）'],
+            [2,'BIN 二進制（log）'],
+            [8,'OCT 八進制（ln）']
+          ].map(([r,lab])=>`<button type="button" class="pbtn${baseRadix===r?' cur':''}" data-radix="${r}">${lab}</button>`).join('') +
+          `<button type="button" class="pbtn" data-pexit="1">EXIT</button>`;
+        showPanel('BASE-N（教學）', html);
+      }
+      flashModeOnLcd(name);
       return;
     }
     if(m==='cmplx'){
