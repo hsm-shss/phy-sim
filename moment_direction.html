@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="均勻長棍的力矩方向：移動支點同施力，觀察順時針／逆時針力矩。">
+  <title>力矩方向（均勻長棍）</title>
+  <style>
+    :root {
+      --cw: #c2410c;
+      --cw-bg: #fff7ed;
+      --cw-bd: #fdba74;
+      --ccw: #1d4ed8;
+      --ccw-bg: #eff6ff;
+      --ccw-bd: #93c5fd;
+      --eq: #166534;
+      --eq-bg: #ecfdf5;
+      --eq-bd: #6ee7b7;
+      --weight: #6d28d9;
+      --weight-bg: #f5f3ff;
+      --force: #0f766e;
+      --force-bg: #f0fdfa;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --card: #ffffff;
+      --bg: #f3efe6;
+      --header: #0f172a;
+      --accent: #ea580c;
+      --focus: #1d4ed8;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+      --font: "Noto Sans CJK TC", "Noto Sans TC", "Source Han Sans TC", "PingFang TC",
+              "Microsoft JhengHei", "Heiti TC", "Noto Sans", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+    a { color: #1d4ed8; }
+    header.app-header {
+      background: var(--header);
+      color: #fff;
+      padding: 0.7rem 1.1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.25);
+    }
+    header.app-header .inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1.25;
+    }
+    .sub {
+      margin: 0.15rem 0 0;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .build-tag {
+      display: inline-block;
+      margin-top: 0.2rem;
+      background: #1e293b;
+      color: #fdba74;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+    .back {
+      color: #93c5fd;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 0.6rem;
+    }
+    .back:hover, .back:focus { color: #fff; background: #1e293b; outline: none; }
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.85rem 0.9rem 1.5rem;
+    }
+    .formula-strip {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 0.9rem;
+      padding: 0.65rem 0.9rem;
+      margin-bottom: 0.75rem;
+      box-shadow: var(--shadow);
+      font-size: 0.95rem;
+    }
+    .formula-strip strong { font-weight: 800; }
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+    @media (min-width: 1024px) {
+      .workspace { grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr); align-items: start; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .banner {
+      border-radius: 1rem;
+      padding: 0.7rem 1rem;
+      font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+      font-weight: 800;
+      text-align: center;
+      border: 2px solid;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.65rem;
+    }
+    .banner.cw { background: var(--cw-bg); color: var(--cw); border-color: var(--cw); }
+    .banner.ccw { background: var(--ccw-bg); color: var(--ccw); border-color: var(--ccw); }
+    .banner.eq { background: var(--eq-bg); color: var(--eq); border-color: var(--eq); }
+    .banner .sub-line {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.85rem;
+      font-weight: 650;
+      letter-spacing: 0;
+      opacity: 0.95;
+    }
+    .stage {
+      padding: 0.45rem 0.45rem 0.55rem;
+      position: relative;
+    }
+    canvas#scene {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      background: #fbfaf6;
+      touch-action: none;
+      cursor: default;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 0.9rem;
+      padding: 0.35rem 0.35rem 0.15rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .legend i {
+      display: inline-block;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 999px;
+      margin-right: 0.28rem;
+      vertical-align: -0.05rem;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0 0.4rem 0.3rem;
+    }
+    .side { padding: 0.8rem 0.85rem 0.95rem; }
+    .side h2 {
+      margin: 0 0 0.55rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .presets {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+    }
+    @media (min-width: 520px) and (max-width: 1023px) {
+      .presets { grid-template-columns: 1fr 1fr; }
+    }
+    button, .dir-btn {
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 750;
+      border-radius: 0.7rem;
+      border: 2px solid #cbd5e1;
+      background: #fff;
+      color: var(--ink);
+      padding: 0.48rem 0.65rem;
+      min-height: 44px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.3;
+    }
+    button:hover, .dir-btn:hover { border-color: #94a3b8; background: #f8fafc; }
+    button:focus-visible, .dir-btn:focus-visible, input:focus-visible {
+      outline: 3px solid #93c5fd;
+      outline-offset: 1px;
+    }
+    button.preset.active {
+      border-color: var(--accent);
+      background: #fff7ed;
+      box-shadow: inset 0 0 0 1px #fdba74;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+    }
+    .actions button { text-align: center; }
+    #btn-release {
+      background: var(--header);
+      color: #fff;
+      border-color: var(--header);
+    }
+    #btn-release:hover { background: #1e293b; }
+    #btn-level { background: #eff6ff; border-color: #93c5fd; }
+    .controls label.row {
+      display: block;
+      margin: 0.45rem 0;
+      font-size: 0.92rem;
+      font-weight: 650;
+    }
+    .controls label.row span.lab {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.15rem;
+    }
+    .controls label.row b { font-variant-numeric: tabular-nums; }
+    input[type="range"] {
+      width: 100%;
+      height: 28px;
+      accent-color: #ea580c;
+      cursor: pointer;
+    }
+    .seg {
+      display: flex;
+      gap: 0.4rem;
+      margin: 0.2rem 0 0.55rem;
+    }
+    .dir-btn { flex: 1; text-align: center; }
+    .dir-btn[aria-pressed="true"] {
+      border-color: var(--force);
+      background: var(--force-bg);
+      color: var(--force);
+    }
+    .checks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      font-weight: 650;
+    }
+    .checks label { display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; }
+    .checks input { width: 1.15rem; height: 1.15rem; margin-top: 0.12rem; accent-color: #7c3aed; flex: 0 0 auto; }
+    .g-pick { font-size: 0.9rem; font-weight: 650; margin: 0.4rem 0 0.2rem; }
+    .g-pick div { margin-top: 0.2rem; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; }
+    .totals {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      margin: 0.65rem 0 0.4rem;
+    }
+    .tot {
+      border-radius: 0.7rem;
+      padding: 0.45rem 0.55rem;
+      border: 2px solid;
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+    .tot.cw { border-color: var(--cw-bd); background: var(--cw-bg); color: var(--cw); }
+    .tot.ccw { border-color: var(--ccw-bd); background: var(--ccw-bg); color: var(--ccw); }
+    .tot .v { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+    .signed-box {
+      display: none;
+      margin-top: 0.45rem;
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 0.7rem;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.88rem;
+    }
+    .signed-box.on { display: block; }
+    .signed-box .net {
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-top: 0.15rem;
+    }
+    .table-wrap { overflow-x: auto; margin-top: 0.7rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 520px;
+    }
+    th, td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.42rem 0.45rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: #334155;
+      font-weight: 800;
+    }
+    td.num { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+    .dir-pill {
+      display: inline-block;
+      font-weight: 800;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+    }
+    .dir-pill.cw { background: var(--cw-bg); color: var(--cw); }
+    .dir-pill.ccw { background: var(--ccw-bg); color: var(--ccw); }
+    .dir-pill.zero { background: #f1f5f9; color: #475569; }
+    .footnote {
+      margin: 0.45rem 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    details.teacher {
+      margin-top: 0.9rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 0.2rem 1rem 0.4rem;
+      box-shadow: var(--shadow);
+    }
+    details.teacher summary {
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 0.7rem 0;
+      list-style: none;
+    }
+    details.teacher summary::-webkit-details-marker { display: none; }
+    details.teacher summary::before { content: "▸ "; color: var(--accent); }
+    details.teacher[open] summary::before { content: "▾ "; }
+    details.teacher h3 { margin: 0.7rem 0 0.35rem; font-size: 1rem; }
+    details.teacher p, details.teacher li { font-size: 0.95rem; color: #1e293b; }
+    details.teacher ol, details.teacher ul { padding-left: 1.25rem; }
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      margin-top: auto;
+    }
+    footer a { color: #93c5fd; text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="inner">
+      <div>
+        <h1>力矩方向（均勻長棍）</h1>
+        <p class="sub">中四力學 · 只對支點取矩 · 單位 N m</p>
+        <span class="build-tag">力矩方向 v1</span>
+      </div>
+      <a class="back" href="index.html">← 返回主頁</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="formula-strip">
+      公式：<strong>M = F × d</strong>，其中 <strong>d</strong> 是支點到力的作用線的垂直距離（力臂）。
+      本演示的力都是鉛直的，所以 <strong>d = |x − x<sub>支點</sub>|</strong>。
+      重量作用在均勻長棍的重心 <strong>G</strong>（中點）。支點的反作用力力臂為 0，不產生力矩。
+    </div>
+
+    <div class="workspace">
+      <section>
+        <div id="banner" class="banner eq" role="status" aria-live="polite">
+          淨效應：平衡
+          <span class="sub-line">順時針總力矩與逆時針總力矩相等（或兩者皆為 0）</span>
+        </div>
+        <div class="card stage">
+          <div class="legend">
+            <span><i style="background:#c2410c"></i>順時針力矩（暖色）</span>
+            <span><i style="background:#1d4ed8"></i>逆時針力矩（冷色）</span>
+            <span><i style="background:#6d28d9"></i>重力 / 重心 G</span>
+            <span><i style="background:#0f766e"></i>施力 F</span>
+          </div>
+          <canvas id="scene" width="1000" height="400" aria-label="均勻長棍側視圖：可拖動支點同施力位置"></canvas>
+          <p class="hint">用手指或滑鼠拖動支點（三角）或施力作用點。刻度由左端 0 m 起計，每小格 0.1 m。</p>
+        </div>
+      </section>
+
+      <aside class="card side">
+        <h2>課堂示範</h2>
+        <div class="presets" id="presets">
+          <button type="button" class="preset" data-preset="1">1　支點在中點，施力在右端向下</button>
+          <button type="button" class="preset" data-preset="2">2　支點在中點，施力在左端向下</button>
+          <button type="button" class="preset" data-preset="3">3　支點偏左，施力為 0（只計重力）</button>
+          <button type="button" class="preset" data-preset="4">4　支點偏右，施力為 0（只計重力）</button>
+          <button type="button" class="preset" data-preset="5">5　平衡例子（兩邊總力矩相等）</button>
+        </div>
+
+        <h2>操作</h2>
+        <div class="actions">
+          <button type="button" id="btn-release">釋放</button>
+          <button type="button" id="btn-level">重設水平</button>
+          <button type="button" id="btn-reset">重設全部</button>
+        </div>
+
+        <div class="controls">
+          <label class="row"><span class="lab">支點位置 <b id="v-pivot">1.00 m</b></span>
+            <input id="sl-pivot" type="range" min="0" max="2" step="0.01" value="1"></label>
+          <label class="row"><span class="lab">施力位置 <b id="v-xf">2.00 m</b></span>
+            <input id="sl-xf" type="range" min="0" max="2" step="0.01" value="2"></label>
+          <label class="row"><span class="lab">施力大小 F <b id="v-f">10.00 N</b></span>
+            <input id="sl-f" type="range" min="0" max="100" step="0.1" value="10"></label>
+          <div>
+            <div class="g-pick" style="margin-bottom:0.15rem">施力方向</div>
+            <div class="seg" role="group" aria-label="施力方向">
+              <button type="button" class="dir-btn" id="dir-down" aria-pressed="true">向下</button>
+              <button type="button" class="dir-btn" id="dir-up" aria-pressed="false">向上</button>
+            </div>
+          </div>
+          <label class="row"><span class="lab">棍的質量 M <b id="v-m">2.00 kg</b></span>
+            <input id="sl-m" type="range" min="0.5" max="10" step="0.1" value="2"></label>
+          <label class="row"><span class="lab">棍長 L <b id="v-l">2.00 m</b></span>
+            <input id="sl-l" type="range" min="1" max="4" step="0.1" value="2"></label>
+        </div>
+
+        <div class="g-pick">重力加速度 g</div>
+        <div class="g-pick">
+          <div>
+            <label><input type="radio" name="g" id="g-981" value="9.81" checked> 9.81 N kg⁻¹</label>
+            <label><input type="radio" name="g" id="g-10" value="10"> 10 N kg⁻¹（課堂近似）</label>
+          </div>
+        </div>
+
+        <div class="checks">
+          <label><input type="checkbox" id="chk-weight" checked> 顯示重力（作用於重心 G）。取消剔選可暫時隱藏，方便先只觀察施力。</label>
+          <label><input type="checkbox" id="chk-signed"> 以逆時針為正（右手定則）——顯示有號淨力矩，屬進階選項。</label>
+        </div>
+
+        <div class="totals">
+          <div class="tot cw">順時針總力矩<span class="v" id="tot-cw">0.00 N m</span></div>
+          <div class="tot ccw">逆時針總力矩<span class="v" id="tot-ccw">0.00 N m</span></div>
+        </div>
+        <div id="signed-box" class="signed-box">
+          符號慣例：以逆時針為正（右手定則）。正值表示逆時針，負值表示順時針。
+          <div class="net" id="signed-net">淨力矩 ΣM = 0.00 N m</div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="card" style="margin-top:0.85rem; padding:0.7rem 0.85rem 0.85rem;">
+      <h2 style="margin:0 0 0.35rem; font-size:1rem;">力矩表（只對支點取矩）</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>力</th>
+              <th>作用位置（由左端計）</th>
+              <th>力臂 d</th>
+              <th>力矩 M = F × d</th>
+              <th>方向</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="footnote">支點的反作用力作用在支點上，力臂為 0，力矩為 0，故不列入上表。分析以長棍處於水平位置計算。|淨力矩| 小於 0.005 N m 時視為平衡。</p>
+    </div>
+
+    <details class="teacher">
+      <summary>教師說明（學習目標、課堂用法、改參數）</summary>
+      <h3>學習目標</h3>
+      <ul>
+        <li>理解力矩公式 <strong>M = F × d</strong>，並能指出力臂 d 是支點到力的作用線的垂直距離。</li>
+        <li>能根據力的方向（向上／向下）與作用位置（支點左／右）判斷該力的力矩是<strong>順時針</strong>還是<strong>逆時針</strong>。</li>
+        <li>知道作用在支點上的力（包括支點反作用力、或支點剛巧在重心時的重力）力臂為 0，<strong>不產生力矩</strong>。</li>
+        <li>能比較順時針總力矩與逆時針總力矩，判斷長棍的淨效應：順時針轉動、逆時針轉動，或平衡。</li>
+        <li>認識質量均勻長棍的重量作用在重心 G（中點）。</li>
+      </ul>
+      <h3>建議課堂用法（約 15–20 分鐘）</h3>
+      <ol>
+        <li><strong>約 2 分鐘導入：</strong>出示側視長棍，標出 G 與支點，複習 M = F × d。提醒學生：我們只對支點取矩。</li>
+        <li><strong>約 6 分鐘教師演示：</strong>依次按示範 1–4。每次先請學生預測「會向哪邊轉？為甚麼？」，再按示範核對圖中弧箭同表格。特別強調示範 1、2：支點在重心時，重力力矩為 0，淨效應只由施力決定。</li>
+        <li><strong>約 4 分鐘平衡：</strong>示範 5，指出兩邊總力矩相等則平衡。可改 g 為 10 N kg⁻¹ 或改質量，再調校施力，使兩邊重新相等。</li>
+        <li><strong>約 5–8 分鐘學生自探：</strong>拖動支點／施力，先填方向再按「釋放」驗證（長棍只作有限角度的蹺蹺板轉動，不會飛出畫面）。可暫時取消「顯示重力」，先只看施力，再加回重力。</li>
+      </ol>
+      <h3>操作步驟</h3>
+      <ul>
+        <li>滑桿或直接拖動畫中的支點、施力作用點，即可改變位置。位置一律由左端起計，單位 m。</li>
+        <li>施力可改大小，並以「向下／向上」按鈕改方向。向上的力產生的力矩方向與向下時相反。</li>
+        <li>「釋放」：按當時的淨力矩方向，讓長棍繞支點作小角度轉動，並以橫額寫出淨效應。</li>
+        <li>「重設水平」：把長棍轉回水平，保留現時參數。「重設全部」：回復預設值（L = 2.00 m，M = 2.00 kg，F = 10.00 N，g = 9.81 N kg⁻¹，支點在中點，施力在右端向下）。</li>
+      </ul>
+      <h3>改參數說明（L、M、F、g）</h3>
+      <ul>
+        <li><strong>L（棍長）：</strong>預設 2.00 m。加長後，同一相對位置的力臂會按比例改變。改 L 時，支點同施力位置會被限制在棍上。</li>
+        <li><strong>M（質量）：</strong>預設 2.00 kg。重量 Mg 向下作用於中點。M 越大，重力力矩（當支點不在 G 時）越大。</li>
+        <li><strong>F（施力）：</strong>預設 10.00 N。示範 5 會自動把 F 設為 Mg，使左端向下的施力剛好平衡重力。</li>
+        <li><strong>g：</strong>預設 9.81 N kg⁻¹。課堂若用 g = 10 N kg⁻¹ 做心算，可改選右邊選項，表格會即時更新。</li>
+      </ul>
+      <p>教師若要改預設值，可在本檔案腳本頂部的 <code>DEFAULTS</code> 物件修改（有註解）。本頁為單檔 HTML，無需網絡亦可在電腦教室或投影使用。</p>
+    </details>
+  </main>
+
+  <footer>
+    原創課堂互動教材 · 可離線使用 · <a href="index.html">返回主頁</a>
+  </footer>
+
+  <script>
+(function () {
+  // ============================================================
+  // 教師可調預設值（改呢度即可改變開啟頁面時的初始狀態）
+  // ============================================================
+  var DEFAULTS = {
+    L: 2.0,       // 棍長 (m)
+    M: 2.0,       // 質量 (kg)
+    F: 10,        // 施力大小 (N)
+    xF: 2.0,      // 施力位置，由左端計 (m)
+    xPivot: 1.0,  // 支點位置，由左端計 (m)
+    Fdir: 'down', // 'down' 向下 或 'up' 向上
+    g: 9.81,      // 9.81 或 10（N kg⁻¹）
+    showWeight: true
+  };
+
+  // |淨力矩| 小於此值（N m）視為平衡
+  var EQUILIBRIUM_TOL = 0.005;
+  var POSITION_EPS = 1e-9;
+
+  // 釋放後蹺蹺板的最大傾角（弧度）。只作有限轉動，唔會飛出畫面或平動墜落。
+  var THETA_MAX = 18 * Math.PI / 180;
+
+  // ============================================================
+  // 與 tests/moment_direction_logic.mjs 相同的核心計算
+  // ============================================================
+  function clamp(v, lo, hi) {
+    return Math.min(hi, Math.max(lo, v));
+  }
+  function leverArm(x, xPivot) {
+    return Math.abs(x - xPivot);
+  }
+  function momentOfForce(Fmag, dir, x, xPivot) {
+    var arm = leverArm(x, xPivot);
+    var mag = Math.max(0, Number(Fmag) || 0);
+    var magnitude = mag * arm;
+    var atPivot = Math.abs(x - xPivot) < POSITION_EPS;
+    if (magnitude === 0 || atPivot || mag === 0 || arm === 0) {
+      return { arm: atPivot ? 0 : arm, magnitude: 0, direction: 'zero', signedCcw: 0 };
+    }
+    var onRight = x > xPivot;
+    var clockwise = dir === 'down' ? onRight : !onRight;
+    var direction = clockwise ? 'clockwise' : 'anticlockwise';
+    var signedCcw = clockwise ? -magnitude : magnitude;
+    return { arm: arm, magnitude: magnitude, direction: direction, signedCcw: signedCcw };
+  }
+  function directionLabel(direction) {
+    if (direction === 'clockwise') return '順時針';
+    if (direction === 'anticlockwise') return '逆時針';
+    if (direction === 'zero') return '力矩為 0';
+    if (direction === 'equilibrium') return '平衡';
+    return String(direction);
+  }
+  function netEffectLabel(effect) {
+    if (effect === 'clockwise') return '順時針轉動';
+    if (effect === 'anticlockwise') return '逆時針轉動';
+    if (effect === 'equilibrium') return '平衡';
+    return String(effect);
+  }
+  function analyze(state) {
+    var L = state.L, M = state.M, g = state.g, xPivot = state.xPivot;
+    var F = Math.max(0, Number(state.F) || 0);
+    var xF = state.xF;
+    var Fdir = state.Fdir === 'up' ? 'up' : 'down';
+    var showWeight = state.showWeight !== false;
+    var weight = M * g;
+    var xG = L / 2;
+    var weightMoment = showWeight
+      ? momentOfForce(weight, 'down', xG, xPivot)
+      : { arm: leverArm(xG, xPivot), magnitude: 0, direction: 'zero', signedCcw: 0, hidden: true };
+    var forceMoment = momentOfForce(F, Fdir, xF, xPivot);
+    var cwTotal = 0, ccwTotal = 0;
+    [weightMoment, forceMoment].forEach(function (m) {
+      if (m.direction === 'clockwise') cwTotal += m.magnitude;
+      if (m.direction === 'anticlockwise') ccwTotal += m.magnitude;
+    });
+    var netSignedCcw = ccwTotal - cwTotal;
+    var netEffect = 'equilibrium';
+    if (Math.abs(netSignedCcw) >= EQUILIBRIUM_TOL) {
+      netEffect = netSignedCcw > 0 ? 'anticlockwise' : 'clockwise';
+    }
+    return {
+      weight: weight, xG: xG, weightMoment: weightMoment, forceMoment: forceMoment,
+      cwTotal: cwTotal, ccwTotal: ccwTotal, netSignedCcw: netSignedCcw, netEffect: netEffect
+    };
+  }
+  function presetParams(id, g, L, M) {
+    var mid = L / 2;
+    switch (String(id)) {
+      case '1':
+        return { L: L, M: M, g: g, xPivot: mid, xF: L, F: 10, Fdir: 'down', showWeight: true };
+      case '2':
+        return { L: L, M: M, g: g, xPivot: mid, xF: 0, F: 10, Fdir: 'down', showWeight: true };
+      case '3':
+        return { L: L, M: M, g: g, xPivot: L * 0.25, xF: L, F: 0, Fdir: 'down', showWeight: true };
+      case '4':
+        return { L: L, M: M, g: g, xPivot: L * 0.75, xF: L, F: 0, Fdir: 'down', showWeight: true };
+      case '5':
+        return { L: L, M: M, g: g, xPivot: L * 0.25, xF: 0, F: M * g, Fdir: 'down', showWeight: true };
+      default:
+        throw new Error('未知示範：' + id);
+    }
+  }
+
+  // ============================================================
+  // 狀態
+  // ============================================================
+  var state = {
+    L: DEFAULTS.L, M: DEFAULTS.M, F: DEFAULTS.F,
+    xF: DEFAULTS.xF, xPivot: DEFAULTS.xPivot,
+    Fdir: DEFAULTS.Fdir, g: DEFAULTS.g, showWeight: DEFAULTS.showWeight
+  };
+  var showSigned = false;
+  var theta = 0;     // 弧度，逆時針為正（與右手定則一致）
+  var omega = 0;
+  var released = false;
+  var lastPreset = null;
+
+  var canvas = document.getElementById('scene');
+  var ctx = canvas.getContext('2d');
+  var cssW = 1000, cssH = 400;
+  var dragging = null; // 'pivot' | 'force'
+  var hover = null;
+
+  function fmt(n, digits) {
+    if (digits === undefined) digits = 2;
+    if (!Number.isFinite(n)) return '—';
+    var s = Number(n).toFixed(digits);
+    if (s === '-0.00' || s === '-0.0') s = (0).toFixed(digits);
+    return s;
+  }
+  function unitNm(n) { return fmt(n) + ' N m'; }
+  function unitM(n) { return fmt(n) + ' m'; }
+  function unitN(n) { return fmt(n) + ' N'; }
+
+  // ============================================================
+  // UI 同步、表格、橫額
+  // ============================================================
+  var el = {
+    pivot: document.getElementById('sl-pivot'),
+    xf: document.getElementById('sl-xf'),
+    f: document.getElementById('sl-f'),
+    m: document.getElementById('sl-m'),
+    l: document.getElementById('sl-l'),
+    vPivot: document.getElementById('v-pivot'),
+    vXf: document.getElementById('v-xf'),
+    vF: document.getElementById('v-f'),
+    vM: document.getElementById('v-m'),
+    vL: document.getElementById('v-l'),
+    dirDown: document.getElementById('dir-down'),
+    dirUp: document.getElementById('dir-up'),
+    chkW: document.getElementById('chk-weight'),
+    chkS: document.getElementById('chk-signed'),
+    banner: document.getElementById('banner'),
+    tbody: document.getElementById('tbody'),
+    totCw: document.getElementById('tot-cw'),
+    totCcw: document.getElementById('tot-ccw'),
+    signedBox: document.getElementById('signed-box'),
+    signedNet: document.getElementById('signed-net')
+  };
+
+  function syncSlidersFromState() {
+    el.l.max = 4;
+    el.pivot.max = String(state.L);
+    el.xf.max = String(state.L);
+    state.xPivot = clamp(state.xPivot, 0, state.L);
+    state.xF = clamp(state.xF, 0, state.L);
+    el.l.value = String(state.L);
+    el.m.value = String(state.M);
+    el.f.value = String(state.F);
+    el.pivot.value = String(state.xPivot);
+    el.xf.value = String(state.xF);
+    el.vL.textContent = unitM(state.L);
+    el.vM.textContent = fmt(state.M) + ' kg';
+    el.vF.textContent = unitN(state.F);
+    el.vPivot.textContent = unitM(state.xPivot);
+    el.vXf.textContent = unitM(state.xF);
+    el.dirDown.setAttribute('aria-pressed', state.Fdir === 'down' ? 'true' : 'false');
+    el.dirUp.setAttribute('aria-pressed', state.Fdir === 'up' ? 'true' : 'false');
+    el.chkW.checked = !!state.showWeight;
+    el.chkS.checked = !!showSigned;
+    document.getElementById(state.g === 10 ? 'g-10' : 'g-981').checked = true;
+  }
+
+  function dirPill(direction) {
+    var lab = directionLabel(direction);
+    var cls = direction === 'clockwise' ? 'cw' : direction === 'anticlockwise' ? 'ccw' : 'zero';
+    return '<span class="dir-pill ' + cls + '">' + lab + '</span>';
+  }
+
+  function updatePanel() {
+    var r = analyze(state);
+    var cls = r.netEffect === 'clockwise' ? 'cw' : r.netEffect === 'anticlockwise' ? 'ccw' : 'eq';
+    var sub;
+    if (r.netEffect === 'equilibrium') {
+      sub = '順時針總力矩 ' + unitNm(r.cwTotal) + ' ＝ 逆時針總力矩 ' + unitNm(r.ccwTotal) + '（或兩者皆接近 0）';
+    } else if (r.netEffect === 'clockwise') {
+      sub = '順時針總力矩 ' + unitNm(r.cwTotal) + ' ＞ 逆時針總力矩 ' + unitNm(r.ccwTotal);
+    } else {
+      sub = '逆時針總力矩 ' + unitNm(r.ccwTotal) + ' ＞ 順時針總力矩 ' + unitNm(r.cwTotal);
+    }
+    el.banner.className = 'banner ' + cls;
+    el.banner.innerHTML = '淨效應：' + netEffectLabel(r.netEffect) + '<span class="sub-line">' + sub + '</span>';
+    el.totCw.textContent = unitNm(r.cwTotal);
+    el.totCcw.textContent = unitNm(r.ccwTotal);
+
+    function row(name, forceN, pos, mom, note) {
+      var posTxt = unitM(pos);
+      var armTxt = unitM(mom.arm);
+      var mTxt = unitNm(mom.magnitude);
+      if (note) {
+        posTxt += '<br><span style="font-weight:600;color:#64748b;font-size:0.78rem">' + note + '</span>';
+      }
+      return '<tr><td>' + name + '</td><td class="num">' + posTxt + '</td><td class="num">' + armTxt +
+        '</td><td class="num">' + mTxt + '</td><td>' + dirPill(mom.direction) + '</td></tr>';
+    }
+    var wName = '重力 Mg = ' + unitN(r.weight);
+    var wNote = '向下，作用於重心 G（中點）';
+    if (r.weightMoment.hidden) {
+      wName += '（已隱藏）';
+      wNote = '暫時不計入力矩（鷹架）';
+    }
+    var fName = '施力 F = ' + unitN(state.F);
+    var fNote = (state.Fdir === 'up' ? '向上' : '向下');
+    if (state.F === 0) fNote = '大小為 0';
+    el.tbody.innerHTML = row(wName, r.weight, r.xG, r.weightMoment, wNote) +
+      row(fName, state.F, state.xF, r.forceMoment, fNote);
+
+    el.signedBox.className = 'signed-box' + (showSigned ? ' on' : '');
+    if (showSigned) {
+      var s = r.netSignedCcw;
+      var sign = s > 0 ? '+' : '';
+      el.signedNet.textContent = '淨力矩 ΣM = ' + sign + fmt(s) + ' N m（逆時針為正）';
+    }
+    document.querySelectorAll('button.preset').forEach(function (b) {
+      b.classList.toggle('active', lastPreset && b.getAttribute('data-preset') === String(lastPreset));
+    });
+    return r;
+  }
+
+  // ============================================================
+  // 繪圖
+  // ============================================================
+  function layout() {
+    var padX = Math.max(64, Math.min(88, cssW * 0.08));
+    var rodLen = cssW - padX * 2;
+    var scale = rodLen / state.L;
+    var pivotX = padX + state.xPivot * scale;
+    var pivotY = cssH * 0.40;
+    return { padX: padX, rodLen: rodLen, scale: scale, pivotX: pivotX, pivotY: pivotY, rodH: Math.max(24, Math.min(34, cssH * 0.07)) };
+  }
+  function rodPoint(ly, x) {
+    var dx = (x - state.xPivot) * ly.scale;
+    return {
+      x: ly.pivotX + dx * Math.cos(theta),
+      y: ly.pivotY - dx * Math.sin(theta)
+    };
+  }
+  function fillLabel(c, text, x, y, color, font, align) {
+    c.font = font;
+    c.textAlign = align || 'center';
+    c.textBaseline = 'middle';
+    c.lineWidth = 5;
+    c.strokeStyle = 'rgba(255,255,255,0.94)';
+    c.lineJoin = 'round';
+    c.strokeText(text, x, y);
+    c.fillStyle = color;
+    c.fillText(text, x, y);
+  }
+  function arrowHead(c, x, y, dirY, color, size) {
+    // dirY: +1 箭咀向下（指向 +y），-1 向上
+    size = size || 12;
+    c.fillStyle = color;
+    c.beginPath();
+    if (dirY > 0) {
+      c.moveTo(x, y);
+      c.lineTo(x - size * 0.7, y - size);
+      c.lineTo(x + size * 0.7, y - size);
+    } else {
+      c.moveTo(x, y);
+      c.lineTo(x - size * 0.7, y + size);
+      c.lineTo(x + size * 0.7, y + size);
+    }
+    c.closePath();
+    c.fill();
+  }
+  function drawVerticalForce(c, x, yAttach, length, downward, color, labelLines) {
+    var dir = downward ? 1 : -1;
+    var y2 = yAttach + dir * length;
+    c.strokeStyle = color;
+    c.lineWidth = 5;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x, yAttach + dir * 4);
+    c.lineTo(x, y2 - dir * 10);
+    c.stroke();
+    arrowHead(c, x, y2, dir, color, 13);
+    var ly = downward ? y2 + 16 : y2 - 16;
+    if (labelLines && labelLines.length) {
+      labelLines.forEach(function (line, i) {
+        var yy = downward ? ly + i * 16 : ly - (labelLines.length - 1 - i) * 16;
+        fillLabel(c, line, x, yy, color, 'bold 14px ' + fontStack(), 'center');
+      });
+    }
+  }
+  function fontStack() {
+    return '"Noto Sans CJK TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+  }
+  function drawBadge(c, text, x, y, color) {
+    var lines = String(text).split('\n');
+    c.font = 'bold 14px ' + fontStack();
+    var w = 0;
+    lines.forEach(function (ln) { w = Math.max(w, c.measureText(ln).width); });
+    var padX = 9, lineH = 17, h = lineH * lines.length + 8;
+    var bw = w + padX * 2;
+    var bx = clamp(x, bw / 2 + 4, cssW - bw / 2 - 4);
+    var by = clamp(y, h / 2 + 8, cssH - h / 2 - 8);
+    c.save();
+    c.beginPath();
+    var r = 8, x0 = bx - bw / 2, y0 = by - h / 2;
+    c.moveTo(x0 + r, y0);
+    c.arcTo(x0 + bw, y0, x0 + bw, y0 + h, r);
+    c.arcTo(x0 + bw, y0 + h, x0, y0 + h, r);
+    c.arcTo(x0, y0 + h, x0, y0, r);
+    c.arcTo(x0, y0, x0 + bw, y0, r);
+    c.closePath();
+    c.fillStyle = 'rgba(255,255,255,0.96)';
+    c.fill();
+    c.strokeStyle = color;
+    c.lineWidth = 2;
+    c.stroke();
+    c.fillStyle = color;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    var yStart = by - ((lines.length - 1) * lineH) / 2;
+    lines.forEach(function (ln, i) { c.fillText(ln, bx, yStart + i * lineH); });
+    c.restore();
+  }
+  function drawDimension(c, x1, x2, y, color, text) {
+    if (Math.abs(x2 - x1) < 6) return;
+    var left = Math.min(x1, x2), right = Math.max(x1, x2);
+    c.save();
+    c.strokeStyle = color;
+    c.fillStyle = color;
+    c.lineWidth = 1.6;
+    c.setLineDash([4, 3]);
+    c.beginPath(); c.moveTo(x1, y - 10); c.lineTo(x1, y + 8); c.stroke();
+    c.beginPath(); c.moveTo(x2, y - 10); c.lineTo(x2, y + 8); c.stroke();
+    c.setLineDash([]);
+    c.beginPath(); c.moveTo(left, y); c.lineTo(right, y); c.stroke();
+    // 兩端短豎
+    c.beginPath(); c.moveTo(left, y - 5); c.lineTo(left, y + 5); c.stroke();
+    c.beginPath(); c.moveTo(right, y - 5); c.lineTo(right, y + 5); c.stroke();
+    fillLabel(c, text, (left + right) / 2, y - 12, color, 'bold 13px ' + fontStack(), 'center');
+    c.restore();
+  }
+  function drawCurvedArrow(c, cx, cy, radius, clockwise, color, label) {
+    // Canvas：0° 在右、因 y 向下故正角為順時針。
+    // 順時針弧畫在支點右側（由上轉到下），逆時針弧畫在左側，旋轉方向一目了然。
+    // 順時針由正上方稍偏右起筆，逆時針稍偏左，避免弧線「勾」去另一側造成誤讀。
+    var start = clockwise ? (-Math.PI / 2 + 0.14) : (-Math.PI / 2 - 0.14);
+    var end = Math.PI / 2 + 0.22;
+    var ccwFlag = !clockwise;
+    var tipAng = end;
+    var labAng = clockwise ? Math.PI * 0.32 : Math.PI * 0.68;
+    c.save();
+    c.strokeStyle = color;
+    c.lineWidth = 5;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.arc(cx, cy, radius, start, end, ccwFlag);
+    c.stroke();
+    var tx = cx + radius * Math.cos(tipAng);
+    var ty = cy + radius * Math.sin(tipAng);
+    var tangX, tangY;
+    if (clockwise) {
+      tangX = -Math.sin(tipAng);
+      tangY = Math.cos(tipAng);
+    } else {
+      tangX = Math.sin(tipAng);
+      tangY = -Math.cos(tipAng);
+    }
+    var ang = Math.atan2(tangY, tangX);
+    var size = 14;
+    c.fillStyle = color;
+    c.beginPath();
+    c.moveTo(tx + Math.cos(ang) * 2, ty + Math.sin(ang) * 2);
+    c.lineTo(tx - Math.cos(ang) * size + Math.cos(ang + Math.PI / 2) * size * 0.55,
+             ty - Math.sin(ang) * size + Math.sin(ang + Math.PI / 2) * size * 0.55);
+    c.lineTo(tx - Math.cos(ang) * size + Math.cos(ang - Math.PI / 2) * size * 0.55,
+             ty - Math.sin(ang) * size + Math.sin(ang - Math.PI / 2) * size * 0.55);
+    c.closePath();
+    c.fill();
+    c.restore();
+    // 標籤固定放在該側外下方，兩力同時出現時亦分居左右，不會叠在支點上。
+    var side = clockwise ? 1 : -1;
+    var lx = cx + side * (radius + 78);
+    var ly = cy + 52;
+    drawBadge(c, label, lx, ly, color);
+  }
+
+  function draw() {
+    var r = analyze(state);
+    var ly = layout();
+    var c = ctx;
+    c.clearRect(0, 0, cssW, cssH);
+
+    // 背景
+    var bg = c.createLinearGradient(0, 0, 0, cssH);
+    bg.addColorStop(0, '#f7fbff');
+    bg.addColorStop(0.55, '#f8f4ec');
+    bg.addColorStop(1, '#ece4d4');
+    c.fillStyle = bg;
+    c.fillRect(0, 0, cssW, cssH);
+
+    // 地面暗示
+    c.fillStyle = '#d6cbb6';
+    c.fillRect(0, cssH - 18, cssW, 18);
+    c.strokeStyle = '#c4b59a';
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, cssH - 18); c.lineTo(cssW, cssH - 18); c.stroke();
+
+    var p0 = rodPoint(ly, 0);
+    var pL = rodPoint(ly, state.L);
+    var pG = rodPoint(ly, r.xG);
+    var pF = rodPoint(ly, state.xF);
+    var pP = { x: ly.pivotX, y: ly.pivotY };
+
+    // 支點鉛直線（力臂參考）
+    c.save();
+    c.setLineDash([5, 4]);
+    c.strokeStyle = 'rgba(15,23,42,0.28)';
+    c.lineWidth = 1.4;
+    c.beginPath();
+    c.moveTo(pP.x, 28);
+    c.lineTo(pP.x, cssH - 28);
+    c.stroke();
+    c.restore();
+
+    // 支座 + 三角支點（大，方便觸控）
+    var triH = 38, triW = 44;
+    c.fillStyle = '#334155';
+    c.beginPath();
+    c.moveTo(pP.x, pP.y + ly.rodH * 0.48);
+    c.lineTo(pP.x - triW * 0.5, pP.y + ly.rodH * 0.48 + triH);
+    c.lineTo(pP.x + triW * 0.5, pP.y + ly.rodH * 0.48 + triH);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = hover === 'pivot' || dragging === 'pivot' ? '#fbbf24' : '#0f172a';
+    c.lineWidth = hover === 'pivot' || dragging === 'pivot' ? 3 : 1.5;
+    c.stroke();
+    // 支座柱
+    c.fillStyle = '#1e293b';
+    c.fillRect(pP.x - 7, pP.y + ly.rodH * 0.48 + triH - 1, 14, cssH - 18 - (pP.y + ly.rodH * 0.48 + triH));
+    // 支點標籤放在支座柱旁近地面，避開力矩徽章同力臂線
+    fillLabel(c, '支點  ' + unitM(state.xPivot), pP.x + 18, cssH - 26, '#0f172a', 'bold 13px ' + fontStack(), 'left');
+
+    // 長棍（木紋）
+    c.save();
+    c.translate(pP.x, pP.y);
+    c.rotate(-theta);
+    var xLeft = -state.xPivot * ly.scale;
+    var rodW = state.L * ly.scale;
+    var rh = ly.rodH;
+    var wood = c.createLinearGradient(0, -rh / 2, 0, rh / 2);
+    wood.addColorStop(0, '#f0d3a2');
+    wood.addColorStop(0.35, '#d4a265');
+    wood.addColorStop(0.5, '#c48a4a');
+    wood.addColorStop(1, '#8a5628');
+    roundRectPath(c, xLeft, -rh / 2, rodW, rh, rh * 0.35);
+    c.fillStyle = wood;
+    c.fill();
+    c.strokeStyle = '#5c3a1e';
+    c.lineWidth = 1.6;
+    c.stroke();
+    // 簡單木紋
+    c.strokeStyle = 'rgba(90,50,20,0.22)';
+    c.lineWidth = 1;
+    for (var gi = 1; gi <= 3; gi++) {
+      c.beginPath();
+      var gy = -rh / 2 + rh * (0.25 * gi);
+      c.moveTo(xLeft + 8, gy);
+      c.lineTo(xLeft + rodW - 8, gy);
+      c.stroke();
+    }
+    // 刻度（每 0.1 m；0.5 m 較長並標數字）
+    var ticks = Math.round(state.L / 0.1);
+    for (var i = 0; i <= ticks; i++) {
+      var xm = i * 0.1;
+      if (xm - state.L > 0.001) break;
+      var tx = (xm - state.xPivot) * ly.scale;
+      var major = Math.abs(xm * 10 - Math.round(xm * 2) * 5) < 1e-6; // 0.5 的倍數
+      var end = Math.abs(xm) < 1e-6 || Math.abs(xm - state.L) < 1e-6;
+      var th = end || major ? rh * 0.55 : rh * 0.28;
+      c.strokeStyle = end ? '#0f172a' : 'rgba(15,23,42,0.55)';
+      c.lineWidth = end || major ? 1.8 : 1;
+      c.beginPath();
+      c.moveTo(tx, rh / 2);
+      c.lineTo(tx, rh / 2 + th);
+      c.stroke();
+      if ((major || end) && Math.abs(tx) > 28) {
+        fillLabel(c, fmt(xm, 1), tx, rh / 2 + th + 11, '#0f172a', 'bold 12px ' + fontStack(), 'center');
+      }
+    }
+    c.restore();
+
+    fillLabel(c, '左端', p0.x, p0.y - rhLabel(ly), '#0f172a', 'bold 13px ' + fontStack(), 'center');
+    fillLabel(c, '右端', pL.x, pL.y - rhLabel(ly), '#0f172a', 'bold 13px ' + fontStack(), 'center');
+
+    // 重心 G
+    c.save();
+    c.fillStyle = '#6d28d9';
+    c.strokeStyle = '#fff';
+    c.lineWidth = 2;
+    c.beginPath();
+    c.arc(pG.x, pG.y, 8, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+    // 十字標記，方便黑白列印／色覺分辨
+    c.strokeStyle = '#fff';
+    c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(pG.x - 5, pG.y); c.lineTo(pG.x + 5, pG.y); c.stroke();
+    c.beginPath(); c.moveTo(pG.x, pG.y - 5); c.lineTo(pG.x, pG.y + 5); c.stroke();
+    c.restore();
+    if (!(state.showWeight && Math.abs(r.xG - state.xPivot) * ly.scale < 32)) {
+      fillLabel(c, 'G  重心  ' + unitM(r.xG), pG.x, pG.y - ly.rodH * 0.5 - 16, '#6d28d9', 'bold 14px ' + fontStack(), 'center');
+    } else {
+      fillLabel(c, 'G  重心  ' + unitM(r.xG), pG.x, pG.y - ly.rodH * 0.5 - 58, '#6d28d9', 'bold 14px ' + fontStack(), 'center');
+    }
+
+    // 力臂標註：放近畫面底部的專用帶，避免同支點、力矩弧重疊。
+    // 數字用水平位置（θ = 0）的力臂，與表格一致。
+    var dimY0 = cssH - 78;
+    var used = 0;
+    if (state.showWeight && r.weightMoment.direction !== 'zero') {
+      drawDimension(c, pP.x, pG.x, dimY0 + used * 26, '#6d28d9', '重力力臂 d = ' + unitM(r.weightMoment.arm));
+      used++;
+    }
+    if (state.F > 0 && r.forceMoment.direction !== 'zero') {
+      drawDimension(c, pP.x, pF.x, dimY0 + used * 26, '#0f766e', '施力力臂 d = ' + unitM(r.forceMoment.arm));
+    }
+
+    // 力箭咀（長度與大小成比例，同一尺標方便比較）
+    var Fref = Math.max(r.weight, state.F, 10);
+    var minA = 48, maxA = Math.min(96, cssH * 0.22);
+    function arrowLen(Fabs) {
+      return minA + (maxA - minA) * (Fabs / Fref);
+    }
+    function nearPivot(x) {
+      return Math.abs(x - state.xPivot) * ly.scale < 32;
+    }
+    var xOffW = 0, xOffF = 0;
+    if (state.showWeight && state.F > 0 && Math.abs(pG.x - pF.x) < 16) {
+      xOffW = -10; xOffF = 10;
+    }
+    // 若作用線幾乎通過支點，把向下箭咀橫移，避免穿過三角支點
+    if (state.showWeight && nearPivot(r.xG)) xOffW = (xOffW || -24);
+    if (state.F > 0 && state.Fdir === 'down' && nearPivot(state.xF)) xOffF = (xOffF || 24);
+
+    if (state.showWeight && !nearPivot(r.xG)) {
+      drawVerticalForce(c, pG.x + xOffW, pG.y + ly.rodH * 0.15, arrowLen(r.weight), true, '#6d28d9',
+        ['Mg = ' + unitN(r.weight), '向下']);
+    }
+    if (state.showWeight && nearPivot(r.xG)) {
+      drawBadge(c, 'Mg = ' + unitN(r.weight) + ' 向下（力矩為 0）',
+        pG.x, pG.y - ly.rodH * 0.5 - 36, '#6d28d9');
+    }
+    if (state.F > 0 && !(state.Fdir === 'down' && nearPivot(state.xF))) {
+      var up = state.Fdir === 'up';
+      var fZero = r.forceMoment.direction === 'zero';
+      var attach = up ? pF.y - ly.rodH * 0.15 : pF.y + ly.rodH * 0.15;
+      var fLabels = fZero
+        ? ['F = ' + unitN(state.F), '力矩為 0']
+        : ['F = ' + unitN(state.F), up ? '向上' : '向下'];
+      drawVerticalForce(c, pF.x + xOffF, attach, fZero ? 50 : arrowLen(state.F), !up, '#0f766e', fLabels);
+    }
+    if (state.F > 0 && state.Fdir === 'down' && nearPivot(state.xF)) {
+      drawBadge(c, 'F = ' + unitN(state.F) + ' 向下（力矩為 0）',
+        pF.x, pF.y - ly.rodH * 0.5 - 36, '#0f766e');
+    }
+
+    // 施力作用點（可拖動圓柄；F = 0 時較淡，仍可拖動改位置）
+    c.save();
+    c.beginPath();
+    c.arc(pF.x, pF.y, 11, 0, Math.PI * 2);
+    c.fillStyle = state.F > 0 ? '#0f766e' : '#99f6e4';
+    c.fill();
+    c.lineWidth = hover === 'force' || dragging === 'force' ? 3.5 : 2;
+    c.strokeStyle = hover === 'force' || dragging === 'force' ? '#fbbf24' : (state.F > 0 ? '#ecfdf5' : '#0f766e');
+    c.stroke();
+    c.restore();
+    if (state.F === 0) {
+      fillLabel(c, '施力位置', pF.x, pF.y - ly.rodH * 0.5 - 14, '#0f766e', 'bold 12px ' + fontStack(), 'center');
+    }
+
+    // 力矩弧箭：順時針在右側、逆時針在左側；標籤用徽章，顔色以外必寫方向。
+    var moments = [];
+    if (state.showWeight && r.weightMoment.direction !== 'zero') {
+      moments.push({ m: r.weightMoment, tag: '重力' });
+    }
+    if (r.forceMoment.direction !== 'zero') {
+      moments.push({ m: r.forceMoment, tag: '施力' });
+    }
+    var usedSide = { cw: 0, ccw: 0 };
+    moments.forEach(function (item) {
+      var cw = item.m.direction === 'clockwise';
+      var key = cw ? 'cw' : 'ccw';
+      var rad = 58 + usedSide[key] * 26;
+      usedSide[key]++;
+      var col = cw ? '#c2410c' : '#1d4ed8';
+      var lab = item.tag + '  ' + directionLabel(item.m.direction) + '\n' + unitNm(item.m.magnitude);
+      drawCurvedArrow(c, pP.x, pP.y, rad, cw, col, lab);
+    });
+
+    // 圖例式提示：可拖曳
+    fillLabel(c, '拖動三角以改支點　·　拖動青綠色圓點以改施力位置',
+      cssW / 2, 16, '#64748b', '12px ' + fontStack(), 'center');
+  }
+
+  function rhLabel(ly) { return ly.rodH * 0.5 + 16; }
+
+  function roundRectPath(c, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function resize() {
+    var wrap = canvas.parentElement;
+    cssW = Math.max(320, wrap.clientWidth - 8);
+    cssH = Math.max(360, Math.min(500, Math.round(cssW * 0.50)));
+    if (window.innerHeight < 800) cssH = Math.max(340, Math.min(cssH, 420));
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // ============================================================
+  // 拖曳（滑鼠 + 觸控，Pointer Events）
+  // ============================================================
+  function localXY(ev) {
+    var rect = canvas.getBoundingClientRect();
+    return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  }
+  function metersAlongRod(px, py) {
+    var ly = layout();
+    var dx = px - ly.pivotX;
+    var dy = py - ly.pivotY;
+    var rx = Math.cos(theta);
+    var ry = -Math.sin(theta);
+    var distPx = dx * rx + dy * ry;
+    return clamp(state.xPivot + distPx / ly.scale, 0, state.L);
+  }
+  function hitTest(px, py) {
+    var ly = layout();
+    var pF = rodPoint(ly, state.xF);
+    var pP = { x: ly.pivotX, y: ly.pivotY + ly.rodH * 0.48 + 18 };
+    var dF = Math.hypot(px - pF.x, py - pF.y);
+    var dP = Math.hypot(px - ly.pivotX, py - pP.y);
+    // 支點三角形範圍較大
+    var inTri = Math.abs(px - ly.pivotX) < 32 && py > ly.pivotY + 4 && py < ly.pivotY + 70;
+    if (dF <= 24 && dF <= dP) return 'force';
+    if (inTri || dP <= 28) return 'pivot';
+    if (dF <= 28) return 'force';
+    return null;
+  }
+  function onPointerDown(ev) {
+    var p = localXY(ev);
+    var hit = hitTest(p.x, p.y);
+    if (!hit) return;
+    dragging = hit;
+    lastPreset = null;
+    canvas.setPointerCapture(ev.pointerId);
+    ev.preventDefault();
+    onPointerMove(ev);
+  }
+  function onPointerMove(ev) {
+    var p = localXY(ev);
+    if (!dragging) {
+      hover = hitTest(p.x, p.y);
+      canvas.style.cursor = hover ? 'grab' : 'default';
+      return;
+    }
+    canvas.style.cursor = 'grabbing';
+    var xm = metersAlongRod(p.x, p.y);
+    xm = Math.round(xm * 100) / 100;
+    if (dragging === 'pivot') state.xPivot = xm;
+    else state.xF = xm;
+    syncSlidersFromState();
+    updatePanel();
+  }
+  function onPointerUp(ev) {
+    if (dragging) {
+      dragging = null;
+      try { canvas.releasePointerCapture(ev.pointerId); } catch (e) {}
+    }
+  }
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('pointercancel', onPointerUp);
+  canvas.addEventListener('pointerleave', function () { if (!dragging) hover = null; });
+
+  // ============================================================
+  // 滑桿、按鈕、示範、釋放動畫
+  // ============================================================
+  function markEdited() { lastPreset = null; }
+
+  el.pivot.addEventListener('input', function () {
+    state.xPivot = clamp(parseFloat(el.pivot.value), 0, state.L); markEdited(); syncSlidersFromState(); updatePanel();
+  });
+  el.xf.addEventListener('input', function () {
+    state.xF = clamp(parseFloat(el.xf.value), 0, state.L); markEdited(); syncSlidersFromState(); updatePanel();
+  });
+  el.f.addEventListener('input', function () {
+    state.F = Math.max(0, parseFloat(el.f.value) || 0); markEdited(); syncSlidersFromState(); updatePanel();
+  });
+  el.m.addEventListener('input', function () {
+    state.M = Math.max(0.5, parseFloat(el.m.value) || 0.5); markEdited(); syncSlidersFromState(); updatePanel();
+  });
+  el.l.addEventListener('input', function () {
+    state.L = clamp(parseFloat(el.l.value) || 2, 1, 4);
+    state.xPivot = clamp(state.xPivot, 0, state.L);
+    state.xF = clamp(state.xF, 0, state.L);
+    markEdited(); syncSlidersFromState(); updatePanel();
+  });
+  el.dirDown.addEventListener('click', function () { state.Fdir = 'down'; markEdited(); syncSlidersFromState(); updatePanel(); });
+  el.dirUp.addEventListener('click', function () { state.Fdir = 'up'; markEdited(); syncSlidersFromState(); updatePanel(); });
+  el.chkW.addEventListener('change', function () { state.showWeight = el.chkW.checked; markEdited(); updatePanel(); });
+  el.chkS.addEventListener('change', function () { showSigned = el.chkS.checked; updatePanel(); });
+  document.getElementById('g-981').addEventListener('change', function () { if (this.checked) { state.g = 9.81; markEdited(); updatePanel(); } });
+  document.getElementById('g-10').addEventListener('change', function () { if (this.checked) { state.g = 10; markEdited(); updatePanel(); } });
+
+  document.getElementById('presets').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-preset]');
+    if (!btn) return;
+    applyPreset(btn.getAttribute('data-preset'));
+  });
+
+  function applyPreset(id) {
+    // 示範 1–4 用目前的 L、M、g，方便教師先改參數再演示；示範 5 的 F 會自動設為 M g。
+    var p = presetParams(id, state.g, state.L, state.M);
+    state.xPivot = p.xPivot;
+    state.xF = p.xF;
+    state.F = p.F;
+    state.Fdir = p.Fdir;
+    state.showWeight = true;
+    lastPreset = String(id);
+    released = false;
+    theta = 0;
+    omega = 0;
+    syncSlidersFromState();
+    updatePanel();
+  }
+
+  function targetTheta(result) {
+    if (result.netEffect === 'equilibrium') return 0;
+    var sign = result.netSignedCcw > 0 ? 1 : -1;
+    var minVis = 8 * Math.PI / 180;
+    var ang = Math.min(THETA_MAX, minVis + (THETA_MAX - minVis) * Math.min(1, Math.abs(result.netSignedCcw) / 8));
+    return sign * ang;
+  }
+
+  document.getElementById('btn-release').addEventListener('click', function () {
+    // 每次由水平開始傾側，方便重複演示同一淨效應
+    theta = 0;
+    omega = 0;
+    released = true;
+  });
+  document.getElementById('btn-level').addEventListener('click', function () {
+    released = false;
+    // 讓動畫平滑回到水平
+  });
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    state = {
+      L: DEFAULTS.L, M: DEFAULTS.M, F: DEFAULTS.F,
+      xF: DEFAULTS.xF, xPivot: DEFAULTS.xPivot,
+      Fdir: DEFAULTS.Fdir, g: DEFAULTS.g, showWeight: DEFAULTS.showWeight
+    };
+    showSigned = false;
+    lastPreset = null;
+    released = false;
+    theta = 0;
+    omega = 0;
+    syncSlidersFromState();
+    updatePanel();
+  });
+
+  var lastTs = 0;
+  function tick(ts) {
+    if (!lastTs) lastTs = ts;
+    var dt = Math.min(0.04, (ts - lastTs) / 1000);
+    lastTs = ts;
+    var result = analyze(state);
+    var target = released ? targetTheta(result) : 0;
+    // 臨界阻尼附近的彈簧，傾側後停在有限角度，或返回水平
+    var k = 36;
+    var damp = 8.5;
+    var acc = -k * (theta - target) - damp * omega;
+    omega += acc * dt;
+    theta += omega * dt;
+    if (Math.abs(theta) > THETA_MAX + 0.08) {
+      theta = Math.sign(theta) * (THETA_MAX + 0.08);
+      omega = 0;
+    }
+    if (!released && Math.abs(theta) < 1e-4 && Math.abs(omega) < 1e-4) {
+      theta = 0; omega = 0;
+    }
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', function () { resize(); });
+
+  // 供測試／教師在控制台檢視
+  window.__momentDirection = {
+    version: 'v1',
+    analyze: analyze,
+    momentOfForce: momentOfForce,
+    presetParams: presetParams,
+    getState: function () { return Object.assign({}, state, { theta: theta, released: released, showSigned: showSigned, lastPreset: lastPreset }); },
+    setState: function (s) { Object.assign(state, s); syncSlidersFromState(); updatePanel(); },
+    applyPreset: applyPreset,
+    DEFAULTS: DEFAULTS,
+    EQUILIBRIUM_TOL: EQUILIBRIUM_TOL
+  };
+
+  resize();
+  syncSlidersFromState();
+  updatePanel();
+  requestAnimationFrame(tick);
+})();
+  </script>
+</body>
+</html>
