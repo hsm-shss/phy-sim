@@ -169,8 +169,12 @@
 
             return (
                 <div 
-                    className={containerClass}
-                    onClick={() => onScore(teamId)}
+                    className={`${containerClass}${mode === MODES.NATIONAL && !isAttacker ? ' cursor-not-allowed' : ' cursor-pointer'}`}
+                    onClick={() => {
+                        // 全國賽：防守方面板點擊不計分，避免誤觸
+                        if (mode === MODES.NATIONAL && !isAttacker) return;
+                        onScore(teamId);
+                    }}
                 >
                     {goalMessage === teamId && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10 animate-pulse pointer-events-none">
@@ -271,6 +275,8 @@
 
             const handleScore = useCallback((teamId) => {
                 if (goalMessage) return;
+                // 全國賽只有進攻方可以得分，防守方點擊無效（扣分按鈕仍可用）
+                if (mode === MODES.NATIONAL && teamId !== attacker) return;
 
                 if (teamId === 'team1') setScore1(prev => prev + 1);
                 if (teamId === 'team2') setScore2(prev => prev + 1);
@@ -287,7 +293,7 @@
                     setMaxTurnTime(NATIONAL_CONFIG.TURN_TIME);
                     setResetTimerTrigger(prev => prev + 1);
                 }
-            }, [mode, isPlaying, soundEnabled, goalMessage]);
+            }, [mode, isPlaying, soundEnabled, goalMessage, attacker]);
 
             useEffect(() => {
                 if (isPlaying) {
